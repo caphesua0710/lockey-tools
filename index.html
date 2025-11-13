@@ -26,7 +26,7 @@
   };
 </script>
 
-<<style>
+<style>
   :root{
     --green:#22c55e;
     --green-600:#16a34a;
@@ -72,21 +72,20 @@
 
   .app{
     width:100%;
-    max-width:430px;       /* mobile */
+    max-width:430px;
     padding:16px 12px 24px;
   }
 
-  /* Responsive: tablet & desktop co giãn khung chính */
-  @media (min-width:768px){
+  /* Desktop: nở rộng hơn cho màn to (PC, 27") */
+  @media (min-width: 768px){
     .app{
-      max-width:720px;
-      padding:24px 20px 32px;
+      max-width:900px;
+      padding:20px 24px 32px;
     }
   }
-  @media (min-width:1024px){
+  @media (min-width: 1200px){
     .app{
-      max-width:1020px;
-      padding:28px 24px 40px;
+      max-width:1100px;
     }
   }
 
@@ -236,19 +235,17 @@
     color:#bbf7d0;
   }
 
-  .panel{display:block;}
+  /* Panel: mobile = 1 cột, desktop = 2 cột (input | output) */
+  .panel{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
   .panel[hidden]{display:none;}
-
-  /* Responsive: panel chia 2 cột trên màn hình rộng (tablet ngang, PC) */
-  @media (min-width:900px){
-    .panel:not([hidden]){
-      display:grid;
-      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
-      gap:12px;
+  @media (min-width: 900px){
+    .panel{
+      grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
       align-items:flex-start;
-    }
-    .panel:not([hidden]) .card{
-      margin-bottom:0;
     }
   }
 
@@ -258,7 +255,7 @@
     border-radius:var(--radius);
     border:1px solid var(--line);
     box-shadow:var(--shadow);
-    margin-bottom:10px;
+    margin-bottom:0;
     overflow:hidden;
   }
   .card-head{
@@ -319,6 +316,13 @@
     resize:vertical;
     line-height:1.45;
   }
+  /* Desktop: text area cao hơn chút cho dễ nhìn */
+  @media (min-width: 900px){
+    textarea{
+      min-height:230px;
+    }
+  }
+
   .mono{
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
@@ -411,25 +415,11 @@
     flex-direction:column;
     overflow:hidden;
   }
-
-  /* Responsive: popup lịch sử to hơn trên tablet / PC */
   @media (min-width:768px){
-    .history-overlay{
-      align-items:center;
-      padding:20px 16px;
-    }
     .history-sheet{
-      max-width:720px;
-      max-height:calc(100vh - 80px);
-      border-radius:20px;
+      max-width:600px;
     }
   }
-  @media (min-width:1024px){
-    .history-sheet{
-      max-width:960px;
-    }
-  }
-
   .history-header{
     padding:8px 10px 4px;
     border-bottom:1px solid var(--line);
@@ -664,7 +654,6 @@
     font-size:11px;
   }
 </style>
-
 </head>
 <body data-theme="light">
 <div class="app">
