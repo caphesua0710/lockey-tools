@@ -6,6 +6,9 @@
   <title>TK Suite — Mail & Account Tools</title>
 
  <link rel="icon" type="image/png" href="logo.png" />
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -1485,33 +1488,45 @@
   const cloudStatusEl = $('#cloudStatus');
 
   async function initFirebase(){
-  try{
-    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: đang kết nối…';
+    try{
+      // ✅ Hiển thị OK ngay khi bắt đầu khởi tạo (cho cảm giác nhanh)
+      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (đang khởi tạo…)';
 
-    // Khởi tạo Firebase
-    firebase.initializeApp(firebaseConfig);
+      // Khởi tạo Firebase
+      firebase.initializeApp(firebaseConfig);
 
-    // ⚡ FIX cho tab ẩn danh / môi trường bị chặn IndexedDB
-    db = firebase.firestore();
-    db.settings({
-      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-      experimentalForceLongPolling: true  // ép dùng long-polling, tránh lỗi Incognito
-    });
+      // ⚡ FIX cho tab ẩn danh / môi trường bị chặn IndexedDB
+      db = firebase.firestore();
+      db.settings({
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+        experimentalForceLongPolling: true  // ép dùng long-polling, tránh lỗi Incognito
+      });
 
-    // Đăng nhập ẩn danh
-    await firebase.auth().signInAnonymously();
-    firebaseReady = true;
-    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
-  }catch(e){
-    console.warn('Firebase init failed', e);
-    firebaseReady = false;
-    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+      // Đăng nhập ẩn danh CHẠY NỀN, không chặn UI
+      firebase.auth().signInAnonymously()
+        .then(()=>{
+          firebaseReady = true;
+          if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+        })
+        .catch(e=>{
+          console.warn('Firebase auth failed', e);
+          firebaseReady = false;
+          if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth';
 
-    if (e.code === 'auth/unauthorized-domain') {
-      showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
+          if (e.code === 'auth/unauthorized-domain') {
+            showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
+          } else {
+            showToast('Lỗi đăng nhập Firebase');
+          }
+        });
+
+    }catch(e){
+      console.warn('Firebase init failed', e);
+      firebaseReady = false;
+      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+      showToast('Lỗi khởi tạo Firebase');
     }
   }
-}
 
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
