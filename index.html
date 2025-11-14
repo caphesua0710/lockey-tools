@@ -1485,25 +1485,33 @@
   const cloudStatusEl = $('#cloudStatus');
 
   async function initFirebase(){
-    try{
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: đang kết nối…';
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      await firebase.auth().signInAnonymously();
-      firebaseReady = true;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
-    }catch(e){
-      console.warn('Firebase init failed', e);
-      firebaseReady = false;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
-      /* ⭐️ QUAN TRỌNG: Báo lỗi nếu Firebase fail vì thiếu domain
-         Đây là cách duy nhất để báo cho user biết họ cần làm gì
-      */
-      if (e.code === 'auth/unauthorized-domain') {
-        showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
-      }
+  try{
+    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: đang kết nối…';
+
+    // Khởi tạo Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // ⚡ FIX cho tab ẩn danh / môi trường bị chặn IndexedDB
+    db = firebase.firestore();
+    db.settings({
+      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+      experimentalForceLongPolling: true  // ép dùng long-polling, tránh lỗi Incognito
+    });
+
+    // Đăng nhập ẩn danh
+    await firebase.auth().signInAnonymously();
+    firebaseReady = true;
+    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+  }catch(e){
+    console.warn('Firebase init failed', e);
+    firebaseReady = false;
+    if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+
+    if (e.code === 'auth/unauthorized-domain') {
+      showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
     }
   }
+}
 
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
