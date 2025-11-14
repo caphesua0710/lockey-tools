@@ -1483,47 +1483,53 @@
   }
 
   /* FIREBASE / CLOUD */
-  /* FIREBASE / CLOUD */
+/* FIREBASE / CLOUD */
 let db = null;
 let firebaseReady = false;
 const cloudStatusEl = $('#cloudStatus');
 
-async function initFirebase(){
-  try{
-    // Cho biết đang khởi tạo (nếu anh muốn giữ)
-    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (đang khởi tạo…)';
+function setCloudStatus(text) {
+  if (!cloudStatusEl) return;
+  // Giữ lại chấm tròn cloud-dot
+  cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
+}
 
-    // 1) Khởi tạo app
+async function initFirebase() {
+  try {
+    // 1) Vừa vào là báo đang khởi tạo luôn (cho cảm giác nhanh)
+    setCloudStatus('Cloud: OK (đang khởi tạo…)');
+
+    // 2) Khởi tạo Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // 2) Khởi tạo Firestore càng sớm càng tốt
+    // 3) Khởi tạo Firestore càng sớm càng tốt
     db = firebase.firestore();
     db.settings({
       cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-      experimentalForceLongPolling: true // ép long-polling, ổn định cả tab ẩn danh
+      experimentalForceLongPolling: true // ép long-polling cho tab ẩn danh / mobile
     });
 
-    // ✅ ĐÁNH DẤU ĐÃ SẴN SÀNG NGAY SAU KHI CÓ Firestore
+    // ✅ Đánh dấu đã sẵn sàng NGAY SAU KHI CÓ FIRESTORE
     firebaseReady = true;
-    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+    setCloudStatus('Cloud: OK');
 
-    // 3) Đăng nhập ẩn danh CHẠY NỀN, KHÔNG chặn firebaseReady
+    // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
     firebase.auth().signInAnonymously().catch(e => {
       console.warn('Firebase auth failed', e);
-      // Không tắt firebaseReady, vì Firestore vẫn dùng được
+      // Không tắt firebaseReady để vẫn thử sync được
       if (e.code === 'auth/unauthorized-domain') {
-        showToast('LỖI: Domain chưa được ủy quyền trong Firebase Authentication');
-        if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth (domain)';
+        showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
+        setCloudStatus('Cloud: lỗi auth (domain)');
       } else {
-        showToast('Lỗi đăng nhập Firebase (ẩn danh)');
-        if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth';
+        showToast('Lỗi đăng nhập Firebase');
+        setCloudStatus('Cloud: lỗi auth');
       }
     });
 
   } catch (e) {
     console.warn('Firebase init failed', e);
     firebaseReady = false;
-    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+    setCloudStatus('Cloud: lỗi init');
     showToast('Lỗi khởi tạo Firebase');
   }
 }
