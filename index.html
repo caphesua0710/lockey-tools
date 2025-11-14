@@ -1483,50 +1483,50 @@
   }
 
   /* FIREBASE / CLOUD */
-  let db = null;
-  let firebaseReady = false;
-  const cloudStatusEl = $('#cloudStatus');
+  /* FIREBASE / CLOUD */
+let db = null;
+let firebaseReady = false;
+const cloudStatusEl = $('#cloudStatus');
 
-  async function initFirebase(){
-    try{
-      // ✅ Hiển thị OK ngay khi bắt đầu khởi tạo (cho cảm giác nhanh)
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (đang khởi tạo…)';
+async function initFirebase(){
+  try{
+    // Cho biết đang khởi tạo (nếu anh muốn giữ)
+    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (đang khởi tạo…)';
 
-      // Khởi tạo Firebase
-      firebase.initializeApp(firebaseConfig);
+    // 1) Khởi tạo app
+    firebase.initializeApp(firebaseConfig);
 
-      // ⚡ FIX cho tab ẩn danh / môi trường bị chặn IndexedDB
-      db = firebase.firestore();
-      db.settings({
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-        experimentalForceLongPolling: true  // ép dùng long-polling, tránh lỗi Incognito
-      });
+    // 2) Khởi tạo Firestore càng sớm càng tốt
+    db = firebase.firestore();
+    db.settings({
+      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+      experimentalForceLongPolling: true // ép long-polling, ổn định cả tab ẩn danh
+    });
 
-      // Đăng nhập ẩn danh CHẠY NỀN, không chặn UI
-      firebase.auth().signInAnonymously()
-        .then(()=>{
-          firebaseReady = true;
-          if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
-        })
-        .catch(e=>{
-          console.warn('Firebase auth failed', e);
-          firebaseReady = false;
-          if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth';
+    // ✅ ĐÁNH DẤU ĐÃ SẴN SÀNG NGAY SAU KHI CÓ Firestore
+    firebaseReady = true;
+    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
 
-          if (e.code === 'auth/unauthorized-domain') {
-            showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
-          } else {
-            showToast('Lỗi đăng nhập Firebase');
-          }
-        });
+    // 3) Đăng nhập ẩn danh CHẠY NỀN, KHÔNG chặn firebaseReady
+    firebase.auth().signInAnonymously().catch(e => {
+      console.warn('Firebase auth failed', e);
+      // Không tắt firebaseReady, vì Firestore vẫn dùng được
+      if (e.code === 'auth/unauthorized-domain') {
+        showToast('LỖI: Domain chưa được ủy quyền trong Firebase Authentication');
+        if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth (domain)';
+      } else {
+        showToast('Lỗi đăng nhập Firebase (ẩn danh)');
+        if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi auth';
+      }
+    });
 
-    }catch(e){
-      console.warn('Firebase init failed', e);
-      firebaseReady = false;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
-      showToast('Lỗi khởi tạo Firebase');
-    }
+  } catch (e) {
+    console.warn('Firebase init failed', e);
+    firebaseReady = false;
+    if (cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+    showToast('Lỗi khởi tạo Firebase');
   }
+}
 
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
