@@ -1484,69 +1484,64 @@
 
   /* FIREBASE / CLOUD */
 /* FIREBASE / CLOUD */
-let db = null;
-let firebaseReady = false;
+  /* ===== FIREBASE / CLOUD (ĐÃ SỬA LỖI) ===== */
+  let db = null;
+  let firebaseReady = false;
 
-
-function setCloudStatus(text) {
-  // Lấy element MỖI KHI HÀM ĐƯỢC GỌI
-  const cloudStatusEl = $('#cloudStatus'); 
-  
-  if (!cloudStatusEl) {
-    // Nếu vẫn không tìm thấy, báo lỗi để bạn biết
-    console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
-    return;
+  // 1. SỬA HÀM NÀY: Lấy element MỖI KHI HÀM ĐƯỢC GỌI
+  function setCloudStatus(text) {
+    const cloudStatusEl = $('#cloudStatus'); // Lấy element bên trong hàm
+    
+    if (!cloudStatusEl) {
+      // Nếu không tìm thấy, báo lỗi trong console
+      console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
+      return;
+    }
+    
+    // Cập nhật HTML (vì có <span class="cloud-dot">)
+    cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
   }
-  
-  cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
-}
 
+  async function initFirebase() {
+    try {
+      // 2. Hàm này bây giờ sẽ hoạt động
+      setCloudStatus('Cloud: OK (đang khởi tạo…)');
 
-async function initFirebase() {
-  try {
-    // 1) Vừa vào là báo đang khởi tạo luôn (cho cảm giác nhanh)
-    setCloudStatus('Cloud: OK (đang khởi tạo…)');
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      db.settings({
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+        experimentalForceLongPolling: true // ép long-polling
+      });
 
-    // 2) Khởi tạo Firebase
-    firebase.initializeApp(firebaseConfig);
+      firebaseReady = true;
+      setCloudStatus('Cloud: OK'); // Sẽ hoạt động
 
-    // 3) Khởi tạo Firestore càng sớm càng tốt
-    db = firebase.firestore();
-    db.settings({
-      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-      experimentalForceLongPolling: true // ép long-polling cho tab ẩn danh / mobile
-    });
+      // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
+      firebase.auth().signInAnonymously().catch(e => {
+        console.warn('Firebase auth failed', e);
+        if (e.code === 'auth/unauthorized-domain') {
+          showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
+          setCloudStatus('Cloud: lỗi auth (domain)');
+        } else {
+          showToast('Lỗi đăng nhập Firebase');
+          setCloudStatus('Cloud: lỗi auth');
+        }
+      });
 
-    // ✅ Đánh dấu đã sẵn sàng NGAY SAU KHI CÓ FIRESTORE
-    firebaseReady = true;
-    setCloudStatus('Cloud: OK');
-
-    // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
-    firebase.auth().signInAnonymously().catch(e => {
-      console.warn('Firebase auth failed', e);
-      // Không tắt firebaseReady để vẫn thử sync được
-      if (e.code === 'auth/unauthorized-domain') {
-        showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
-        setCloudStatus('Cloud: lỗi auth (domain)');
-      } else {
-        showToast('Lỗi đăng nhập Firebase');
-        setCloudStatus('Cloud: lỗi auth');
-      }
-    });
-
-  } catch (e) {
-    console.warn('Firebase init failed', e);
-    firebaseReady = false;
-    setCloudStatus('Cloud: lỗi init');
-    showToast('Lỗi khởi tạo Firebase');
+    } catch (e) {
+      console.warn('Firebase init failed', e);
+      firebaseReady = false;
+      setCloudStatus('Cloud: lỗi init'); // Sẽ hoạt động
+      showToast('Lỗi khởi tạo Firebase');
+    }
   }
-}
 
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
   async function syncHistoryFromCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      setCloudStatus('Cloud: chưa sẵn sàng'); // 3. Sửa ở đây
       showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
@@ -1561,22 +1556,22 @@ async function initFirebase() {
         };
         saveHistoryMap(map);
         showToast('Đã tải lịch sử từ cloud');
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+        setCloudStatus('Cloud: OK'); // 3. Sửa ở đây
         renderHistoryFor(currentTab);
       }else{
         showToast('Cloud chưa có dữ liệu lịch sử');
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (trống)';
+        setCloudStatus('Cloud: OK (trống)'); // 3. Sửa ở đây
       }
     }catch(e){
       console.warn('syncHistoryFromCloud error', e);
       showToast('Lỗi đọc lịch sử từ cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc lịch sử';
+      setCloudStatus('Cloud: lỗi đọc lịch sử'); // 3. Sửa ở đây
     }
   }
 
   async function syncHistoryToCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      setCloudStatus('Cloud: chưa sẵn sàng'); // 3. Sửa ở đây
       showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
@@ -1584,15 +1579,17 @@ async function initFirebase() {
       const map = loadHistoryMap();
       await getHistoryDocRef().set(map);
       showToast('Đã đồng bộ lịch sử lên cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+      setCloudStatus('Cloud: OK'); // 3. Sửa ở đây
     }catch(e){
       console.warn('syncHistoryToCloud error', e);
       showToast('Lỗi ghi lịch sử lên cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi lịch sử';
+      setCloudStatus('Cloud: lỗi ghi lịch sử'); // 3. Sửa ở đây
     }
   }
 
   initFirebase();
+  /* ===== KẾT THÚC PHẦN SỬA LỖI ===== */
+
 
   /* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
   const cl_inputArea = $('#cl_inputArea');
