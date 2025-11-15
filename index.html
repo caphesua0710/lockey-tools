@@ -1486,13 +1486,21 @@
 /* FIREBASE / CLOUD */
 let db = null;
 let firebaseReady = false;
-const cloudStatusEl = $('#cloudStatus');
+
 
 function setCloudStatus(text) {
-  if (!cloudStatusEl) return;
-  // Giữ lại chấm tròn cloud-dot
+  // Lấy element MỖI KHI HÀM ĐƯỢC GỌI
+  const cloudStatusEl = $('#cloudStatus'); 
+  
+  if (!cloudStatusEl) {
+    // Nếu vẫn không tìm thấy, báo lỗi để bạn biết
+    console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
+    return;
+  }
+  
   cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
 }
+
 
 async function initFirebase() {
   try {
