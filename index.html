@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TK Suite — Mail & Account Tools</title>
 
-  <link rel="icon" type="image/png" href="logo.png" />
-  <link rel="preconnect" href="https://www.googleapis.com">
-  <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+ <link rel="icon" type="image/png" href="logo.png" />
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -297,11 +297,13 @@
       justify-content:space-between;
       margin-bottom:14px;
     }
-    .topbar-left{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+   .topbar-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  flex:1;              /* ⭐ Cho bên trái chiếm phần còn lại */
+}
     .logo-box{
       width:36px;
       height:36px;
@@ -338,13 +340,14 @@
       color:var(--muted);
     }
 
-    .topbar-actions{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+ .topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;    /* ⭐ Không cho tự xuống hàng nữa */
+  justify-content:flex-end;
+  flex-shrink:0;       /* ⭐ Không bị ép nhỏ quá */
+}
 
     .icon-btn{
       width:34px;
@@ -1061,21 +1064,14 @@
           <input type="number" id="acc_days" placeholder="VD: 30">
         </div>
         <div class="field">
-          <div class="label"><span>Ngày hết hạn (tự tính)</span></div>
-          <input type="date" id="acc_expire">
-        </div>
-        <div class="field">
-          <div class="label"><span>Ghi chú</span></div>
-          <textarea id="acc_note" placeholder="Ghi chú thêm..."></textarea>
-        </div>
-        <div class="field">
           <div class="label"><span>Người dùng & thiết bị (tối đa 3)</span></div>
-          <div class="acc-users" id="acc_users"></div>
-          <button type="button" class="btn ghost small" id="btnAddUser">+ Thêm người dùng</button>
+          <div id="acc_usersContainer"></div>
+          <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
         </div>
+
         <div class="acc-form-actions">
-          <button type="button" class="btn full" id="btnSaveAccount">Lưu tài khoản</button>
-          <button type="button" class="btn ghost full" id="btnResetForm">Xoá form</button>
+          <button class="btn full" id="acc_saveBtn">Lưu tài khoản</button>
+          <button class="btn ghost full" id="acc_clearFormBtn">Xoá form</button>
         </div>
       </div>
     </div>
@@ -1083,10 +1079,9 @@
     <div class="card">
       <div class="card-head">
         <h3>Danh sách tài khoản</h3>
-        <span class="badge" id="accSummary">0 tài khoản</span>
       </div>
-      <div class="card-body">
-        <div id="accList" class="acc-list-empty">Chưa có tài khoản nào.</div>
+      <div class="card-body" id="acc_list">
+        <div class="acc-list-empty">Chưa có tài khoản nào.</div>
       </div>
     </div>
   </section>
@@ -1095,31 +1090,82 @@
     <div class="card">
       <div class="card-head">
         <h3>Mail Cleaner</h3>
+        <span class="badge">Xử lý mail hàng loạt</span>
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label"><span>Nhập mail</span></div>
-          <textarea id="cl_inputArea" class="mono" placeholder="Dán danh sách mail vào đây..."></textarea>
+          <div class="label">
+            <span class="label-title">Nhập mail</span>
+            <label class="checkbox-inline">
+              <input id="cl_keepOrder" type="checkbox" />
+              <span>Giữ thứ tự</span>
+            </label>
+          </div>
+          <textarea id="cl_inputArea" class="mono" placeholder="Dán danh sách mail / combo vào đây..."></textarea>
         </div>
+
         <div class="field">
-          <div class="label"><span>Tùy chọn</span></div>
+          <div class="label"><span>Tuỳ chọn lọc</span></div>
           <div class="pill-row pill-column">
             <label class="pill-radio">
-              <input type="radio" name="clMode" value="mail_only" checked>
+              <input type="radio" name="cl_mode" value="emailOnly" checked />
               <div class="pill-main">
-                <strong>Chỉ mail</strong>
-                <span>Xoá pass, 2FA, dữ liệu thừa</span>
+                <strong>Chỉ email</strong>
+                <span>Lấy phần trước dấu |</span>
               </div>
             </label>
             <label class="pill-radio">
-              <input type="radio" name="clMode" value="mail_pass">
+              <input type="radio" name="cl_mode" value="emailPass" />
               <div class="pill-main">
-                <strong>Mail | Pass</strong>
-                <span>Giữ mail và pass</span>
+                <strong>Email | Pass</strong>
+                <span>Giữ nguyên mail|pass, bỏ phần thừa</span>
               </div>
             </label>
           </div>
         </div>
+
+        <div class="field">
+          <div class="label"><span>Bỏ trùng & xử lý ký tự</span></div>
+          <div class="pill-row pill-column">
+            <label class="checkbox-inline">
+              <input id="cl_removeDuplicates" type="checkbox" checked />
+              <span>Bỏ email trùng</span>
+            </label>
+            <label class="checkbox-inline">
+              <input id="cl_trimSpaces" type="checkbox" checked />
+              <span>Xoá khoảng trắng thừa</span>
+            </label>
+            <label class="checkbox-inline">
+              <input id="cl_removeEmpty" type="checkbox" checked />
+              <span>Xoá dòng rỗng</span>
+            </label>
+            <label class="checkbox-inline">
+              <input id="cl_treatEscapedNewlines" type="checkbox" />
+              <span>\\n → xuống dòng</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label"><span>Kiểu xuất</span></div>
+          <div class="pill-row">
+            <label class="pill-radio">
+              <input type="radio" name="cl_outMode" value="email" checked />
+              <div class="pill-main">
+                <strong>Chỉ email</strong>
+                <span class="mono" style="font-size:10px;">mail@example.com</span>
+              </div>
+            </label>
+            <label class="pill-radio">
+              <input type="radio" name="cl_outMode" value="emailPass" />
+              <div class="pill-main">
+                <strong>Email | Pass</strong>
+                <span class="mono" style="font-size:10px;">mail@example.com|pass</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="row">
           <button class="btn small" id="cl_btnProcess">Process</button>
           <button class="btn ghost small" id="cl_btnClear">Xoá input</button>
@@ -1128,10 +1174,13 @@
     </div>
 
     <div class="card">
-      <div class="card-head result-head result-head-main">
-        <div class="result-head-main-left">
-          <h3>Kết quả</h3>
-          <span class="badge" id="cl_resultStats">0 dòng → 0 out</span>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+            <span class="badge" id="cl_statLines">0 dòng</span>
+            <span class="badge" id="cl_statValid">0 hợp lệ</span>
+          </div>
         </div>
         <div class="result-head-actions">
           <button class="btn ghost small" id="cl_btnSelectAll">Chọn tất cả</button>
@@ -1150,31 +1199,34 @@
     <div class="card">
       <div class="card-head">
         <h3>Scan mail</h3>
+        <span class="badge">Định dạng mail|xincamon</span>
       </div>
       <div class="card-body">
         <div class="field">
           <div class="label"><span>Nhập mail</span></div>
-          <textarea id="sc_inputArea" class="mono" placeholder="Dán danh sách mail vào đây..."></textarea>
+          <textarea id="sc_inputArea" class="mono" placeholder="Dán danh sách mail..."></textarea>
         </div>
+
         <div class="field">
-          <div class="label"><span>Định dạng xuất</span></div>
+          <div class="label"><span>Kiểu xuất</span></div>
           <div class="pill-row pill-column">
             <label class="pill-radio">
               <input type="radio" name="scMode" value="mail_scan" checked>
               <div class="pill-main">
-                <strong>mail|scan</strong>
+                <strong>mail|xincamon</strong>
                 <span>Định dạng: mail|xincamon</span>
               </div>
             </label>
             <label class="pill-radio">
               <input type="radio" name="scMode" value="scan_mail">
               <div class="pill-main">
-                <strong>scan|mail</strong>
+                <strong>xincamon|mail</strong>
                 <span>Định dạng: xincamon|mail</span>
               </div>
             </label>
           </div>
         </div>
+
         <div class="row">
           <button class="btn small" id="sc_btnProcess">Process</button>
           <button class="btn ghost small" id="sc_btnClear">Xoá input</button>
@@ -1183,10 +1235,12 @@
     </div>
 
     <div class="card">
-      <div class="card-head result-head result-head-main">
-        <div class="result-head-main-left">
-          <h3>Kết quả</h3>
-          <span class="badge" id="sc_resultStats">0 dòng → 0 out</span>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+            <span class="badge" id="sc_resultStats">0 dòng → 0 out</span>
+          </div>
         </div>
         <div class="result-head-actions">
           <button class="btn ghost small" id="sc_btnSelectAll">Chọn tất cả</button>
@@ -1205,16 +1259,22 @@
     <div class="card">
       <div class="card-head">
         <h3>Thêm link nhập key</h3>
+        <span class="badge">Key → Link nhập key</span>
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label"><span>Định dạng link nhập key</span></div>
+          <div class="label">
+            <span class="label-title">Link nhập key</span>
+            <span style="font-size:11px;color:var(--muted);">Được lưu local, tự nhớ lại</span>
+          </div>
           <input type="text" id="lk_linkTemplate" placeholder="VD: https://nhapkey.click">
         </div>
+
         <div class="field">
-          <div class="label"><span>Nhập key (mỗi dòng 1 key)</span></div>
-          <textarea id="lk_rawInput" class="mono" placeholder="Dán danh sách key vào đây..."></textarea>
+          <div class="label"><span>Danh sách key</span></div>
+          <textarea id="lk_rawInput" class="mono" placeholder="Mỗi dòng 1 key..."></textarea>
         </div>
+
         <div class="row">
           <button class="btn small" id="lk_btnProcess">Process</button>
           <button class="btn ghost small" id="lk_btnClear">Xoá input</button>
@@ -1223,10 +1283,12 @@
     </div>
 
     <div class="card">
-      <div class="card-head result-head result-head-main">
-        <div class="result-head-main-left">
-          <h3>Kết quả</h3>
-          <span class="badge" id="lk_resultStats">0 dòng → 0 out</span>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+            <span class="badge" id="lk_resultStats">0 dòng → 0 out</span>
+          </div>
         </div>
         <div class="result-head-actions">
           <button class="btn ghost small" id="lk_btnSelectAll">Chọn tất cả</button>
@@ -1313,25 +1375,30 @@
   let currentTab = 'accounts';
 
   function setActiveTab(tab){
-    currentTab = tab;
-    const map = {
-      accounts:{tab:elsTabs.tabAccounts,panel:elsTabs.panelAccounts},
-      cleaner:{tab:elsTabs.tabCleaner,panel:elsTabs.panelCleaner},
-      scan:{tab:elsTabs.tabScan,panel:elsTabs.panelScan},
-      key:{tab:elsTabs.tabKey,panel:elsTabs.panelKey}
-    };
-    Object.keys(map).forEach(k=>{
-      const {tab:t,panel:p} = map[k];
-      if(!t || !p) return;
-      if(k===tab){
-        t.setAttribute('aria-selected','true');
-        p.hidden = false;
-      }else{
-        t.setAttribute('aria-selected','false');
-        p.hidden = true;
-      }
-    });
-  }
+  currentTab = tab;
+  // ⭐ Lưu lại tab hiện tại vào localStorage
+  try {
+    localStorage.setItem(LS_TAB, tab);
+  } catch (e) {}
+
+  const map = {
+    accounts:{tab:elsTabs.tabAccounts,panel:elsTabs.panelAccounts},
+    cleaner:{tab:elsTabs.tabCleaner,panel:elsTabs.panelCleaner},
+    scan:{tab:elsTabs.tabScan,panel:elsTabs.panelScan},
+    key:{tab:elsTabs.tabKey,panel:elsTabs.panelKey}
+  };
+  Object.keys(map).forEach(k=>{
+    const {tab:t,panel:p} = map[k];
+    if(!t || !p) return;
+    if(k===tab){
+      t.setAttribute('aria-selected','true');
+      p.hidden = false;
+    }else{
+      t.setAttribute('aria-selected','false');
+      p.hidden = true;
+    }
+  });
+}
 
   if(elsTabs.tabAccounts){
     elsTabs.tabAccounts.addEventListener('click', ()=>setActiveTab('accounts'));
@@ -1348,7 +1415,8 @@
 
   /* LOCAL STORAGE KEYS */
   const LS_HISTORY = 'multiToolHistory_v3';
-  const LS_LINK = 'nk_link_v2';
+const LS_LINK = 'nk_link_v2';
+const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
 
   function loadHistoryMap(){
     try{
@@ -1447,9 +1515,11 @@
     }
   }
 
+  
+
   initFirebase();
 
-  /* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
+/* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
   const cl_inputArea = $('#cl_inputArea');
   const sc_inputArea = $('#sc_inputArea');
   const lk_rawInput = $('#lk_rawInput');
@@ -1610,187 +1680,85 @@
     }
   }
 
-  /* ACCOUNT LOGIC (local only, không cloud) */
-  const accUsersEl = $('#acc_users');
-  const accListEl = $('#accList');
-  const accSummaryEl = $('#accSummary');
-  const btnAddUser = $('#btnAddUser');
-  const btnSaveAccount = $('#btnSaveAccount');
-  const btnResetForm = $('#btnResetForm');
-
-  const LS_ACCOUNTS = 'tk_accounts_v2';
-  let accData = [];
-
-  function loadAccounts(){
-    try{
-      const raw = localStorage.getItem(LS_ACCOUNTS);
-      if(!raw) return [];
-      return JSON.parse(raw);
-    }catch(e){
-      return [];
+  /* ===== CLEANER LOGIC ===== */
+  function normalizeNewlines(text){
+    if($('#cl_treatEscapedNewlines')?.checked){
+      return text.replace(/\\n/g, '\n');
     }
-  }
-  function saveAccounts(){
-    try{
-      localStorage.setItem(LS_ACCOUNTS, JSON.stringify(accData));
-    }catch(e){}
+    return text;
   }
 
-  function resetAccUsers(){
-    if(!accUsersEl) return;
-    accUsersEl.innerHTML = '';
-    addUserRow();
-  }
-
-  function addUserRow(value=''){
-    if(!accUsersEl) return;
-    const idx = accUsersEl.children.length + 1;
-    const div = document.createElement('div');
-    div.className = 'acc-user-row';
-    div.innerHTML = `
-      <div class="acc-user-row-title">Người dùng / Thiết bị ${idx}</div>
-      <input type="text" class="acc-user-input" placeholder="VD: User A - iPhone 11" value="${value}">
-    `;
-    accUsersEl.appendChild(div);
-  }
-
-  function readForm(){
-    const account = $('#acc_account').value.trim();
-    const days = parseInt($('#acc_days').value.trim() || '0',10);
-    const expireDate = $('#acc_expire').value || '';
-    const note = $('#acc_note').value.trim();
-    const userInputs = $$('.acc-user-input').map(i=>i.value.trim()).filter(x=>x);
-    if(!account || !days){
-      showToast('Điền đầy đủ tài khoản và số ngày');
-      return null;
-    }
-    return {
-      id: 'acc_'+Date.now(),
-      account,
-      days,
-      expireDate,
-      note,
-      users:userInputs,
-      createdAt: Date.now()
-    };
-  }
-
-  function renderAccounts(){
-    if(!accListEl) return;
-    if(!accData.length){
-      accListEl.classList.add('acc-list-empty');
-      accListEl.innerHTML = 'Chưa có tài khoản nào.';
-      if(accSummaryEl) accSummaryEl.textContent = '0 tài khoản';
-      return;
-    }
-    accListEl.classList.remove('acc-list-empty');
-    if(accSummaryEl) accSummaryEl.textContent = accData.length+' tài khoản';
-
-    accListEl.innerHTML = '';
-    accData.forEach((acc, index)=>{
-      const div = document.createElement('div');
-      div.className = 'acc-item';
-      const users = (acc.users||[]).join(', ');
-      div.innerHTML = `
-        <button class="acc-head-btn">
-          <div>
-            <div class="acc-title">${acc.account}</div>
-            <div class="acc-sub">Còn ${acc.days} ngày • ${users || 'Chưa có người dùng'}</div>
-          </div>
-          <div class="acc-badges">
-            <span class="acc-badge">#${index+1}</span>
-          </div>
-        </button>
-        <div class="acc-body">
-          <div class="acc-body-grid">
-            <div class="field">
-              <div class="label"><span>Ghi chú</span></div>
-              <textarea readonly>${acc.note || ''}</textarea>
-            </div>
-          </div>
-          <div class="acc-body-actions">
-            <button class="btn ghost small" data-act="delete">Xoá</button>
-          </div>
-        </div>
-      `;
-      const btn = div.querySelector('.acc-head-btn');
-      const body = div.querySelector('.acc-body');
-      btn.addEventListener('click', ()=>{
-        body.style.display = body.style.display === 'block' ? 'none' : 'block';
-      });
-      const btnDel = div.querySelector('[data-act="delete"]');
-      btnDel.addEventListener('click', (ev)=>{
-        ev.stopPropagation();
-        accData.splice(index,1);
-        saveAccounts();
-        renderAccounts();
-        showToast('Đã xoá tài khoản');
-      });
-
-      accListEl.appendChild(div);
-    });
-  }
-
-  function resetForm(){
-    $('#acc_account').value = '';
-    $('#acc_days').value = '';
-    $('#acc_expire').value = '';
-    $('#acc_note').value = '';
-    resetAccUsers();
-  }
-
-  if(btnAddUser){
-    btnAddUser.addEventListener('click', ()=>{
-      if(accUsersEl && accUsersEl.children.length >=3){
-        showToast('Tối đa 3 người dùng / thiết bị');
-        return;
-      }
-      addUserRow();
-    });
-  }
-
-  if(btnSaveAccount){
-    btnSaveAccount.addEventListener('click', ()=>{
-      const data = readForm();
-      if(!data) return;
-      accData.unshift(data);
-      saveAccounts();
-      addHistory('accounts',{
-        title:`Tài khoản: ${data.account}`,
-        input:`${data.account}`,
-        output:`Số ngày: ${data.days}`
-      });
-      renderAccounts();
-      showToast('Đã lưu tài khoản');
-    });
-  }
-
-  if(btnResetForm){
-    btnResetForm.addEventListener('click', resetForm);
-  }
-
-  /* CLEANER LOGIC */
   function processCleaner(){
-    const input = $('#cl_inputArea').value.trim();
+    let input = $('#cl_inputArea').value || '';
+    input = normalizeNewlines(input).trim();
     if(!input){
       showToast('Chưa có dữ liệu');
       return;
     }
-    const mode = (document.querySelector('input[name="clMode"]:checked')||{}).value || 'mail_only';
-    const lines = input.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-    const out = lines.map(l=>{
-      const parts = l.split('|');
-      const mail = parts[0] || '';
-      const pass = parts[1] || '';
-      if(mode === 'mail_only') return mail;
-      return mail+'|'+pass;
+    const keepOrder = $('#cl_keepOrder')?.checked;
+    const removeDup = $('#cl_removeDuplicates')?.checked;
+    const trimSpaces = $('#cl_trimSpaces')?.checked;
+    const removeEmpty = $('#cl_removeEmpty')?.checked;
+    const outMode = (document.querySelector('input[name="cl_outMode"]:checked')||{}).value || 'email';
+
+    const rawLines = input.split(/\r?\n/);
+    let pairs = rawLines
+      .map(l=>l.trim())
+      .filter(l=>l)
+      .map(l=>{
+        const parts = l.split('|');
+        return {email: parts[0] || '', pass: parts[1] || ''};
+      })
+      .filter(x=>x.email);
+
+    const total = pairs.length;
+
+    if(trimSpaces){
+      pairs = pairs.map(p=>({
+        email: p.email.trim(),
+        pass: p.pass.trim()
+      }));
+    }
+
+    let validMap = new Map();
+    let orderedList = [];
+    pairs.forEach(p=>{
+      const key = p.email.toLowerCase();
+      if(!removeDup){
+        orderedList.push(p);
+      }else{
+        if(!validMap.has(key)){
+          validMap.set(key,p);
+          orderedList.push(p);
+        }
+      }
     });
-    $('#cl_outputArea').value = out.join('\n');
-    $('#cl_resultStats').textContent = `${lines.length} dòng → ${out.length} out`;
+
+    if(removeEmpty){
+      orderedList = orderedList.filter(p=>p.email);
+    }
+
+    if(!keepOrder && removeDup){
+      orderedList = Array.from(validMap.values());
+    }
+
+    const validCount = orderedList.length;
+    let output = orderedList.map(p=>{
+      if(outMode === 'emailPass'){
+        return `${p.email}|${p.pass}`;
+      }
+      return p.email;
+    }).join('\n');
+
+    $('#cl_outputArea').value = output;
+    $('#cl_statLines').textContent = `${total} dòng`;
+    $('#cl_statValid').textContent = `${validCount} hợp lệ`;
+
     addHistory('cleaner',{
       title:'Mail Cleaner',
       input,
-      output: out.join('\n')
+      output,
+      meta:`${total} dòng • ${validCount} hợp lệ`
     });
   }
 
@@ -1801,13 +1769,15 @@
     $('#cl_btnClear').addEventListener('click', ()=>{
       $('#cl_inputArea').value='';
       $('#cl_outputArea').value='';
-      $('#cl_resultStats').textContent='0 dòng → 0 out';
+      $('#cl_statLines').textContent='0 dòng';
+      $('#cl_statValid').textContent='0 hợp lệ';
     });
   }
   if($('#cl_btnSelectAll')){
     $('#cl_btnSelectAll').addEventListener('click', ()=>{
-      $('#cl_outputArea').focus();
-      $('#cl_outputArea').select();
+      const ta = $('#cl_outputArea');
+      ta.focus();
+      ta.select();
     });
   }
   if($('#cl_btnCopy')){
@@ -1827,19 +1797,23 @@
   }
   if($('#cl_btnSaveHistory')){
     $('#cl_btnSaveHistory').addEventListener('click', ()=>{
-      if(!$('#cl_outputArea').value.trim()){
+      const out = $('#cl_outputArea').value.trim();
+      if(!out){
         showToast('Chưa có kết quả để lưu');
         return;
       }
+      const input = $('#cl_inputArea').value;
+      const meta = `${$('#cl_statLines').textContent} • ${$('#cl_statValid').textContent}`;
       addHistory('cleaner',{
         title:'Mail Cleaner (nhấn lưu)',
-        input:$('#cl_inputArea').value,
-        output:$('#cl_outputArea').value
+        input,
+        output:out,
+        meta
       });
     });
   }
 
-  /* SCAN LOGIC */
+  /* ===== SCAN LOGIC ===== */
   function processScan(){
     const input = $('#sc_inputArea').value.trim();
     if(!input){
@@ -1907,7 +1881,7 @@
     });
   }
 
-  /* LINK / KEY LOGIC */
+  /* ===== LINK / KEY LOGIC ===== */
   (function initLink(){
     const saved = localStorage.getItem(LS_LINK);
     if(saved){
@@ -1980,20 +1954,421 @@
         showToast('Chưa có kết quả để lưu');
         return;
       }
+      const input = $('#lk_rawInput').value;
+      const output = $('#lk_outputArea').value;
+      const lk_statLines = $('#lk_resultStats');
+      const lk_statValid = null;
+      const meta = `${lk_statLines ? lk_statLines.textContent : ''} • ${lk_statValid ? lk_statValid.textContent : ''}`;
       addHistory('key',{
-        title:'Add Link (nhấn lưu)',
-        input:$('#lk_rawInput').value,
-        output:$('#lk_outputArea').value
+        title:'Add Link Nhập Key',
+        input,
+        output,
+        meta
       });
     });
   }
 
-  /* INIT */
-  (function init(){
+  /* ACCOUNT MANAGER */
+  const ACC_KEY = 'tk_accounts_v1';
+  let accData = [];
+
+  const ACC_COLLECTION = 'tk_manager';
+
+  async function fetchAccountsFromCloud(){
+    if(!firebaseReady || !db) return null;
+    try{
+      const snap = await db.collection(ACC_COLLECTION).get();
+      const arr = [];
+      snap.forEach(doc => arr.push(doc.data()));
+      return arr;
+    }catch(e){
+      console.warn('fetchAccountsFromCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc tài khoản';
+      return null;
+    }
+  }
+
+  async function upsertAccountCloud(accObj){
+    if(!firebaseReady || !db || !accObj || !accObj.id) return;
+    try{
+      await db.collection(ACC_COLLECTION).doc(accObj.id).set(accObj);
+    }catch(e){
+      console.warn('upsertAccountCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi tài khoản';
+    }
+  }
+
+  async function deleteAccountCloud(accId){
+    if(!firebaseReady || !db || !accId) return;
+    try{
+      await db.collection(ACC_COLLECTION).doc(accId).delete();
+    }catch(e){
+      console.warn('deleteAccountCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi xoá tài khoản';
+    }
+  }
+
+  async function initAccountsFromCloud(){
+    let cloudAcc = null;
+    if(firebaseReady && db){
+      cloudAcc = await fetchAccountsFromCloud();
+    }
+    if(cloudAcc && cloudAcc.length){
+      accData = cloudAcc;
+      saveAccounts();
+    }else{
+      accData = loadAccounts();
+    }
+    renderAccountList();
+  }
+
+  const acc_account = $('#acc_account');
+  const acc_days = $('#acc_days');
+  const acc_usersContainer = $('#acc_usersContainer');
+  const acc_addUserBtn = $('#acc_addUserBtn');
+  const acc_saveBtn = $('#acc_saveBtn');
+  const acc_clearFormBtn = $('#acc_clearFormBtn');
+  const acc_list = $('#acc_list');
+
+  function loadAccounts(){
+    try{
+      const raw = localStorage.getItem(ACC_KEY);
+      if(!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){
+      return [];
+    }
+  }
+  function saveAccounts(){
+    localStorage.setItem(ACC_KEY, JSON.stringify(accData));
+  }
+
+  function newUserRow(user = {}){
+    const wrap = document.createElement('div');
+    wrap.className = 'acc-user-row';
+    wrap.innerHTML = `
+      <div class="acc-user-row-title">Người dùng</div>
+      <div class="field" style="margin-bottom:4px;">
+        <div class="label"><span>Tên người dùng</span></div>
+        <input type="text" class="acc-user-name" placeholder="VD: User 1" value="${user.name || ''}" />
+      </div>
+      <div class="field" style="margin-bottom:4px;">
+        <div class="label"><span>Thiết bị / mô tả</span></div>
+        <input type="text" class="acc-user-device" placeholder="VD: iPhone 11 / PC" value="${user.device || ''}" />
+      </div>
+      <div class="field">
+        <div class="label"><span>Link người dùng</span></div>
+        <input type="text" class="acc-user-link" placeholder="VD: https://..." value="${user.link || ''}" />
+      </div>
+    `;
+    return wrap;
+  }
+
+  function addUserRowToForm(user = {}){
+    if(!acc_usersContainer) return;
+    acc_usersContainer.appendChild(newUserRow(user));
+  }
+
+  function collectFormUsers(container){
+    const root = container || acc_usersContainer;
+    if(!root) return [];
+    const rows = Array.from(root.querySelectorAll('.acc-user-row'));
+    const users = rows.map(row=>{
+      const name = (row.querySelector('.acc-user-name')?.value || '').trim();
+      const device = (row.querySelector('.acc-user-device')?.value || '').trim();
+      const link = (row.querySelector('.acc-user-link')?.value || '').trim();
+      if(!name && !device && !link) return null;
+      return {name, device, link};
+    }).filter(Boolean);
+    return users.slice(0,3);
+  }
+
+  function clearAccForm(){
+    if(acc_account) acc_account.value = '';
+    if(acc_days) acc_days.value = '';
+    if(acc_usersContainer) acc_usersContainer.innerHTML = '';
+    addUserRowToForm({});
+  }
+
+  function calcDaysLeft(acc){
+    if(!acc || !acc.expiresAt) return 0;
+    const now = Date.now();
+    const diff = acc.expiresAt - now;
+    return Math.floor(diff / (24*60*60*1000));
+  }
+
+  function renderAccountList(){
     accData = loadAccounts();
-    renderAccounts();
-    resetAccUsers();
-    setActiveTab('accounts');
+    if(!acc_list) return;
+    acc_list.innerHTML = '';
+    if(!accData.length){
+      acc_list.innerHTML = '<div class="acc-list-empty">Chưa có tài khoản nào.</div>';
+      return;
+    }
+
+    accData.forEach(item=>{
+      const daysLeft = calcDaysLeft(item);
+      let status = item.status || 'active';
+      if(status !== 'error'){
+        if(daysLeft <= 0) status = 'expired';
+        else if(daysLeft <= 2) status = 'warning';
+      }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'acc-item';
+      wrap.dataset.id = item.id;
+
+      const headBtn = document.createElement('button');
+      headBtn.type = 'button';
+      headBtn.className = 'acc-head-btn';
+
+      let subText = '';
+      if(status === 'error'){
+        subText = 'Đang lỗi • kiểm tra lại';
+      }else if(daysLeft > 0){
+        subText = `Còn ${daysLeft} ngày`;
+      }else if(daysLeft === 0){
+        subText = 'Hôm nay hết hạn';
+      }else{
+        subText = `Hết hạn ${Math.abs(daysLeft)} ngày`;
+      }
+
+      headBtn.innerHTML = `
+        <div>
+          <div class="acc-title">${item.account}</div>
+          <div class="acc-sub">
+            ${subText}
+            <span class="acc-countdown"></span>
+          </div>
+        </div>
+        <div class="acc-badges">
+          ${status === 'warning' ? '<span class="acc-badge acc-badge-warning">Sắp hết hạn</span>' : ''}
+          ${status === 'error' ? '<span class="acc-badge acc-badge-error">Lỗi</span>' : ''}
+          ${status === 'expired' && status !== 'error' ? '<span class="acc-badge acc-badge-expired">Hết hạn</span>' : ''}
+        </div>
+      `;
+
+      if(item.expiresAt){
+        headBtn.dataset.expTs = String(item.expiresAt);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'acc-body';
+
+      const daysForInput = Math.max(calcDaysLeft(item), 0);
+
+      const usersHTML = (item.users || []).map(u=>{
+        return `
+          <div class="acc-user-row">
+            <div class="acc-user-row-title">Người dùng</div>
+            <div class="field" style="margin-bottom:4px;">
+              <div class="label"><span>Tên người dùng</span></div>
+              <input type="text" class="acc-user-name" placeholder="VD: User 1" value="${u.name || ''}" />
+            </div>
+            <div class="field" style="margin-bottom:4px;">
+              <div class="label"><span>Thiết bị / mô tả</span></div>
+              <input type="text" class="acc-user-device" placeholder="VD: iPhone 11 / PC" value="${u.device || ''}" />
+            </div>
+            <div class="field">
+              <div class="label"><span>Link người dùng</span></div>
+              <input type="text" class="acc-user-link" placeholder="VD: https://..." value="${u.link || ''}" />
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      body.innerHTML = `
+        <div class="acc-body-grid">
+          <div class="field">
+            <div class="label"><span>Tên tài khoản</span></div>
+            <input type="text" class="acc_edit_account" value="${item.account || ''}" />
+          </div>
+          <div class="field">
+            <div class="label"><span>Số ngày còn</span></div>
+            <input type="number" class="acc_edit_days" min="0" value="${daysForInput}" />
+          </div>
+          <div class="field">
+            <div class="label"><span>Người dùng & thiết bị</span></div>
+            <div class="acc-users acc_edit_users">
+              ${usersHTML || '<div class="acc-list-empty" style="margin-bottom:4px;">Chưa có người dùng nào.</div>'}
+            </div>
+            <button class="btn ghost small" data-act="addUser">+ Thêm người dùng</button>
+          </div>
+        </div>
+        <div class="acc-body-actions">
+          <button class="btn ghost small" data-act="save">Lưu</button>
+          <button class="btn danger small" data-act="error">Đánh dấu lỗi</button>
+          <button class="btn ghost small" data-act="openUser">Mở link người dùng</button>
+          <button class="btn ghost small" data-act="delete">Xoá</button>
+        </div>
+      `;
+
+      headBtn.addEventListener('click', ()=>{
+        const open = body.style.display === 'block';
+        body.style.display = open ? 'none' : 'block';
+      });
+
+      body.addEventListener('click', e=>{
+        const btn = e.target.closest('button[data-act]');
+        if(!btn) return;
+        const act = btn.dataset.act;
+        const accId = item.id;
+        const idx = accData.findIndex(a=>a.id === accId);
+        if(idx < 0) return;
+
+        if(act === 'addUser'){
+          const container = body.querySelector('.acc_edit_users');
+          const current = container.querySelectorAll('.acc-user-row').length;
+          if(current >= 3){
+            showToast('Tối đa 3 người dùng.');
+            return;
+          }
+          container.appendChild(newUserRow());
+        }
+
+        if(act === 'save'){
+          const nameInput = body.querySelector('.acc_edit_account');
+          const daysInput = body.querySelector('.acc_edit_days');
+          const name = nameInput.value.trim();
+          const days = parseInt(daysInput.value,10);
+          if(!name){
+            showToast('Tên tài khoản không được trống.');
+            return;
+          }
+          if(isNaN(days) || days < 0){
+            showToast('Số ngày không hợp lệ.');
+            return;
+          }
+          const users = collectFormUsers(body.querySelector('.acc_edit_users'));
+          const nowTs = Date.now();
+          const expiresAt = nowTs + days*24*60*60*1000;
+          accData[idx] = {
+            ...accData[idx],
+            account:name,
+            users,
+            expiresAt,
+            status:(accData[idx].status === 'error' ? 'error' : 'active')
+          };
+          saveAccounts();
+          upsertAccountCloud(accData[idx]);
+          showToast('Đã lưu tài khoản');
+          renderAccountList();
+        }
+
+        if(act === 'error'){
+          accData[idx].status = 'error';
+          saveAccounts();
+          upsertAccountCloud(accData[idx]);
+          showToast('Đã đánh dấu lỗi');
+          renderAccountList();
+        }
+
+        if(act === 'delete'){
+          if(!confirm('Xoá tài khoản này?')) return;
+          accData.splice(idx,1);
+          saveAccounts();
+          deleteAccountCloud(accId);
+          showToast('Đã xoá tài khoản');
+          renderAccountList();
+        }
+
+        if(act === 'openUser'){
+          const users = collectFormUsers(body.querySelector('.acc_edit_users'));
+          const u = users.find(u=>u.link);
+          if(!u || !u.link){
+            showToast('Chưa có link người dùng để mở');
+            return;
+          }
+          window.open(u.link, '_blank');
+        }
+      });
+
+      wrap.appendChild(headBtn);
+      wrap.appendChild(body);
+      acc_list.appendChild(wrap);
+    });
+  }
+
+  if(acc_addUserBtn){
+    acc_addUserBtn.addEventListener('click', ()=>{
+      const current = acc_usersContainer.querySelectorAll('.acc-user-row').length;
+      if(current >= 3){
+        showToast('Tối đa 3 người dùng.');
+        return;
+      }
+      addUserRowToForm({});
+    });
+  }
+
+  if(acc_clearFormBtn){
+    acc_clearFormBtn.addEventListener('click', clearAccForm);
+  }
+
+  if(acc_saveBtn){
+    acc_saveBtn.addEventListener('click', ()=>{
+      const name = (acc_account.value || '').trim();
+      const days = parseInt(acc_days.value || '0', 10);
+      if(!name){
+        showToast('Tên tài khoản không được trống.');
+        return;
+      }
+      if(isNaN(days) || days < 0){
+        showToast('Số ngày không hợp lệ.');
+        return;
+      }
+      const users = collectFormUsers(acc_usersContainer);
+      const nowTs = Date.now();
+      const expiresAt = nowTs + days*24*60*60*1000;
+      const id = 'acc_'+nowTs+'_'+Math.random().toString(16).slice(2);
+      const obj = {id, account:name, expiresAt, users, status:'active', createdAt:nowTs};
+      accData = loadAccounts();
+      accData.push(obj);
+      saveAccounts();
+      upsertAccountCloud(obj);
+      showToast('Đã lưu tài khoản');
+      clearAccForm();
+      renderAccountList();
+    });
+  }
+
+  accData = loadAccounts();
+  renderAccountList();
+  initAccountsFromCloud();
+
+  // COUNTDOWN
+  setInterval(()=>{
+    const items = $$('.acc-head-btn');
+    const now = Date.now();
+    items.forEach(btn=>{
+      const expTs = parseInt(btn.dataset.expTs || 'NaN', 10);
+      const cdSpan = btn.querySelector('.acc-countdown');
+      if(!cdSpan || !expTs || isNaN(expTs)) return;
+      let diff = expTs - now;
+      if(diff <= 0){
+        cdSpan.textContent = '(đã hết hạn)';
+        return;
+      }
+      let sec = Math.floor(diff/1000);
+      const days = Math.floor(sec/86400); sec -= days*86400;
+      const hrs = Math.floor(sec/3600); sec -= hrs*3600;
+      const mins = Math.floor(sec/60); sec -= mins*60;
+      cdSpan.textContent = `(${days} ngày ${hrs} giờ ${mins} phút ${sec} giây)`;
+    });
+  }, 1000);
+
+ (function init(){
+    // ⭐ Lấy tab đã lưu, nếu chưa có thì mặc định là 'accounts'
+    let savedTab = 'accounts';
+    try {
+      const t = localStorage.getItem(LS_TAB);
+      if (t === 'accounts' || t === 'cleaner' || t === 'scan' || t === 'key') {
+        savedTab = t;
+      }
+    } catch (e) {}
+
+    setActiveTab(savedTab);
+    clearAccForm();
   })();
 </script>
 </body>
