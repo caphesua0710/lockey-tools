@@ -1437,9 +1437,10 @@
       val.btn.setAttribute('aria-selected', active ? 'true' : 'false');
       val.panel.hidden = !active;
     });
-    if(name === 'accounts'){
-      renderAccountList();
-    }
+    // BỎ: if(name === 'accounts'){ renderAccountList(); }
+    // Vì hàm cleanupAndRenderAccounts() sẽ tự gọi renderAccountList()
+    // Và hàm setTab được gọi TRƯỚC khi accData được nạp,
+    // gọi render ở đây sẽ render ra danh sách rỗng.
   }
 
   Object.entries(tabs).forEach(([key, val])=>{
@@ -1447,7 +1448,7 @@
       val.btn.addEventListener('click', ()=>setTab(key));
     }
   });
-  setTab(currentTab);
+  // BỎ: setTab(currentTab); // Sẽ gọi ở cuối hàm init()
 
   /* HISTORY local */
   const HISTORY_KEY = 'tk_history_v1';
@@ -1479,70 +1480,46 @@
     list.unshift(entry);
     map[type] = list.slice(0, 100);
     saveHistoryMap(map);
+    syncHistoryToCloud(); // ⭐️ TỰ ĐỘNG SYNC LÊN CLOUD KHI THÊM
     showToast('Đã lưu vào lịch sử');
   }
 
-  /* FIREBASE / CLOUD */
-/* FIREBASE / CLOUD */
-  /* ===== FIREBASE / CLOUD (ĐÃ SỬA LỖI) ===== */
+  /* ================================================================
+  ⭐️ BƯỚC 1: THAY THẾ KHỐI FIREBASE ⭐️
+  (Code từ index2.html, bao gồm logic History VÀ Accounts)
+  ================================================================
+  */
+  
+  /* ===== FIREBASE (HISTORY + ACCOUNTS) ===== */
   let db = null;
   let firebaseReady = false;
+  // ❗️ Quan trọng: Lấy 'cloudStatusEl' ở đây vì script nằm cuối <body>
+  const cloudStatusEl = document.getElementById('cloudStatus'); 
 
-  // 1. SỬA HÀM NÀY: Lấy element MỖI KHI HÀM ĐƯỢC GỌI
-  function setCloudStatus(text) {
-    const cloudStatusEl = $('#cloudStatus'); // Lấy element bên trong hàm
-    
-    if (!cloudStatusEl) {
-      // Nếu không tìm thấy, báo lỗi trong console
-      console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
-      return;
-    }
-    
-    // Cập nhật HTML (vì có <span class="cloud-dot">)
-    cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
-  }
-
-  async function initFirebase() {
-    try {
-      // 2. Hàm này bây giờ sẽ hoạt động
-      setCloudStatus('Cloud: OK (đang khởi tạo…)');
-
+  async function initFirebase(){
+    try{
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: đang kết nối…';
       firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
       db.settings({
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-        experimentalForceLongPolling: true // ép long-polling
+        experimentalForceLongPolling: true
       });
-
+      await firebase.auth().signInAnonymously();
       firebaseReady = true;
-      setCloudStatus('Cloud: OK'); // Sẽ hoạt động
-
-      // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
-      firebase.auth().signInAnonymously().catch(e => {
-        console.warn('Firebase auth failed', e);
-        if (e.code === 'auth/unauthorized-domain') {
-          showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
-          setCloudStatus('Cloud: lỗi auth (domain)');
-        } else {
-          showToast('Lỗi đăng nhập Firebase');
-          setCloudStatus('Cloud: lỗi auth');
-        }
-      });
-
-    } catch (e) {
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: OK';
+    }catch(e){
       console.warn('Firebase init failed', e);
       firebaseReady = false;
-      setCloudStatus('Cloud: lỗi init'); // Sẽ hoạt động
-      showToast('Lỗi khởi tạo Firebase');
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi init';
+      showToast('Firebase Init Lỗi. Kiểm tra domain.');
     }
   }
-
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
   async function syncHistoryFromCloud(){
     if(!firebaseReady || !db){
-      setCloudStatus('Cloud: chưa sẵn sàng'); // 3. Sửa ở đây
-      showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: chưa sẵn sàng';
       return;
     }
     try{
@@ -1552,43 +1529,88 @@
         const map = {
           cleaner: data.cleaner || [],
           scan: data.scan || [],
-          key: data.key || []
+          key: data.key || [],
+          // (Không đụng đến accounts ở đây)
         };
-        saveHistoryMap(map);
+        saveHistoryMap(map); // Lưu vào localStorage (của history)
+        if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: OK';
         showToast('Đã tải lịch sử từ cloud');
-        setCloudStatus('Cloud: OK'); // 3. Sửa ở đây
         renderHistoryFor(currentTab);
       }else{
-        showToast('Cloud chưa có dữ liệu lịch sử');
-        setCloudStatus('Cloud: OK (trống)'); // 3. Sửa ở đây
+        if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: OK (chưa có lịch sử)';
       }
     }catch(e){
       console.warn('syncHistoryFromCloud error', e);
-      showToast('Lỗi đọc lịch sử từ cloud');
-      setCloudStatus('Cloud: lỗi đọc lịch sử'); // 3. Sửa ở đây
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi đọc lịch sử';
     }
   }
 
   async function syncHistoryToCloud(){
     if(!firebaseReady || !db){
-      setCloudStatus('Cloud: chưa sẵn sàng'); // 3. Sửa ở đây
-      showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: chưa sẵn sàng';
       return;
     }
     try{
-      const map = loadHistoryMap();
+      const map = loadHistoryMap(); // Lấy từ localStorage (của history)
       await getHistoryDocRef().set(map);
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: OK';
       showToast('Đã đồng bộ lịch sử lên cloud');
-      setCloudStatus('Cloud: OK'); // 3. Sửa ở đây
     }catch(e){
       console.warn('syncHistoryToCloud error', e);
-      showToast('Lỗi ghi lịch sử lên cloud');
-      setCloudStatus('Cloud: lỗi ghi lịch sử'); // 3. Sửa ở đây
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi ghi lịch sử';
     }
   }
 
-  initFirebase();
-  /* ===== KẾT THÚC PHẦN SỬA LỖI ===== */
+  /* ===== FIRESTORE: ACCOUNTS (TỪ INDEX2) ===== */
+  const ACC_COLLECTION = 'tk_manager';
+
+  async function fetchAccountsFromCloud(){
+    if(!firebaseReady || !db) return null;
+    try{
+      const snap = await db.collection(ACC_COLLECTION).get();
+      const arr = [];
+      snap.forEach(doc=>arr.push(doc.data()));
+      return arr;
+    }catch(e){
+      console.warn('fetchAccountsFromCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi đọc tài khoản';
+      return null;
+    }
+  }
+
+  async function upsertAccountCloud(accObj){
+    if(!firebaseReady || !db || !accObj || !accObj.id) return;
+    try{
+      await db.collection(ACC_COLLECTION).doc(accObj.id).set(accObj);
+    }catch(e){
+      console.warn('upsertAccountCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi ghi tài khoản';
+    }
+  }
+
+  async function deleteAccountCloud(accId){
+    if(!firebaseReady || !db || !accId) return;
+    try{
+      await db.collection(ACC_COLLECTION).doc(accId).delete();
+    }catch(e){
+      console.warn('deleteAccountCloud error', e);
+      if(cloudStatusEl) cloudStatusEl.innerHTML = '<span class="cloud-dot"></span> Cloud: lỗi xoá tài khoản';
+    }
+  }
+
+  async function initAccountsFromCloud(){
+    let cloudAcc = null;
+    if(firebaseReady && db){
+      cloudAcc = await fetchAccountsFromCloud();
+    }
+    if(cloudAcc && cloudAcc.length){
+      accData = cloudAcc; // Nạp dữ liệu vào biến toàn cục
+    }else{
+      accData = []; // Bắt đầu với mảng rỗng nếu cloud rỗng
+    }
+    // Dọn dẹp và Render
+    cleanupAndRenderAccounts();
+  }
 
 
   /* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
@@ -1596,7 +1618,7 @@
   const sc_inputArea = $('#sc_inputArea');
   const lk_rawInput = $('#lk_rawInput');
   
-  /* HISTORY UI */
+  /* HISTORY UI (Giữ nguyên từ index.html) */
   const historyPanel = $('#historyPanel');
   const historyListEl = $('#historyList');
 
@@ -1617,6 +1639,13 @@
 
   function renderHistoryFor(tab){
     if(!historyListEl) return;
+    
+    // ⭐️ Thêm kiểm tra tab 'accounts'
+    if(tab === 'accounts'){
+      historyListEl.innerHTML = '<div class="history-empty">Tab Tài khoản không dùng lịch sử lô. Dữ liệu được đồng bộ trực tiếp.</div>';
+      return;
+    }
+    
     const map = loadHistoryMap();
     const list = map[tab] || [];
     if(!list.length){
@@ -1628,7 +1657,6 @@
       const div = document.createElement('div');
       div.className = 'h-item';
       
-      /* ⭐️ MỚI: Thêm 4 nút và class cho textarea */
       div.innerHTML = `
         <button class="h-btn" type="button">
           <div class="h-main">
@@ -1663,7 +1691,6 @@
         body.style.display = body.style.display === 'block' ? 'none' : 'block';
       });
       
-      /* ⭐️ MỚI: Thêm event listener cho 4 nút */
       const taInput = div.querySelector('.history-ta-input');
       const taOutput = div.querySelector('.history-ta-output');
       const btnCopyIn = div.querySelector('[data-act="copy-input"]');
@@ -1696,6 +1723,7 @@
           const list = map[tab] || [];
           map[tab] = list.filter(i => i.id !== item.id);
           saveHistoryMap(map);
+          syncHistoryToCloud(); // ⭐️ TỰ ĐỘNG SYNC LÊN CLOUD KHI XOÁ
           renderHistoryFor(tab); // Tải lại danh sách
           showToast('Đã xoá mục');
         });
@@ -1729,16 +1757,21 @@
   if(btnPushCloud) btnPushCloud.addEventListener('click', syncHistoryToCloud);
   if(clearHistoryBtn){
     clearHistoryBtn.addEventListener('click', ()=>{
+      if (currentTab === 'accounts') {
+        showToast('Tab Tài khoản không dùng lịch sử lô.');
+        return;
+      }
       if(!confirm('Xoá toàn bộ lịch sử của tab hiện tại?')) return;
       const map = loadHistoryMap();
       map[currentTab] = [];
       saveHistoryMap(map);
+      syncHistoryToCloud(); // ⭐️ TỰ ĐỘNG SYNC LÊN CLOUD KHI XOÁ
       renderHistoryFor(currentTab);
       showToast('Đã xoá lịch sử tab hiện tại');
     });
   }
 
-  /* CLEANER */
+  /* CLEANER (Giữ nguyên từ index.html) */
   const cl_resultTA = $('#cl_resultTA');
   const cl_dedupe = $('#cl_dedupe');
   const cl_treatEsc = $('#cl_treatEscapedNewlines');
@@ -1836,7 +1869,6 @@
     });
   }
 
-  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
   if(cl_copyBtn){
     cl_copyBtn.addEventListener('click', () => robustCopy(cl_resultTA));
   }
@@ -1882,7 +1914,7 @@
     });
   }
 
-  /* SCAN */
+  /* SCAN (Giữ nguyên từ index.html) */
   const sc_resultTA = $('#sc_resultTA');
   const sc_fileInput = $('#sc_fileInput');
   const sc_resetBtn = $('#sc_resetBtn');
@@ -1944,7 +1976,6 @@
     });
   }
 
-  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
   if(sc_copyAllOut){
     sc_copyAllOut.addEventListener('click', () => robustCopy(sc_resultTA));
   }
@@ -1978,7 +2009,7 @@
     });
   }
 
-  /* ADD LINK KEY */
+  /* ADD LINK KEY (Giữ nguyên từ index.html) */
   const lk_linkToggleBtn = $('#lk_linkToggleBtn');
   const lk_linkPanel = $('#lk_linkPanel');
   const lk_linkInput = $('#lk_linkInput');
@@ -2000,7 +2031,7 @@
     const saved = localStorage.getItem(LINK_KEY) || '';
     if(lk_linkInput) lk_linkInput.value = saved;
   }
-  initSavedLink();
+  // BỎ: initSavedLink(); // Sẽ gọi ở hàm init() cuối file
 
   if(lk_linkToggleBtn && lk_linkPanel){
     lk_linkToggleBtn.addEventListener('click', ()=>{
@@ -2049,7 +2080,10 @@
     const lines = (lk_rawInput.value || '').split(/\r?\n/).map(s=>s.trim());
     const total = lines.length;
     const linkRaw = (lk_linkInput.value || '').trim();
-    const link = linkRaw || 'https://nhapkey.click';
+    // ⭐️ SỬA LOGIC: Không tự điền link nếu link rỗng
+    // const link = linkRaw || 'https://nhapkey.click';
+    const link = linkRaw; 
+    
     const fmt = (document.querySelector('input[name="lk_format"]:checked') || {}).value || 'opt1';
     const out = [];
     let valid = 0;
@@ -2081,7 +2115,6 @@
     });
   }
 
-  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
   if(lk_copyBtn){
     lk_copyBtn.addEventListener('click', () => robustCopy(lk_output));
   }
@@ -2115,33 +2148,29 @@
     });
   }
 
-  /* ACCOUNT MANAGER */
-  const ACC_KEY = 'tk_accounts_v1';
-  let accData = [];
+  /* ================================================================
+  ⭐️ BƯỚC 2: THAY THẾ KHỐI ACCOUNT MANAGER ⭐️
+  (Code từ index2.html, đã chỉnh sửa để có 4 nút)
+  ================================================================
+  */
 
-  const acc_account = $('#acc_account');
-  const acc_days = $('#acc_days');
-  const acc_usersContainer = $('#acc_usersContainer');
-  const acc_addUserBtn = $('#acc_addUserBtn');
-  const acc_saveBtn = $('#acc_saveBtn');
-  const acc_clearFormBtn = $('#acc_clearFormBtn');
-  const acc_list = $('#acc_list');
+  /* ACCOUNT MANAGER (ĐÃ NÂNG CẤP DÙNG FIREBASE) */
+  const acc = {
+    account: $('#acc_account'),
+    days: $('#acc_days'),
+    usersContainer: $('#acc_usersContainer'),
+    addUserBtn: $('#acc_addUserBtn'),
+    saveBtn: $('#acc_saveBtn'),
+    clearFormBtn: $('#acc_clearFormBtn'),
+    list: $('#acc_list')
+  };
 
-  function loadAccounts(){
-    try{
-      const raw = localStorage.getItem(ACC_KEY);
-      if(!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    }catch(e){
-      return [];
-    }
-  }
-  function saveAccounts(){
-    localStorage.setItem(ACC_KEY, JSON.stringify(accData));
-  }
+  let accData = []; // Mảng này sẽ được nạp từ Firebase
+  const ONE_DAY = 24*60*60*1000;
 
-  function newUserRow(user = {}){
+  // (ĐÃ XOÁ CÁC HÀM loadAccounts, saveAccounts CỦA LOCALSTORAGE)
+
+  function newUserRow(user = {}){ // Giữ nguyên hàm của bạn
     const wrap = document.createElement('div');
     wrap.className = 'acc-user-row';
     wrap.innerHTML = `
@@ -2159,7 +2188,8 @@
     return wrap;
   }
 
-  function collectFormUsers(container){
+  function collectFormUsers(container){ // Giữ nguyên hàm của bạn
+    if (!container) return []; // Thêm bảo vệ
     const rows = container.querySelectorAll('.acc-user-row');
     const arr = [];
     rows.forEach(row=>{
@@ -2173,43 +2203,155 @@
     return arr.slice(0,3);
   }
 
-  function calcDaysLeft(acc){
-    if(!acc || !acc.expiresAt) return 0;
-    const now = Date.now();
-    const diff = acc.expiresAt - now;
-    return Math.floor(diff / (24*60*60*1000));
+  function clearAccForm(){
+    if (acc_account) acc_account.value = '';
+    if (acc_days) acc_days.value = '';
+    if (acc_usersContainer) acc_usersContainer.innerHTML = '';
+    // Thêm 1 dòng trống khi clear
+    if(acc_usersContainer) acc_usersContainer.appendChild(newUserRow());
   }
 
+  if(acc_addUserBtn){ // Giữ nguyên
+    acc_addUserBtn.addEventListener('click', ()=>{
+      const current = acc_usersContainer.querySelectorAll('.acc-user-row').length;
+      if(current >= 3){
+        showToast('Tối đa 3 người dùng.');
+        return;
+      }
+      acc_usersContainer.appendChild(newUserRow());
+    });
+  }
+
+  if(acc_clearFormBtn){ // Giữ nguyên
+    acc_clearFormBtn.addEventListener('click', clearAccForm);
+  }
+
+  // NÚT LƯU MỚI (DÙNG LOGIC FIREBASE TỪ INDEX2)
+  if(acc_saveBtn){
+    acc_saveBtn.addEventListener('click', async ()=>{
+      const accountName = (acc_account.value || '').trim();
+      const days = parseInt(acc_days.value || '0', 10);
+      if(!accountName){
+        showToast('Tên tài khoản không được trống.'); return;
+      }
+      if(isNaN(days) || days < 0){
+        showToast('Số ngày không hợp lệ.'); return;
+      }
+      const users = collectFormUsers(acc_usersContainer);
+      const now = Date.now();
+      const expiry = now + days*ONE_DAY;
+
+      // Logic tìm và cập nhật từ index2
+      const existingIndex = accData.findIndex(a=>a.account === accountName);
+      let targetAcc;
+
+      if(existingIndex >= 0){ // Cập nhật tài khoản cũ
+        const old = accData[existingIndex];
+        targetAcc = {
+          ...old,
+          account: accountName,
+          totalDays: days,
+          updatedAt: now,
+          expiry,
+          status: old.status === 'error' ? 'error' : 'active',
+          users
+        };
+        accData[existingIndex] = targetAcc;
+        showToast('Đã cập nhật tài khoản.');
+      }else{ // Thêm tài khoản mới
+        const id = `${now}_${Math.random().toString(36).slice(2)}`;
+        targetAcc = {
+          id,
+          account: accountName,
+          totalDays: days,
+          createdAt: now,
+          updatedAt: now,
+          expiry,
+          status: 'active',
+          errorDate: null,
+          daysLeftAtError: null,
+          warnMutedUntil: null,
+          users
+        };
+        accData.unshift(targetAcc);
+        showToast('Đã thêm tài khoản.');
+      }
+
+      await upsertAccountCloud(targetAcc); // GỌI FIREBASE
+      cleanupAndRenderAccounts(); // Render lại
+      clearAccForm();
+    });
+  }
+
+  // CÁC HÀM HỖ TRỢ (TỪ INDEX2)
+  function calcDaysLeft(accObj){
+    if(!accObj || !accObj.expiry) return 0;
+    const now = Date.now();
+    const diff = accObj.expiry - now;
+    // Dùng ceil để "Còn 0 ngày" thay vì "Còn -0 ngày"
+    return Math.ceil(diff / ONE_DAY);
+  }
+
+  async function cleanupAndRenderAccounts(){
+    const now = Date.now();
+    const next = [];
+    for(const a of accData){
+      let keep = true;
+      if(a.status === 'error' && a.errorDate){
+        if(now - a.errorDate > 3*ONE_DAY){ // Xoá sau 3 ngày lỗi
+          keep = false;
+          await deleteAccountCloud(a.id);
+        }
+      }else{
+        const daysLeft = calcDaysLeft(a);
+        if(daysLeft < -3){ // Xoá sau 3 ngày hết hạn
+          keep = false;
+          await deleteAccountCloud(a.id);
+        }
+      }
+      if(keep) next.push(a);
+    }
+    accData = next;
+    renderAccountList(); // Gọi hàm render
+  }
+
+  // HÀM RENDER CHÍNH (GỘP LOGIC 2 FILE)
   function renderAccountList(){
-    accData = loadAccounts();
     if(!acc_list) return;
     acc_list.innerHTML = '';
+    
     if(!accData.length){
-      acc_list.innerHTML = '<div class="acc-list-empty">Chưa có tài khoản nào.</div>';
+      acc_list.innerHTML = '<div class="acc-list-empty">Đang tải từ Cloud... (hoặc chưa có tài khoản nào)</div>';
       return;
     }
+    const now = Date.now();
+    
+    // ⭐️ Sắp xếp: Lỗi > Sắp hết hạn > Còn lại
+    accData.sort((a,b) => {
+      const statusA = (a.status === 'error') ? 0 : (calcDaysLeft(a) <= 2 && calcDaysLeft(a) > 0) ? 1 : (calcDaysLeft(a) <= 0) ? 2 : 3;
+      const statusB = (b.status === 'error') ? 0 : (calcDaysLeft(b) <= 2 && calcDaysLeft(b) > 0) ? 1 : (calcDaysLeft(b) <= 0) ? 2 : 3;
+      if (statusA !== statusB) return statusA - statusB;
+      return (a.expiry || 0) - (b.expiry || 0); // Hết hạn trước lên trên
+    });
 
     accData.forEach(item=>{
       const daysLeft = calcDaysLeft(item);
       let status = item.status || 'active';
-      if(status !== 'error'){
+      if(status !== 'error'){ // Chỉ cập nhật nếu không bị đánh dấu lỗi
         if(daysLeft <= 0) status = 'expired';
         else if(daysLeft <= 2) status = 'warning';
         else status = 'active';
-        item.status = status;
+        item.status = status; // Cập nhật trạng thái
       }
 
       const wrap = document.createElement('div');
       wrap.className = 'acc-item';
       wrap.dataset.id = item.id;
 
-      const headBtn = document.createElement('button');
-      headBtn.type = 'button';
-      headBtn.className = 'acc-head-btn';
-
+      // Dùng logic subtext từ index2 (chính xác hơn)
       let subText = '';
       if(status === 'error'){
-        subText = 'Đang lỗi • kiểm tra lại';
+        subText = `Lỗi • còn ${item.daysLeftAtError ?? daysLeft} ngày lúc lỗi`;
       }else if(daysLeft > 0){
         subText = `Còn ${daysLeft} ngày`;
       }else if(daysLeft === 0){
@@ -2218,6 +2360,9 @@
         subText = `Hết hạn ${Math.abs(daysLeft)} ngày`;
       }
 
+      const headBtn = document.createElement('button');
+      headBtn.type = 'button';
+      headBtn.className = 'acc-head-btn';
       headBtn.innerHTML = `
         <div>
           <div class="acc-title">${item.account}</div>
@@ -2233,14 +2378,14 @@
         </div>
       `;
 
-      if(item.expiresAt){
-        headBtn.dataset.expTs = String(item.expiresAt);
+      if(item.expiry){ // Dùng 'expiry' từ logic index2
+        headBtn.dataset.expTs = String(item.expiry);
       }
 
       const body = document.createElement('div');
       body.className = 'acc-body';
 
-      const daysForInput = Math.max(calcDaysLeft(item), 0);
+      const daysForInput = Math.max(daysLeft, 0);
 
       const usersHTML = (item.users || []).map((u,idx)=>`
         <div class="acc-user-row">
@@ -2257,6 +2402,7 @@
         </div>
       `).join('');
 
+      // ⭐️ HTML CÓ 4 NÚT BẤM MÀ BẠN MUỐN (từ index.html)
       body.innerHTML = `
         <div class="acc-body-grid">
           <div class="field">
@@ -2279,7 +2425,7 @@
           <button class="btn ghost small" data-act="save">Lưu</button>
           <button class="btn danger small" data-act="error">Đánh dấu lỗi</button>
           <button class="btn ghost small" data-act="openUser">Mở link người dùng</button>
-          <button class="btn ghost small" data-act="delete">Xoá</button>
+          <button class="btn danger small" data-act="delete">Xoá</button>
         </div>
       `;
 
@@ -2288,21 +2434,19 @@
         body.style.display = open ? 'none' : 'block';
       });
 
-      body.addEventListener('click', e=>{
+      // ⭐️ BỘ XỬ LÝ 4 NÚT BẤM (GỌI FIREBASE)
+      body.addEventListener('click', async e=>{
         const btn = e.target.closest('button[data-act]');
         if(!btn) return;
         const act = btn.dataset.act;
         const accId = item.id;
-        const idx = accData.findIndex(a=>a.id === accId);
-        if(idx < 0) return;
+        const index = accData.findIndex(a=>a.id === accId);
+        if(index < 0) return;
 
         if(act === 'addUser'){
           const container = body.querySelector('.acc_edit_users');
           const current = container.querySelectorAll('.acc-user-row').length;
-          if(current >= 3){
-            showToast('Tối đa 3 người dùng.');
-            return;
-          }
+          if(current >= 3){ showToast('Tối đa 3 người dùng.'); return; }
           container.appendChild(newUserRow());
         }
 
@@ -2311,45 +2455,43 @@
           const daysInput = body.querySelector('.acc_edit_days');
           const name = nameInput.value.trim();
           const days = parseInt(daysInput.value,10);
-          if(!name){
-            showToast('Tên tài khoản không được trống.');
-            return;
-          }
-          if(isNaN(days) || days < 0){
-            showToast('Số ngày không hợp lệ.');
-            return;
-          }
+          if(!name){ showToast('Tên tài khoản không được trống.'); return; }
+          if(isNaN(days) || days < 0){ showToast('Số ngày không hợp lệ.'); return; }
+
           const users = collectFormUsers(body.querySelector('.acc_edit_users'));
-          const nowTs = Date.now();
-          const expiresAt = nowTs + days*24*60*60*1000;
-          accData[idx] = {
-            ...accData[idx],
-            account:name,
-            users,
-            expiresAt,
-            status:(accData[idx].status === 'error' ? 'error' : 'active')
+
+          const now2 = Date.now();
+          accData[index] = {
+            ...accData[index],
+            account: name,
+            totalDays: days,
+            updatedAt: now2,
+            expiry: now2 + days*ONE_DAY,
+            status: 'active', // Tự động reset lỗi nếu lưu
+            errorDate: null,
+            daysLeftAtError: null,
+            users
           };
-          saveAccounts();
-          showToast('Đã lưu tài khoản');
-          renderAccountList();
+          
+          await upsertAccountCloud(accData[index]); // GỌI FIREBASE
+          cleanupAndRenderAccounts();
+          showToast('Đã lưu thay đổi.');
         }
 
         if(act === 'error'){
-          accData[idx].status = 'error';
-          saveAccounts();
-          showToast('Đã đánh dấu lỗi');
-          renderAccountList();
+          if(!confirm('Bạn có chắc tài khoản này đã lỗi?')) return;
+          const daysLeftNow = calcDaysLeft(accData[index]);
+          accData[index].status = 'error';
+          accData[index].errorDate = Date.now();
+          accData[index].daysLeftAtError = daysLeftNow;
+          
+          await upsertAccountCloud(accData[index]); // GỌI FIREBASE
+          cleanupAndRenderAccounts();
+          showToast('Đã đánh dấu lỗi.');
         }
-
-        if(act === 'delete'){
-          if(!confirm('Xoá tài khoản này?')) return;
-          accData.splice(idx,1);
-          saveAccounts();
-          showToast('Đã xoá tài khoản');
-          renderAccountList();
-        }
-
-        if(act === 'openUser'){
+        
+        // ⭐️ LOGIC NÚT "MỞ LINK" TỪ INDEX.HTML
+        if(act === 'openUser'){ 
           const users = collectFormUsers(body.querySelector('.acc_edit_users'));
           const u = users.find(u=>u.link);
           if(!u || !u.link){
@@ -2362,6 +2504,16 @@
           }
           window.open(url, '_blank');
         }
+
+        if(act === 'delete'){
+          if(!confirm('Xoá tài khoản này?')) return;
+          const toDel = accData[index];
+          accData.splice(index,1); // Xoá khỏi mảng
+          
+          await deleteAccountCloud(toDel.id); // GỌI FIREBASE
+          cleanupAndRenderAccounts();
+          showToast('Đã xoá tài khoản.');
+        }
       });
 
       wrap.appendChild(headBtn);
@@ -2370,80 +2522,66 @@
     });
   }
 
-  function addUserRowToForm(user){
-    acc_usersContainer.appendChild(newUserRow(user));
-  }
 
-  function clearAccForm(){
-    acc_account.value = '';
-    acc_days.value = '';
-    acc_usersContainer.innerHTML = '';
-  }
+  /* ================================================================
+  ⭐️ BƯỚC 3: THAY THẾ HÀM INIT() ⭐️
+  (Hàm gộp logic khởi chạy của cả 2 file)
+  ================================================================
+  */
+  
+  /* ===== INIT (KHỞI CHẠY) ===== */
+  (async function init(){
+    // 1. Chạy các hàm UI (từ Neon)
+    initTheme();
+    
+    // 2. CHẠY CÁC HÀM FIREBASE MỚI
+    await initFirebase();
+    await syncHistoryFromCloud(); // Đồng bộ lịch sử
+    
+    // 3. Chạy các hàm UI (từ Neon)
+    setTab(currentTab); // Kích hoạt tab đã lưu (mặc định 'accounts')
+    renderHistoryFor(currentTab);
+    initSavedLink(); // Nạp link đã lưu cho tab Key
 
-  if(acc_addUserBtn){
-    acc_addUserBtn.addEventListener('click', ()=>{
-      const current = acc_usersContainer.querySelectorAll('.acc-user-row').length;
-      if(current >= 3){
-        showToast('Tối đa 3 người dùng.');
-        return;
-      }
-      addUserRowToForm({});
-    });
-  }
+    // 4. CHẠY HÀM NẠP TÀI KHOẢN TỪ CLOUD
+    await initAccountsFromCloud();
 
-  if(acc_clearFormBtn){
-    acc_clearFormBtn.addEventListener('click', clearAccForm);
-  }
+    // 5. Chạy các hàm UI (từ Neon)
+    // (nếu form trống thì tạo 1 user row mặc định)
+    if(acc_usersContainer && !acc_usersContainer.querySelector('.acc-user-row')){
+      acc_usersContainer.appendChild(newUserRow());
+    }
 
-  if(acc_saveBtn){
-    acc_saveBtn.addEventListener('click', ()=>{
-      const name = (acc_account.value || '').trim();
-      const days = parseInt(acc_days.value || '0', 10);
-      if(!name){
-        showToast('Tên tài khoản không được trống.');
-        return;
-      }
-      if(isNaN(days) || days < 0){
-        showToast('Số ngày không hợp lệ.');
-        return;
-      }
-      const users = collectFormUsers(acc_usersContainer);
-      const nowTs = Date.now();
-      const expiresAt = nowTs + days*24*60*60*1000;
-      const id = 'acc_'+nowTs+'_'+Math.random().toString(16).slice(2);
-      const obj = {id, account:name, expiresAt, users, status:'active', createdAt:nowTs};
-      accData = loadAccounts();
-      accData.push(obj);
-      saveAccounts();
-      showToast('Đã lưu tài khoản');
-      clearAccForm();
-      renderAccountList();
-    });
-  }
+    // 6. Chạy logic tự động cập nhật
+    // (Cập nhật định kỳ trạng thái tài khoản (auto xoá / cảnh báo) - từ index2)
+    setInterval(cleanupAndRenderAccounts, 60*1000); // 1 phút 1 lần
+    
+    // (Countdown - từ Neon)
+    setInterval(()=>{
+      const items = $$('.acc-head-btn');
+      const now = Date.now();
+      items.forEach(btn=>{
+        const expTs = parseInt(btn.dataset.expTs || 'NaN', 10);
+        const cdSpan = btn.querySelector('.acc-countdown');
+        if(!cdSpan || !expTs || isNaN(expTs)) return;
+        let diff = expTs - now;
+        if(diff <= 0){
+          cdSpan.textContent = ''; // Hết hạn thì ẩn
+          return;
+        }
+        if (diff > 10 * ONE_DAY) { // Nếu hơn 10 ngày thì cũng ẩn
+          cdSpan.textContent = '';
+          return;
+        }
+        let sec = Math.floor(diff/1000);
+        const days = Math.floor(sec/86400); sec -= days*86400;
+        const hrs = Math.floor(sec/3600); sec -= hrs*3600;
+        const mins = Math.floor(sec/60); sec -= mins*60;
+        cdSpan.textContent = `(${days}n ${hrs}g ${mins}p ${sec}s)`;
+      });
+    }, 1000);
 
-  accData = loadAccounts();
-  renderAccountList();
-
-  // COUNTDOWN
-  setInterval(()=>{
-    const items = $$('.acc-head-btn');
-    const now = Date.now();
-    items.forEach(btn=>{
-      const expTs = parseInt(btn.dataset.expTs || 'NaN', 10);
-      const cdSpan = btn.querySelector('.acc-countdown');
-      if(!cdSpan || !expTs || isNaN(expTs)) return;
-      let diff = expTs - now;
-      if(diff <= 0){
-        cdSpan.textContent = '(0 ngày 0 giờ 0 phút 0 giây)';
-        return;
-      }
-      let sec = Math.floor(diff/1000);
-      const days = Math.floor(sec/86400); sec -= days*86400;
-      const hrs = Math.floor(sec/3600); sec -= hrs*3600;
-      const mins = Math.floor(sec/60); sec -= mins*60;
-      cdSpan.textContent = `(${days} ngày ${hrs} giờ ${mins} phút ${sec} giây)`;
-    });
-  }, 1000);
+  })();
 
 })();
 </script>
