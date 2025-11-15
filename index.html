@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TK Suite — Mail & Account Tools</title>
 
+<!-- Favicon -->
 <link rel="icon" type="image/png" href="logo.png" />
 
+<!-- Firebase compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -46,26 +48,15 @@
   }
 
   body[data-theme="dark"]{
-    /* YÊU CẦU 1: Nâng cấp UI Neon */
-    --green: #00ff9c; /* Neon Green */
-    --green-600: #00e68c;
-    --green-700: #00cc7a;
-    --green-soft: rgba(0, 255, 156, 0.1);
-    --muted: #8892b0;
-    
-    --bg:#010a1f; /* Dark Neon Blue */
+    --bg:#020617;
     --fg:#e5e7eb;
-    --card:#021027; /* Slightly lighter than bg */
-    --line:#0e2240; /* Darker blue line */
-    
+    --muted:#9ca3af;
+    --card:#020617;
+    --line:#1f2937;
+    --green-soft:rgba(34,197,94,0.15);
     --shadow:0 20px 50px rgba(0,0,0,0.9);
     --danger-soft:rgba(248,113,113,0.1);
     --warning-soft:rgba(248,250,252,0.04);
-    
-    /* Neon specific glows */
-    --neon-glow-small: 0 0 4px rgba(0, 255, 156, 0.5);
-    --neon-glow-medium: 0 0 8px rgba(0, 255, 156, 0.7);
-    --neon-glow-text: 0 0 5px rgba(0, 255, 156, 0.8);
   }
 
   *{box-sizing:border-box;}
@@ -130,12 +121,6 @@
   }
   .brand-title{font-size:16px;font-weight:700;}
   .brand-sub{font-size:11px;color:var(--muted);}
-  
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho title */
-  body[data-theme="dark"] .brand-title{
-    color: var(--green);
-    text-shadow: var(--neon-glow-text);
-  }
 
   .topbar-actions{
     display:flex;
@@ -188,27 +173,6 @@
     color:#b91c1c;
   }
   .btn.full{width:100%;justify-content:center;}
-  
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho button */
-  body[data-theme="dark"] .btn{
-    box-shadow: var(--neon-glow-medium);
-    text-shadow: 0 0 2px rgba(0,0,0,0.9);
-    border-color: transparent;
-  }
-  body[data-theme="dark"] .btn:hover{
-    transform: scale(1.02);
-    box-shadow: 0 0 15px var(--green);
-  }
-  body[data-theme="dark"] .btn.ghost{
-    box-shadow: none; /* Ghost button không cần glow */
-    text-shadow: none;
-    border-color: var(--line);
-  }
-  body[data-theme="dark"] .btn.ghost:hover{
-    transform: none;
-    box-shadow: none;
-    border-color: var(--green);
-  }
 
   /* Cloud status */
   .cloud-status{
@@ -270,13 +234,6 @@
     background:rgba(15,23,42,0.15);
     color:#bbf7d0;
   }
-  
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho tab active */
-  body[data-theme="dark"] .tab[aria-selected="true"]{
-     box-shadow: var(--neon-glow-medium);
-     border-color: var(--green);
-     text-shadow: 0 0 2px rgba(0,0,0,0.9);
-  }
 
   /* Panel: mobile = 1 cột, desktop = 2 cột (input | output) */
   .panel{
@@ -301,15 +258,6 @@
     margin-bottom:0;
     overflow:hidden;
   }
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho card */
-  body[data-theme="dark"] .card{
-    transition: border-color .2s ease, box-shadow .2s ease;
-  }
-  body[data-theme="dark"] .card:hover{
-     border-color: rgba(0, 255, 156, 0.3);
-     box-shadow: var(--shadow), 0 0 10px rgba(0, 255, 156, 0.2);
-  }
-  
   .card-head{
     padding:8px 10px;
     border-bottom:1px solid var(--line);
@@ -317,22 +265,12 @@
     align-items:center;
     justify-content:space-between;
     gap:8px;
-    /* YÊU CẦU 3: Cho phép wrap và đẩy toolbar sang phải */
-    flex-wrap: wrap; 
   }
   .card-head h3{
     margin:0;
     font-size:13px;
     font-weight:700;
-    flex-shrink: 0; /* YÊU CẦU 3 */
   }
-  .card-head .badge {
-    flex-shrink: 0; /* YÊU CẦU 3 */
-  }
-  .card-head .toolbar {
-    margin-left: auto; /* YÊU CẦU 3: Đẩy toolbar sang phải */
-  }
-  
   .card-body{padding:10px;}
 
   .badge{
@@ -373,15 +311,6 @@
     border-color:var(--green);
     box-shadow:0 0 0 1px var(--green-soft);
   }
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho focus */
-  body[data-theme="dark"] textarea:focus,
-  body[data-theme="dark"] input[type="text"]:focus,
-  body[data-theme="dark"] input[type="number"]:focus,
-  body[data-theme="dark"] input[type="date"]:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 1px var(--green), var(--neon-glow-small);
-  }
-  
   textarea{
     min-height:190px;
     resize:vertical;
@@ -408,8 +337,7 @@
     display:flex;
     flex-wrap:wrap;
     gap:6px;
-    /* YÊU CẦU 3: Xoá margin-top, set về 0 */
-    margin:0; 
+    margin-top:6px;
   }
 
   .pill-row{
@@ -474,9 +402,6 @@
     inset:0;
     background:rgba(15,23,42,0.55);
   }
-  body[data-theme="dark"] .history-backdrop {
-    background: rgba(1, 10, 31, 0.8); /* Darker backdrop for neon */
-  }
   .history-sheet{
     position:relative;
     width:100%;
@@ -489,10 +414,6 @@
     display:flex;
     flex-direction:column;
     overflow:hidden;
-  }
-  body[data-theme="dark"] .history-sheet {
-    border-color: var(--line);
-    box-shadow: 0 22px 50px rgba(0,0,0,0.75), 0 0 15px rgba(0, 255, 156, 0.2);
   }
   @media (min-width:768px){
     .history-sheet{
@@ -626,11 +547,6 @@
     z-index:60;
     pointer-events:none;
   }
-  body[data-theme="dark"] #toast {
-    background: var(--green);
-    color: #010a1f;
-    box-shadow: var(--neon-glow-medium);
-  }
 
   /* Account manager */
   .acc-form-actions{
@@ -737,10 +653,77 @@
     gap:4px;
     font-size:11px;
   }
+
+  /* ==== Neon UI upgrade ==== */
+  :root{
+    --neon-green: #22c55e;
+    --neon-blue: #22d3ee;
+    --neon-glow-soft: 0 0 18px rgba(34,197,94,0.45);
+    --neon-glow-strong: 0 0 30px rgba(34,197,94,0.6);
+  }
+
+  body{
+    background:
+      radial-gradient(circle at top, rgba(34,197,94,0.14) 0, transparent 45%),
+      radial-gradient(circle at bottom, rgba(56,189,248,0.16) 0, transparent 55%),
+      linear-gradient(135deg, var(--bg), #020617);
+  }
+  body[data-theme="light"]{
+    background:
+      radial-gradient(circle at top, rgba(34,197,94,0.08) 0, transparent 40%),
+      radial-gradient(circle at bottom, rgba(56,189,248,0.10) 0, transparent 55%),
+      linear-gradient(135deg, #f9fafb, #e5f9f0);
+  }
+
+  .app{
+    box-shadow: 0 18px 45px rgba(15,23,42,0.55), var(--neon-glow-soft);
+  }
+
+  .card{
+    box-shadow: 0 14px 36px rgba(15,23,42,0.45);
+    border-color: rgba(148,163,184,0.45);
+  }
+  body[data-theme="dark"] .card{
+    box-shadow: 0 14px 36px rgba(15,23,42,0.8), var(--neon-glow-soft);
+    background: radial-gradient(circle at top left, rgba(34,197,94,0.08) 0, transparent 55%), var(--card);
+  }
+
+  .brand-title{
+    text-shadow: 0 0 10px rgba(34,197,94,0.7), 0 0 18px rgba(45,212,191,0.55);
+  }
+
+  .tab[aria-selected="true"]{
+    box-shadow: 0 12px 30px rgba(22,163,74,0.45), 0 0 14px rgba(34,197,94,0.6);
+  }
+
+  .btn{
+    box-shadow: 0 10px 24px rgba(22,163,74,0.45);
+  }
+  .btn:hover{
+    box-shadow: 0 14px 32px rgba(22,163,74,0.55), 0 0 10px rgba(34,197,94,0.5);
+  }
+  .icon-btn{
+    box-shadow: 0 0 0 1px rgba(148,163,184,0.4);
+  }
+  .icon-btn:hover{
+    box-shadow: 0 0 0 1px rgba(34,197,94,0.7), 0 0 12px rgba(34,197,94,0.7);
+  }
+
+  .toolbar-inline{
+    margin-top:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:flex-end;
+  }
+  .card-head{
+    align-items:flex-start;
+  }
 </style>
 </head>
 <body data-theme="light">
 <div class="app">
+  <!-- HEADER -->
   <header class="topbar">
     <div class="topbar-left">
       <div class="logo-box">
@@ -758,55 +741,16 @@
     </div>
   </header>
 
+  <!-- 4 TAB CHÍNH -->
   <div class="tabs">
-    <button class="tab" id="tabAccounts" aria-selected="true"><span class="idx">1</span>Tài khoản</button>
-    <button class="tab" id="tabCleaner" aria-selected="false"><span class="idx">2</span>Cleaner</button>
+    <button class="tab" id="tabAccounts" aria-selected="false"><span class="idx">1</span>Tài khoản</button>
+    <button class="tab" id="tabCleaner" aria-selected="true"><span class="idx">2</span>Cleaner</button>
     <button class="tab" id="tabScan" aria-selected="false"><span class="idx">3</span>Scan</button>
     <button class="tab" id="tabKey" aria-selected="false"><span class="idx">4</span>Add Link</button>
   </div>
 
-  <section class="panel" id="panelAccounts">
-    <div class="card">
-      <div class="card-head">
-        <h3>Thêm / sửa tài khoản</h3>
-      </div>
-      <div class="card-body">
-        <div class="field">
-          <div class="label"><span>Tài khoản *</span></div>
-          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản..." />
-        </div>
-
-        <div class="field">
-          <div class="label"><span>Số ngày còn *</span></div>
-          <input type="number" id="acc_days" min="0" placeholder="VD: 30" />
-        </div>
-
-        <div class="field">
-          <div class="label">
-            <span>Người dùng & thiết bị (tối đa 3)</span>
-          </div>
-          <div class="acc-users" id="acc_usersContainer"></div>
-          <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
-        </div>
-
-        <div class="acc-form-actions">
-          <button class="btn full" id="acc_saveBtn">Lưu tài khoản</button>
-          <button class="btn ghost full" id="acc_clearFormBtn">Xoá form</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h3>Danh sách tài khoản</h3>
-      </div>
-      <div class="card-body" id="acc_list">
-        <div class="acc-list-empty">Chưa có tài khoản nào.</div>
-      </div>
-    </div>
-  </section>
-  
-  <section class="panel" id="panelCleaner" hidden>
+  <!-- PANEL 1: CLEANER -->
+  <section class="panel" id="panelCleaner">
     <div class="card">
       <div class="card-head">
         <h3>Mail Cleaner</h3>
@@ -866,9 +810,11 @@
 
     <div class="card">
       <div class="card-head">
-        <h3>Kết quả</h3>
-        <span class="badge" id="cl_statBadge">0 dòng → 0 out</span>
-        <div class="toolbar">
+        <div class="row" style="gap:6px;flex-wrap:wrap;">
+          <h3>Kết quả</h3>
+          <span class="badge" id="cl_statBadge">0 dòng → 0 out</span>
+        </div>
+        <div class="toolbar toolbar-inline">
           <button class="btn ghost small" id="cl_selectBtn">ALL</button>
           <button class="btn ghost small" id="cl_copyBtn">Copy</button>
           <button class="btn ghost small" id="cl_downloadBtn">Tải .txt</button>
@@ -877,10 +823,11 @@
       </div>
       <div class="card-body">
         <textarea id="cl_resultTA" class="mono" placeholder="Kết quả sẽ hiển thị ở đây..." readonly></textarea>
-        </div>
+      </div>
     </div>
   </section>
 
+  <!-- PANEL 2: SCAN / FORMAT -->
   <section class="panel" id="panelScan" hidden>
     <div class="card">
       <div class="card-head">
@@ -928,20 +875,24 @@
 
     <div class="card">
       <div class="card-head">
-        <h3>Kết quả</h3>
-        <span class="badge" id="sc_stat">0 dòng</span>
-        <div class="toolbar">
+        <div class="row" style="gap:6px;flex-wrap:wrap;">
+          <h3>Kết quả</h3>
+          <span class="badge" id="sc_stat">0 dòng</span>
+        </div>
+        <div class="toolbar toolbar-inline">
           <button class="btn ghost small" id="sc_selectAllOut">ALL</button>
           <button class="btn ghost small" id="sc_copyAllOut">Copy</button>
+          <button class="btn ghost small" id="sc_downloadBtn">Tải .txt</button>
           <button class="btn ghost small" id="sc_saveHistoryBtn">Lưu</button>
         </div>
       </div>
       <div class="card-body">
         <textarea id="sc_resultTA" class="mono" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
-        </div>
+      </div>
     </div>
   </section>
 
+  <!-- PANEL 3: ADD LINK KEY -->
   <section class="panel" id="panelKey" hidden>
     <div class="card">
       <div class="card-head">
@@ -951,6 +902,7 @@
         </div>
       </div>
       <div class="card-body">
+        <!-- Panel ẩn điền link -->
         <div class="field" id="lk_linkPanel" style="display:none;">
           <div class="label">
             <span>Link nhập key</span>
@@ -1014,8 +966,11 @@
 
     <div class="card">
       <div class="card-head">
-        <h3>Kết quả</h3>
-        <div class="toolbar">
+        <div class="row" style="gap:6px;flex-wrap:wrap;">
+          <h3>Kết quả</h3>
+        </div>
+        <div class="toolbar toolbar-inline">
+          <button class="btn ghost small" id="lk_selectAllBtn">ALL</button>
           <button class="btn ghost small" id="lk_copyBtn">Copy</button>
           <button class="btn ghost small" id="lk_downloadBtn">Tải .txt</button>
           <button class="btn ghost small" id="lk_saveHistoryBtn">Lưu</button>
@@ -1023,12 +978,54 @@
       </div>
       <div class="card-body">
         <textarea id="lk_output" class="mono" readonly placeholder="Kết quả sẽ xuất hiện tại đây..."></textarea>
-        </div>
+      </div>
     </div>
   </section>
 
+  <!-- PANEL 4: QUẢN LÝ TÀI KHOẢN -->
+  <section class="panel" id="panelAccounts" hidden>
+    <div class="card">
+      <div class="card-head">
+        <h3>Thêm / sửa tài khoản</h3>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <div class="label"><span>Tài khoản *</span></div>
+          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản..." />
+        </div>
+
+        <div class="field">
+          <div class="label"><span>Số ngày còn *</span></div>
+          <input type="number" id="acc_days" min="0" placeholder="VD: 30" />
+        </div>
+
+        <div class="field">
+          <div class="label">
+            <span>Người dùng & thiết bị (tối đa 3)</span>
+          </div>
+          <div class="acc-users" id="acc_usersContainer"></div>
+          <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
+        </div>
+
+        <div class="acc-form-actions">
+          <button class="btn full" id="acc_saveBtn">Lưu tài khoản</button>
+          <button class="btn ghost full" id="acc_clearFormBtn">Xoá form</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Danh sách tài khoản</h3>
+      </div>
+      <div class="card-body" id="acc_list">
+        <div class="acc-list-empty">Chưa có tài khoản nào.</div>
+      </div>
+    </div>
+  </section>
 </div>
 
+<!-- HISTORY OVERLAY -->
 <div class="history-overlay" id="historyPanel" aria-hidden="true">
   <div class="history-backdrop" id="panelBackdrop"></div>
   <div class="history-sheet">
@@ -1145,7 +1142,27 @@
     }
   }
 
-  async function deleteAccountCloud(accId){
+  
+  // Nút "Mở link" cho từng người dùng trong danh sách tài khoản
+  document.body.addEventListener('click', function(e){
+    const openBtn = e.target.closest('.acc_open_link_btn');
+    if(!openBtn) return;
+    const row = openBtn.closest('.acc-user-row');
+    if(!row) return;
+    const input = row.querySelector('.acc_user_link');
+    if(!input) return;
+    const raw = (input.value || '').trim();
+    if(!raw){
+      showToast('Chưa có link người dùng.');
+      return;
+    }
+    let url = raw;
+    if(!/^https?:\/\//i.test(url)){
+      url = 'https://' + url;
+    }
+    window.open(url, '_blank');
+  });
+async function deleteAccountCloud(accId){
     if(!firebaseReady || !db || !accId) return;
     try{
       await db.collection(ACC_COLLECTION).doc(accId).delete();
@@ -1196,9 +1213,10 @@
   const LS_THEME = 'multiToolTheme_v1';
   const LS_LINK = 'nk_link_v2';
   const LS_ACC = 'tk_accounts_v1';
-  const LS_TAB = 'multiToolTab_v1'; // YÊU CẦU 5: Thêm key lưu tab
+  const LS_TAB = 'multiToolActiveTab_v1';
 
-  let currentTab = 'accounts'; // YÊU CẦU 2: Đổi tab mặc định
+
+  let currentTab = 'cleaner'; // 'cleaner' | 'scan' | 'key' | 'accounts'
 
   /* ===== TOAST ===== */
   function showToast(msg){
@@ -1467,10 +1485,10 @@
 
   /* ===== TABS ===== */
   function activateTab(name){
-    // YÊU CẦU 5: Lưu tab vào localStorage
-    localStorage.setItem(LS_TAB, name);
-    
     currentTab = name;
+    try{
+      localStorage.setItem(LS_TAB, name);
+    }catch(e){}
     const mapping = {
       cleaner: {tab: els.tabCleaner, panel: els.panelCleaner},
       scan: {tab: els.tabScan, panel: els.panelScan},
@@ -1547,6 +1565,7 @@
   };
   let clBlob = null;
   let clText = '';
+  let scBlob = null;
 
   function clSetOutput(text){
     clText = text || '';
@@ -1697,6 +1716,7 @@
     process: $('#sc_processBtn'),
     selectAll: $('#sc_selectAllOut'),
     copyAll: $('#sc_copyAllOut'),
+    download: $('#sc_downloadBtn'),
     stat: $('#sc_stat'),
     result: $('#sc_resultTA')
   };
@@ -1704,8 +1724,14 @@
   function scProcessOnly(){
     const emails = scParseInput(sc.input.value);
     const out = scBuildLines(emails);
-    sc.result.value = out.join('\n');
+    const text = out.join('\n');
+    sc.result.value = text;
     sc.stat.textContent = `${emails.length} dòng`;
+    if(text){
+      scBlob = new Blob([text], {type:'text/plain;charset=utf-8'});
+    }else{
+      scBlob = null;
+    }
     showToast(emails.length ? `Đã xử lý ${emails.length} mail` : 'Không có dòng nào.');
     return {emails, out};
   }
@@ -1736,6 +1762,21 @@
   sc.copyAll.addEventListener('click', async ()=>{
     const text = sc.result.value;
     await copyToClipboard(text);
+  });
+
+  sc.download.addEventListener('click', ()=>{
+    if(!scBlob){
+      showToast('Chưa có dữ liệu để tải.');
+      return;
+    }
+    const url = URL.createObjectURL(scBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scan_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 
   sc.saveHistoryBtn.addEventListener('click', ()=>{
@@ -1820,6 +1861,7 @@
     statValid: $('#lk_statValid'),
     processBtn: $('#lk_processBtn'),
     output: $('#lk_output'),
+    selectAllBtn: $('#lk_selectAllBtn'),
     copyBtn: $('#lk_copyBtn'),
     downloadBtn: $('#lk_downloadBtn'),
     saveHistoryBtn: $('#lk_saveHistoryBtn'),
@@ -1904,6 +1946,12 @@
     }else{
       showToast(`Đã xử lý ${keys.length} key.`);
     }
+  });
+
+  lk.selectAllBtn.addEventListener('click', ()=>{
+    lk.output.focus();
+    lk.output.select();
+    lk.output.setSelectionRange(0, lk.output.value.length);
   });
 
   lk.copyBtn.addEventListener('click', ()=>{
@@ -2161,7 +2209,6 @@
       const body = document.createElement('div');
       body.className = 'acc-body';
 
-      // YÊU CẦU 4: Thêm nút "Mở" vào vòng lặp user
       const usersHTML = (item.users || []).map((u,idx)=>`
         <div class="acc-user-row">
           <div class="acc-user-row-title">Người dùng ${idx+1}</div>
@@ -2169,9 +2216,9 @@
             <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${u.name||''}">
           </div>
           <div class="field" style="margin-bottom:4px;">
-            <div class="row" style="gap:4px;">
-              <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${u.link||''}" style="flex:1;">
-              ${u.link ? `<a href="${u.link.startsWith('http') ? u.link : '//' + u.link}" target="_blank" rel="noopener noreferrer" class="btn ghost small" style="padding:7px 8px;" title="Mở link">Mở</a>` : ''}
+            <div class="row" style="gap:6px;align-items:center;">
+              <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${u.link||''}">
+              <button type="button" class="btn ghost small acc_open_link_btn">Mở link</button>
             </div>
           </div>
           <div class="field" style="margin-bottom:0;">
@@ -2220,11 +2267,6 @@
 
       body.addEventListener('click', async e=>{
         const btn = e.target.closest('button[data-act]');
-        // Bỏ qua nếu click vào link (YÊU CẦU 4)
-        if (e.target.closest('a[target="_blank"]')) {
-          return;
-        }
-        
         if(!btn) return;
         const act = btn.dataset.act;
         const accId = item.id;
@@ -2323,13 +2365,16 @@
     initTheme();
     await initFirebase();
     await syncHistoryFromCloud();
-    
-    // YÊU CẦU 5: Đọc tab từ localStorage
-    const savedTab = localStorage.getItem(LS_TAB);
-    const validTabs = ['accounts', 'cleaner', 'scan', 'key'];
-    const tabToLoad = validTabs.includes(savedTab) ? savedTab : 'accounts'; // Mặc định là 'accounts'
-    activateTab(tabToLoad);
 
+    // Khôi phục tab đang dùng gần nhất (mặc định Cleaner)
+    let initialTab = 'cleaner';
+    try{
+      const savedTab = localStorage.getItem(LS_TAB);
+      if(savedTab && ['cleaner','scan','key','accounts'].includes(savedTab)){
+        initialTab = savedTab;
+      }
+    }catch(e){}
+    activateTab(initialTab);
     renderHistory();
 
     const savedLink = localStorage.getItem(LS_LINK);
