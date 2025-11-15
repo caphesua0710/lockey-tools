@@ -1348,6 +1348,10 @@
 (function(){
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
+  
+  // ⭐️ FIX: LẤY ELEMENT 1 LẦN NGAY TẠI ĐÂY (GIỐNG INDEX2.HTML)
+  const cloudStatusEl = document.getElementById('cloudStatus');
+
 
   /* TOAST */
   const toastEl = $('#toast');
@@ -1483,29 +1487,15 @@
   }
 
   /* FIREBASE / CLOUD */
-/* FIREBASE / CLOUD */
 let db = null;
 let firebaseReady = false;
 
-
-function setCloudStatus(text) {
-  // Lấy element MỖI KHI HÀM ĐƯỢC GỌI
-  const cloudStatusEl = $('#cloudStatus'); 
-  
-  if (!cloudStatusEl) {
-    // Nếu vẫn không tìm thấy, báo lỗi để bạn biết
-    console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
-    return;
-  }
-  
-  cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
-}
-
+// ⭐️ FIX: Xoá BỎ HÀM `setCloudStatus` (ĐÃ DI CHUYỂN LOGIC VÀO TRONG CÁC HÀM BÊN DƯỚI)
 
 async function initFirebase() {
   try {
-    // 1) Vừa vào là báo đang khởi tạo luôn (cho cảm giác nhanh)
-    setCloudStatus('Cloud: OK (đang khởi tạo…)');
+    // 1) ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+    if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: OK (đang khởi tạo…)`;
 
     // 2) Khởi tạo Firebase
     firebase.initializeApp(firebaseConfig);
@@ -1519,7 +1509,8 @@ async function initFirebase() {
 
     // ✅ Đánh dấu đã sẵn sàng NGAY SAU KHI CÓ FIRESTORE
     firebaseReady = true;
-    setCloudStatus('Cloud: OK');
+    // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+    if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: OK`;
 
     // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
     firebase.auth().signInAnonymously().catch(e => {
@@ -1527,17 +1518,20 @@ async function initFirebase() {
       // Không tắt firebaseReady để vẫn thử sync được
       if (e.code === 'auth/unauthorized-domain') {
         showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
-        setCloudStatus('Cloud: lỗi auth (domain)');
+        // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+        if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: lỗi auth (domain)`;
       } else {
         showToast('Lỗi đăng nhập Firebase');
-        setCloudStatus('Cloud: lỗi auth');
+        // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+        if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: lỗi auth`;
       }
     });
 
   } catch (e) {
     console.warn('Firebase init failed', e);
     firebaseReady = false;
-    setCloudStatus('Cloud: lỗi init');
+    // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+    if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: lỗi init`;
     showToast('Lỗi khởi tạo Firebase');
   }
 }
@@ -1546,7 +1540,8 @@ async function initFirebase() {
 
   async function syncHistoryFromCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+      if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: chưa sẵn sàng`;
       showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
@@ -1561,22 +1556,26 @@ async function initFirebase() {
         };
         saveHistoryMap(map);
         showToast('Đã tải lịch sử từ cloud');
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+        // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+        if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: OK`;
         renderHistoryFor(currentTab);
       }else{
         showToast('Cloud chưa có dữ liệu lịch sử');
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (trống)';
+        // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+        if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: OK (trống)`;
       }
     }catch(e){
       console.warn('syncHistoryFromCloud error', e);
       showToast('Lỗi đọc lịch sử từ cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc lịch sử';
+      // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+      if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: lỗi đọc lịch sử`;
     }
   }
 
   async function syncHistoryToCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+      if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: chưa sẵn sàng`;
       showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
@@ -1584,11 +1583,13 @@ async function initFirebase() {
       const map = loadHistoryMap();
       await getHistoryDocRef().set(map);
       showToast('Đã đồng bộ lịch sử lên cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+      // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+      if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: OK`;
     }catch(e){
       console.warn('syncHistoryToCloud error', e);
       showToast('Lỗi ghi lịch sử lên cloud');
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi lịch sử';
+      // ⭐️ FIX: Dùng `cloudStatusEl` trực tiếp
+      if (cloudStatusEl) cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> Cloud: lỗi ghi lịch sử`;
     }
   }
 
