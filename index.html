@@ -1,703 +1,1104 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TK Suite — Mail & Account Tools</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TK Suite — Mail & Account Tools</title>
 
-<!-- Favicon -->
-<link rel="icon" type="image/png" href="logo.png" />
+ <link rel="icon" type="image/png" href="logo.png" />
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
-<!-- Firebase compat SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-<script>
-  // Firebase project lockey-238c0
-  const firebaseConfig = {
-    apiKey: "AIzaSyDiwjp-OoPJ3VwC068gvhTJ3swdjFc8k5A",
-    authDomain: "lockey-238c0.firebaseapp.com",
-    projectId: "lockey-238c0",
-    storageBucket: "lockey-238c0.firebasestorage.app",
-    messagingSenderId: "1097009271087",
-    appId: "1:1097009271087:web:0f5cd5b55c917bbe21d1da",
-    measurementId: "G-PNCE5DYWQK"
-  };
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiwjp-OoPJ3VwC068gvhTJ3swdjFc8k5A",
+      authDomain: "lockey-238c0.firebaseapp.com",
+      projectId: "lockey-238c0",
+      storageBucket: "lockey-238c0.firebasestorage.app",
+      messagingSenderId: "1097009271087",
+      appId: "1:1097009271087:web:0f5cd5b55c917bbe21d1da",
+      measurementId: "G-PNCE5DYWQK"
+    };
+  </script>
 
-<style>
-  :root{
-    --green:#22c55e;
-    --green-600:#16a34a;
-    --green-700:#15803d;
-    --green-soft:#dcfce7;
+  <style>
+    /* === 🎨 BẮT ĐẦU NÂNG CẤP GIAO DIỆN NEON 2025 === */
+    :root{
+      /* Màu Neon Mới */
+      --green-500: #00ff9d; /* Xanh Neon */
+      --green-600: #00e68e;
+      --green-700: #00c77a;
+      --green-glow: rgba(0, 255, 157, 0.4);
+      --green-glow-strong: rgba(0, 255, 157, 0.7);
+      
+      --blue-accent: #00f0ff; /* Xanh Cyan Neon */
+      --blue-glow: rgba(0, 240, 255, 0.3);
+      --blue-glow-strong: rgba(0, 240, 255, 0.6);
 
-    --bg:#f1f5f9;
-    --fg:#0f172a;
-    --muted:#6b7280;
-    --card:#ffffff;
-    --line:#e5e7eb;
-    --shadow:0 10px 30px rgba(15,23,42,0.12);
+      /* Chế độ tối (Mặc định) */
+      --bg: #010a19; /* Nền xanh đen cyber */
+      --bg-soft: #010a19;
+      --fg: #e5f0ff; /* Chữ sáng */
+      --muted: #88a0c2; /* Chữ mờ */
+      --card: rgba(10, 20, 39, 0.85); /* Hiệu ứng Glassmorphism */
+      --line: rgba(0, 240, 255, 0.25); /* Viền Cyan mờ */
+      --shadow-soft: 0 24px 60px rgba(0,0,0,0.9);
+      
+      --radius: 18px;
+      --danger: #ff4d4d;
+      --danger-soft: rgba(255, 77, 77, 0.15);
+      --warning: #f9b500;
+      --warning-soft: rgba(249, 181, 0, 0.15);
+    }
 
-    --radius:16px;
-    --danger:#ef4444;
-    --danger-soft:#fee2e2;
-    --warning:#f97316;
-    --warning-soft:#ffedd5;
-  }
+    /* Chế độ Sáng (Vibrant) */
+    body[data-theme="light"]{
+      --bg: #f4f7fa; /* Nền xám rất nhạt */
+      --bg-soft: #f4f7fa;
+      --fg: #111827; /* Chữ đen */
+      --muted: #6b7280; /* Chữ mờ */
+      --card: #ffffff; /* Thẻ trắng */
+      --line: #dce3ed; /* Viền xám nhạt */
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
 
-  body[data-theme="dark"]{
-    --bg:#020617;
-    --fg:#e5e7eb;
-    --muted:#9ca3af;
-    --card:#020617;
-    --line:#1f2937;
-    --green-soft:rgba(34,197,94,0.15);
-    --shadow:0 20px 50px rgba(0,0,0,0.9);
-    --danger-soft:rgba(248,113,113,0.1);
-    --warning-soft:rgba(248,250,252,0.04);
-  }
+      --danger-soft: #fee2e2;
+      --warning-soft: #ffedd5;
+    }
+    
+    /* Đồng bộ chế độ Sáng */
+    body[data-theme="light"]{
+      background: var(--bg-soft);
+    }
+    body[data-theme="light"] .app{
+      background: var(--card);
+      border-color: var(--line);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: none; /* Bỏ blur ở chế độ sáng */
+    }
+    body[data-theme="light"] .app::before{
+      opacity: 0.1;
+    }
+    body[data-theme="light"] .card{
+      background: var(--card);
+      border-color: var(--line);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      backdrop-filter: none;
+    }
+    body[data-theme="light"] .card:hover{
+      border-color: var(--green-500);
+      box-shadow: 0 6px 15px var(--green-glow);
+    }
+    body[data-theme="light"] .card:hover::before{
+      opacity: 0.2;
+    }
+    
+    /* Nút ở chế độ sáng */
+    body[data-theme="light"] .tab{
+      background: #eef2f9; 
+      color: var(--muted);
+      border-color: transparent;
+      text-shadow: none;
+      box-shadow: none;
+    }
+    body[data-theme="light"] .tab[aria-selected="true"]{
+      background: var(--green-500); /* Đồng bộ màu Neon */
+      color: #010a19; /* Chữ đen */
+      box-shadow: 0 4px 15px var(--green-glow);
+    }
+    body[data-theme="light"] .btn{
+      background: var(--green-500);
+      color: #010a19;
+      box-shadow: 0 4px 15px var(--green-glow);
+    }
+    body[data-theme="light"] .btn.ghost{
+      background: #ffffff;
+      color: #334155;
+      border-color: var(--line);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      text-shadow: none;
+    }
+    body[data-theme="light"] .btn.ghost:hover{
+      border-color: #a0a0a0;
+      box-shadow: none;
+    }
+    body[data-theme="light"] .icon-btn{
+      background: #ffffff;
+      color: #334155;
+      border-color: var(--line);
+      text-shadow: none;
+    }
+    body[data-theme="light"] .icon-btn:hover{
+      border-color: var(--green-500);
+      color: var(--green-500);
+      box-shadow: 0 4px 12px var(--green-glow);
+    }
+    
+    /* Input ở chế độ sáng */
+    body[data-theme="light"] textarea,
+    body[data-theme="light"] input[type="text"],
+    body[data-theme="light"] input[type="number"],
+    body[data-theme="light"] input[type="date"]{
+      background: #ffffff;
+      color: var(--fg);
+      box-shadow: none;
+      border-color: var(--line);
+    }
+    body[data-theme="light"] textarea:focus,
+    body[data-theme="light"] input:focus{
+      border-color: var(--green-500);
+      box-shadow: 0 0 0 2px var(--green-glow);
+    }
+    
+    /* Tiêu đề & Badge ở chế độ sáng */
+    body[data-theme="light"] .brand-title,
+    body[data-theme="light"] .card-head h3,
+    body[data-theme="light"] .label-title,
+    body[data-theme="light"] .pill-main strong,
+    body[data-theme="light"] .history-header-title {
+      color: var(--fg);
+      text-shadow: none;
+    }
+    body[data-theme="light"] .cloud-status,
+    body[data-theme="light"] .badge,
+    body[data-theme="light"] .acc-badge,
+    body[data-theme="light"] .h-tag {
+      background: #f1f5f9;
+      color: var(--muted);
+      border-color: var(--line);
+      text-shadow: none;
+    }
+    body[data-theme="light"] .pill-radio{
+      background: #ffffff;
+      border-color: var(--line);
+    }
+    body[data-theme="light"] .pill-radio:hover{
+      background: #f8fafc;
+      border-color: var(--green-500);
+    }
+    
+    /* Fix tab Tài khoản ở chế độ sáng */
+    body[data-theme="light"] .acc-item{
+      background: #fafcff;
+      border-color: var(--line);
+      box-shadow: none;
+    }
+    body[data-theme="light"] .acc-head-btn{
+      background: #ffffff;
+    }
+    body[data-theme="light"] .acc-head-btn:hover{
+      background: #fcfdff;
+    }
+    body[data-theme="light"] .acc-user-row{
+      background: #f4f7fa;
+      border-color: var(--line);
+    }
+    body[data-theme="light"] .acc-badge-warning{
+      background: var(--warning-soft);
+      color: #f9b500;
+      border-color: #fed7aa;
+    }
+    body[data-theme="light"] .acc-badge-error{
+      background: var(--danger-soft);
+      color: #ff4d4d;
+      border-color: #fca5a5;
+    }
+    body[data-theme="light"] .acc-badge-expired{
+      background: #e5e7eb;
+      color: #4b5563;
+      border-color: #d1d5db;
+    }
+    body[data-theme="light"] .h-item{
+      background: #ffffff;
+      border-color: var(--line);
+      box-shadow: none;
+    }
+    body[data-theme="light"] .h-btn{
+      background: rgba(0, 255, 157, 0.1);
+    }
+    body[data-theme="light"] .h-line1 { color: var(--fg); }
+    body[data-theme="light"] .history-ta {
+      background: #f9fafb;
+      color: var(--fg);
+      border-color: var(--line);
+    }
+    /* === KẾT THÚC NÂNG CẤP GIAO DIỆN === */
 
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:radial-gradient(circle at top,var(--green-soft) 0,transparent 45%), var(--bg);
-    color:var(--fg);
-    display:flex;
-    justify-content:center;
-  }
 
-  .app{
-    width:100%;
-    max-width:430px;
-    padding:16px 12px 24px;
-  }
+    *{box-sizing:border-box;}
+    html,body{min-height:100%;}
 
-  /* Desktop: nở rộng hơn cho màn to (PC, 27") */
-  @media (min-width: 768px){
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(0, 240, 255, 0.2), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(0, 255, 157, 0.2), transparent 55%),
+        radial-gradient(circle at 50% 100%, rgba(0, 255, 157, 0.15), transparent 55%),
+        var(--bg-soft);
+      color:var(--fg);
+      padding:16px 8px 32px;
+    }
+
     .app{
-      max-width:900px;
-      padding:20px 24px 32px;
+      width:100%;
+      max-width:430px;
+      padding:16px 12px 24px;
+      margin:16px auto 32px;
+      border-radius:26px;
+      background: rgba(10, 20, 39, 0.85); /* Nền glass */
+      box-shadow:var(--shadow-soft);
+      border: 1px solid var(--line);
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(12px); /* Hiệu ứng blur */
+      -webkit-backdrop-filter: blur(12px);
     }
-  }
-  @media (min-width: 1200px){
-    .app{
-      max-width:1100px;
+    .app::before{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(0, 255, 157, 0.1), transparent 55%),
+        radial-gradient(circle at 90% 10%, rgba(0, 240, 255, 0.1), transparent 55%);
+      opacity:0.9;
+      pointer-events:none;
+      z-index:-1;
     }
-  }
 
-  /* Header */
-  .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:10px;
-  }
-  .topbar-left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .logo-box{
-    width:32px;
-    height:32px;
-    border-radius:999px;
-    overflow:hidden;
-    box-shadow:0 6px 14px rgba(0,0,0,0.35);
-    border:1px solid rgba(250,250,250,0.6);
-    background:radial-gradient(circle at 30% 20%, rgba(250,250,250,0.15), transparent 60%), #020617;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .logo-img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-  }
-  .brand-title{font-size:16px;font-weight:700;}
-  .brand-sub{font-size:11px;color:var(--muted);}
-
-  .topbar-actions{
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-
-  .icon-btn{
-    width:32px;
-    height:32px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:var(--card);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:17px;
-    cursor:pointer;
-    transition:.15s all ease;
-  }
-  .icon-btn:hover{border-color:var(--green);}
-
-  .btn{
-    appearance:none;
-    border-radius:999px;
-    border:1px solid transparent;
-    background:var(--green);
-    color:#fff;
-    padding:7px 12px;
-    font-size:12px;
-    font-weight:600;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:.16s transform ease,.16s box-shadow ease,.16s background ease,.16s border-color ease;
-  }
-  .btn.small{padding:5px 10px;font-size:11px;}
-  .btn:active{transform:translateY(1px);}
-  .btn.ghost{
-    background:var(--card);
-    border-color:var(--line);
-    color:var(--fg);
-  }
-  body[data-theme="dark"] .btn.ghost{background:#020617;}
-  .btn.danger{
-    background:var(--danger-soft);
-    border-color:#fecaca;
-    color:#b91c1c;
-  }
-  .btn.full{width:100%;justify-content:center;}
-
-  /* Cloud status */
-  .cloud-status{
-    font-size:10px;
-    color:var(--muted);
-    padding:2px 6px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:rgba(248,250,252,0.8);
-  }
-  body[data-theme="dark"] .cloud-status{
-    background:rgba(15,23,42,0.9);
-  }
-
-  /* Tabs chính (4 tab) */
-  .tabs{
-    display:flex;
-    gap:6px;
-    margin-bottom:10px;
-    overflow-x:auto;
-    padding-bottom:4px;
-  }
-  .tab{
-    appearance:none;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:rgba(248,250,252,0.9);
-    padding:6px 10px;
-    font-size:11px;
-    font-weight:600;
-    cursor:pointer;
-    white-space:nowrap;
-    color:var(--muted);
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-  }
-  body[data-theme="dark"] .tab{
-    background:rgba(15,23,42,0.9);
-  }
-  .tab span.idx{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:16px;
-    height:16px;
-    border-radius:999px;
-    background:var(--green-soft);
-    font-size:10px;
-    color:var(--green-700);
-  }
-  .tab[aria-selected="true"]{
-    color:#fff;
-    border-color:transparent;
-    background:linear-gradient(135deg,var(--green),var(--green-600));
-    box-shadow:0 10px 26px rgba(22,163,74,0.35);
-  }
-  .tab[aria-selected="true"] span.idx{
-    background:rgba(15,23,42,0.15);
-    color:#bbf7d0;
-  }
-
-  /* Panel: mobile = 1 cột, desktop = 2 cột (input | output) */
-  .panel{
-    display:grid;
-    grid-template-columns:minmax(0,1fr);
-    gap:10px;
-  }
-  .panel[hidden]{display:none;}
-  @media (min-width: 900px){
-    .panel{
-      grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
-      align-items:flex-start;
+    @media (min-width:768px){
+      body{
+        padding:32px 16px 48px;
+      }
+      .app{
+        max-width:920px;
+        padding:22px 20px 30px;
+        border-radius:28px;
+        margin:24px auto 40px;
+      }
     }
-  }
+    @media (min-width:1024px){
+      .app{
+        max-width:1100px;
+        padding:26px 24px 34px;
+      }
+    }
 
-  /* Card chung */
-  .card{
-    background:var(--card);
-    border-radius:var(--radius);
-    border:1px solid var(--line);
-    box-shadow:var(--shadow);
-    margin-bottom:0;
-    overflow:hidden;
-  }
-  .card-head{
-    padding:8px 10px;
-    border-bottom:1px solid var(--line);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-  }
-  .card-head h3{
-    margin:0;
-    font-size:13px;
-    font-weight:700;
-  }
-  .card-body{padding:10px;}
+    /* HEADER */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo-box{
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      overflow:hidden;
+      box-shadow:0 0 20px rgba(0, 255, 157, 0.3);
+      border:1px solid var(--green-500);
+      background: #010a19;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transform:translateY(0);
+      transition:.2s transform ease,.2s box-shadow ease;
+    }
+    .logo-box img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .logo-box:hover{
+      transform:translateY(-2px);
+      box-shadow:0 0 30px var(--green-glow-strong);
+    }
+    .brand-title{
+      font-size:17px;
+      font-weight:800;
+      letter-spacing:.03em;
+      color:var(--fg);
+      text-shadow: 0 0 5px var(--green-glow);
+    }
+    .brand-sub{
+      font-size:11px;
+      color:var(--muted);
+    }
 
-  .badge{
-    padding:3px 7px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    font-size:10px;
-    color:var(--muted);
-    background:rgba(248,250,252,0.9);
-  }
-  body[data-theme="dark"] .badge{
-    background:rgba(15,23,42,0.9);
-  }
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-  .field{margin-bottom:8px;}
-  .label{
-    font-size:12px;
-    font-weight:600;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:4px;
-  }
+    .icon-btn{
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      cursor:pointer;
+      transition:.2s transform ease,.2s box-shadow ease,.18s border-color ease,.18s background ease;
+      color:var(--muted);
+      text-shadow: 0 0 3px var(--blue-glow);
+    }
+    .icon-btn:hover{
+      transform:translateY(-1px);
+      border-color: var(--blue-accent);
+      color: var(--blue-accent);
+      box-shadow: 0 0 10px var(--blue-glow-strong);
+      background: rgba(0, 240, 255, 0.1);
+    }
 
-  textarea,input[type="text"],input[type="number"],input[type="date"]{
-    width:100%;
-    border-radius:14px;
-    border:1px solid var(--line);
-    padding:10px 11px;
-    font-size:13px;
-    font-family:inherit;
-    background:var(--card);
-    color:var(--fg);
-    outline:none;
-  }
-  textarea::placeholder,input::placeholder{color:rgba(148,163,184,0.8);}
-  textarea:focus,input:focus{
-    border-color:var(--green);
-    box-shadow:0 0 0 1px var(--green-soft);
-  }
-  textarea{
-    min-height:190px;
-    resize:vertical;
-    line-height:1.45;
-  }
-  /* Desktop: text area cao hơn chút cho dễ nhìn */
-  @media (min-width: 900px){
+    .btn{
+      appearance:none;
+      border-radius:999px;
+      border:1px solid transparent;
+      background: var(--green-500);
+      color: #010a19; /* Chữ đen cho nổi bật */
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:700; /* Đậm hơn */
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:.16s transform ease,.16s box-shadow ease,.16s background ease,.16s border-color ease,.16s opacity ease;
+      box-shadow: 0 0 12px var(--green-glow);
+    }
+    .btn.small{padding:5px 10px;font-size:11px;}
+    .btn:active{transform:translateY(1px);}
+    .btn.full{width:100%;justify-content:center;}
+    .btn.ghost{
+      background: transparent;
+      border-color: var(--line);
+      color: var(--muted);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .btn.ghost:hover{
+      border-color: var(--blue-accent);
+      color: var(--blue-accent);
+      box-shadow: 0 0 8px var(--blue-glow);
+      background: rgba(0, 240, 255, 0.1);
+      text-shadow: 0 0 3px var(--blue-glow);
+    }
+    .btn.danger{
+      background: var(--danger);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(255, 77, 77, 0.5);
+    }
+
+    .cloud-status{
+      font-size:10px;
+      color:var(--muted);
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: transparent;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .cloud-dot{
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background: var(--blue-accent);
+      box-shadow: 0 0 8px var(--blue-glow-strong);
+    }
+
+    /* TABS */
+    .tabs{
+      display:flex;
+      gap:6px;
+      margin-bottom:12px;
+      overflow-x:auto;
+      padding-bottom:4px;
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none;}
+
+    .tab{
+      appearance:none;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: transparent;
+      padding:6px 11px;
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      white-space:nowrap;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      box-shadow: none;
+      transition:.18s transform ease,.18s box-shadow ease,.18s border-color ease,.18s background ease,.18s color ease;
+    }
+    .tab-icon{font-size:13px;}
+    .tab[aria-selected="true"]{
+      color: #010a19; /* Chữ đen */
+      border-color: transparent;
+      background: var(--green-500);
+      box-shadow: 0 0 15px var(--green-glow-strong);
+      transform:translateY(-1px);
+      font-weight: 700;
+    }
+
+    .panel{display:block;animation:panelIn .22s ease;}
+    .panel[hidden]{display:none;}
+
+    @keyframes panelIn{
+      from{opacity:0;transform:translateY(6px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+    /* CARD */
+    .card{
+      background: var(--card);
+      border-radius:var(--radius);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      margin-bottom:12px;
+      overflow:hidden;
+      position:relative;
+      transform:translateY(0);
+      transition:.2s transform ease,.2s box-shadow ease,.2s border-color ease,.2s background ease;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at 0 0, rgba(0, 255, 157, 0.1), transparent 55%);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s opacity ease;
+    }
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow: 0 0 25px var(--green-glow);
+      border-color: var(--green-500);
+    }
+    .card:hover::before{opacity:1;}
+
+    .card-head{
+      padding:9px 11px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .card-head h3{
+      margin:0;
+      font-size:13px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      color:var(--fg);
+    }
+    .card-body{padding:10px 11px 11px;}
+
+    .badge{
+      padding:3px 7px;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      font-size:10px;
+      color:var(--muted);
+      background: transparent;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    .field{margin-bottom:8px;}
+    .label{
+      font-size:11px;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:4px;
+      color:var(--fg);
+    }
+    .label-title{
+      font-size:12px;
+      font-weight:600;
+      color:var(--fg);
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="number"],
+    input[type="date"]{
+      width:100%;
+      border-radius:14px;
+      border: 1px solid var(--line);
+      padding:9px 11px;
+      font-size:13px;
+      font-family:inherit;
+      background: rgba(0,0,0,0.2);
+      color:var(--fg);
+      outline:none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3) inset;
+      transition:.16s border-color ease,.16s box-shadow ease,.16s background ease;
+    }
+    textarea::placeholder,
+    input::placeholder{
+      color: var(--muted);
+    }
+    textarea:focus,
+    input:focus{
+      border-color: var(--green-500);
+      box-shadow: 0 0 0 2px var(--green-glow), 0 5px 15px rgba(0,0,0,0.3) inset;
+      background: rgba(0, 15, 30, 0.3);
+    }
     textarea{
-      min-height:230px;
+      min-height:190px;
+      resize:vertical;
+      line-height:1.45;
     }
-  }
 
-  .mono{
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    }
 
-  .row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    align-items:center;
-  }
-  .toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-top:6px;
-  }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      align-items:center;
+    }
 
-  .pill-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-  }
-  .pill-column{flex-direction:column;}
-  .pill-radio{
-    flex:1 1 auto;
-    border-radius:999px;
-    border:1px solid var(--line);
-    padding:7px 9px;
-    display:flex;
-    align-items:flex-start;
-    gap:6px;
-    cursor:pointer;
-    font-size:11px;
-    background:rgba(248,250,252,0.9);
-  }
-  body[data-theme="dark"] .pill-radio{
-    background:rgba(15,23,42,0.9);
-  }
-  .pill-radio input{
-    margin-top:2px;
-    accent-color:var(--green);
-  }
-  .pill-main{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-  }
-  .pill-main strong{font-size:11px;}
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .pill-column{flex-direction:column;}
+    .pill-radio{
+      flex:1 1 auto;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      padding:7px 9px;
+      display:flex;
+      align-items:flex-start;
+      gap:6px;
+      cursor:pointer;
+      font-size:11px;
+      background: transparent;
+      transition:.16s border-color ease,.16s background ease,.16s box-shadow ease;
+    }
+    .pill-radio input{
+      margin-top:2px;
+      accent-color: var(--green-500);
+    }
+    .pill-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .pill-main strong{font-size:11px;color:var(--fg);}
+    .pill-main span{color:var(--muted);}
+    .pill-radio:hover{
+      border-color: var(--green-500);
+      box-shadow: 0 0 10px var(--green-glow);
+      background: rgba(0, 255, 157, 0.1);
+    }
 
-  .checkbox-inline{
-    display:inline-flex;
-    align-items:center;
-    gap:4px;
-    font-size:11px;
-  }
-  .checkbox-inline input{accent-color:var(--green);}
+    .checkbox-inline{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .checkbox-inline input{accent-color:var(--green-500);}
 
-  /* History overlay */
-  .history-overlay{
-    position:fixed;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:14px 10px;
-    opacity:0;
-    pointer-events:none;
-    transition:.18s opacity ease;
-    z-index:50;
-  }
-  .history-overlay.open{
-    opacity:1;
-    pointer-events:auto;
-  }
-  .history-backdrop{
-    position:absolute;
-    inset:0;
-    background:rgba(15,23,42,0.55);
-  }
-  .history-sheet{
-    position:relative;
-    width:100%;
-    max-width:430px;
-    border-radius:18px;
-    border:1px solid var(--line);
-    background:var(--card);
-    box-shadow:0 22px 50px rgba(0,0,0,0.75);
-    max-height:calc(100vh - 40px);
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-  }
-  @media (min-width:768px){
+    /* === 📐 SỬA LỖI LAYOUT KẾT QUẢ === */
+    .card-head.result-head{
+      flex-direction: row; /* LUÔN LUÔN là 1 hàng */
+      align-items: center; /* Căn giữa theo chiều dọc */
+      gap: 8px;
+    }
+    .result-head{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:4px;
+      width:100%;
+    }
+    .result-head-main{
+      width: auto; /* Bỏ width 100% */
+      flex: 1 1 auto; /* Cho phép co giãn */
+      display:flex;
+      align-items:center;
+      justify-content: flex-start; /* Không đẩy nút "Lưu" ra xa */
+      gap: 8px; /* Thêm khoảng cách giữa các mục */
+    }
+    .result-head-main-left{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+    .result-head-main-left h3,
+    .result-head-main-left .badge{
+      white-space:nowrap;
+    }
+    .result-head-actions{
+      width: auto; /* Bỏ width 100% */
+      flex: 0 0 auto; /* Không co giãn, giữ kích thước */
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:6px;
+      margin-top: 0; /* Bỏ margin top */
+    }
+    /* === KẾT THÚC SỬA LAYOUT === */
+
+
+    /* HISTORY overlay */
+    .history-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:14px 10px;
+      opacity:0;
+      pointer-events:none;
+      transition:.18s opacity ease;
+      z-index:50;
+    }
+    .history-overlay.open{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .history-backdrop{
+      position:absolute;
+      inset:0;
+      background:rgba(1, 10, 25, 0.75);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
     .history-sheet{
-      max-width:600px;
+      position:relative;
+      width:100%;
+      max-width:430px;
+      border-radius:20px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      box-shadow:0 24px 70px rgba(0,0,0,0.95);
+      max-height:calc(100vh - 40px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      animation:panelIn .2s ease;
     }
-  }
-  .history-header{
-    padding:8px 10px 4px;
-    border-bottom:1px solid var(--line);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-  }
-  .history-header-title{
-    font-size:13px;
-    font-weight:700;
-  }
-  .history-header-sub{
-    font-size:11px;
-    color:var(--muted);
-  }
-  .history-actions{
-    padding:6px 10px;
-    border-bottom:1px solid var(--line);
-    display:flex;
-    align-items:center;
-    justify-content:flex-end;
-    gap:6px;
-  }
-  .history-actions-right{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    justify-content:flex-end;
-  }
 
-  .history-list{
-    padding:8px 10px 10px;
-    overflow:auto;
-    flex:1 1 auto;
-  }
-  .history-empty{
-    font-size:12px;
-    color:var(--muted);
-  }
-  .h-item{
-    border-radius:14px;
-    border:1px solid var(--line);
-    margin-bottom:8px;
-    overflow:hidden;
-    background:rgba(248,250,252,0.9);
-  }
-  body[data-theme="dark"] .h-item{
-    background:rgba(15,23,42,0.95);
-  }
-  .h-btn{
-    width:100%;
-    text-align:left;
-    border:none;
-    background:rgba(236,252,203,0.6);
-    padding:7px 9px;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    cursor:pointer;
-  }
-  body[data-theme="dark"] .h-btn{
-    background:rgba(22,163,74,0.18);
-  }
-  .h-main{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-    flex:1;
-    min-width:0;
-  }
-  .h-line1{font-size:12px;font-weight:600;}
-  .h-line2{
-    font-size:11px;
-    color:var(--muted);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .h-tag{
-    font-size:10px;
-    padding:2px 6px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:rgba(255,255,255,0.6);
-  }
-  .h-body{
-    display:none;
-    padding:8px 9px 9px;
-    border-top:1px solid var(--line);
-  }
-  .h-cols{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .history-ta{
-    width:100%;
-    min-height:70px;
-    resize:vertical;
-    border-radius:10px;
-    border:1px solid var(--line);
-    padding:7px 8px;
-    font-size:11px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    background:var(--card);
-    color:var(--fg);
-  }
+    @media (min-width:768px){
+      .history-overlay{
+        align-items:center;
+        padding:22px 16px;
+      }
+      .history-sheet{
+        max-width:780px;
+        max-height:calc(100vh - 80px);
+      }
+    }
+    @media (min-width:1024px){
+      .history-sheet{
+        max-width:980px;
+      }
+    }
 
-  /* Toast */
-  #toast{
-    position:fixed;
-    left:50%;
-    bottom:18px;
-    transform:translateX(-50%);
-    background:var(--green-600);
-    color:#fff;
-    padding:7px 14px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:600;
-    box-shadow:0 12px 30px rgba(22,163,74,0.6);
-    opacity:0;
-    transition:.18s opacity ease;
-    z-index:60;
-    pointer-events:none;
-  }
+    .history-header{
+      padding:8px 11px 6px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .history-header-title{
+      font-size:13px;
+      font-weight:700;
+      color:var(--fg);
+    }
+    .history-header-sub{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .history-actions{
+      padding:6px 10px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:6px;
+    }
+    .history-actions-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      justify-content:flex-end;
+    }
 
-  /* Account manager */
-  .acc-form-actions{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-    margin-top:6px;
-  }
-  .acc-users{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .acc-user-row{
-    padding:6px 8px;
-    border-radius:12px;
-    border:1px dashed var(--line);
-  }
-  .acc-user-row-title{
-    font-size:11px;
-    font-weight:600;
-    margin-bottom:4px;
-  }
-  .acc-list-empty{
-    font-size:12px;
-    color:var(--muted);
-  }
-  .acc-item{
-    border-radius:14px;
-    border:1px solid var(--line);
-    margin-bottom:8px;
-    overflow:hidden;
-    background:rgba(248,250,252,0.9);
-  }
-  body[data-theme="dark"] .acc-item{
-    background:rgba(15,23,42,0.95);
-  }
-  .acc-head-btn{
-    width:100%;
-    text-align:left;
-    border:none;
-    background:rgba(226,232,240,0.9);
-    padding:8px 9px;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    cursor:pointer;
-  }
-  body[data-theme="dark"] .acc-head-btn{
-    background:rgba(15,23,42,0.9);
-  }
-  .acc-title{
-    font-size:12px;
-    font-weight:600;
-  }
-  .acc-sub{
-    font-size:11px;
-    color:var(--muted);
-  }
-  .acc-badges{
-    margin-left:auto;
-    display:flex;
-    flex-wrap:wrap;
-    gap:4px;
-    font-size:10px;
-  }
-  .acc-badge{
-    padding:2px 6px;
-    border-radius:999px;
-    border:1px solid var(--line);
-  }
-  .acc-badge-warning{
-    background:var(--warning-soft);
-    color:var(--warning);
-    border-color:#fed7aa;
-  }
-  .acc-badge-error{
-    background:var(--danger-soft);
-    color:#b91c1c;
-  }
-  .acc-badge-expired{
-    background:rgba(148,163,184,0.12);
-    color:var(--muted);
-  }
-  .acc-body{
-    display:none;
-    padding:8px 9px 9px;
-    border-top:1px solid var(--line);
-  }
-  .acc-body-grid{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .acc-body-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-top:6px;
-  }
-  .pill-inline{
-    display:inline-flex;
-    align-items:center;
-    gap:4px;
-    font-size:11px;
-  }
-</style>
+    .history-list{
+      padding:8px 10px 10px;
+      overflow:auto;
+      flex:1 1 auto;
+    }
+    .history-empty{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .h-item{
+      border-radius:14px;
+      border: 1px solid var(--line);
+      margin-bottom:8px;
+      overflow:hidden;
+      background: rgba(0,0,0,0.2);
+      box-shadow:0 10px 26px rgba(0,0,0,0.7);
+    }
+    .h-btn{
+      width:100%;
+      text-align:left;
+      border:none;
+      background: rgba(0, 255, 157, 0.1);
+      padding:7px 9px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+    }
+    .h-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      flex:1;
+      min-width:0;
+    }
+    .h-line1{font-size:12px;font-weight:600;color:var(--fg);}
+    .h-line2{
+      font-size:11px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .h-tag{
+      font-size:10px;
+      padding:2px 6px;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color:var(--muted);
+    }
+    .h-body{
+      display:none;
+      padding:8px 9px 9px;
+      border-top: 1px solid var(--line);
+    }
+    .h-cols{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .history-ta{
+      width:100%;
+      min-height:70px;
+      resize:vertical;
+      border-radius:10px;
+      border: 1px solid var(--line);
+      padding:7px 8px;
+      font-size:11px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background: rgba(0,0,0,0.2);
+      color:var(--fg);
+    }
+    
+    /* ⭐️ MỚI: CSS cho 4 nút lịch sử */
+    .h-body-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+
+    /* TOAST */
+    #toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      background: var(--green-500);
+      color: #010a19;
+      padding:7px 16px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow: 0 0 20px var(--green-glow-strong);
+      opacity:0;
+      transition:.18s opacity ease,.18s transform ease;
+      z-index:60;
+      pointer-events:none;
+    }
+    #toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-2px);
+    }
+
+    /* ACCOUNT MANAGER */
+    .acc-form-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .acc-users{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .acc-user-row{
+      padding:6px 8px;
+      border-radius:12px;
+      border: 1px dashed var(--line);
+      background: rgba(0,0,0,0.2);
+    }
+    .acc-user-row-title{
+      font-size:11px;
+      font-weight:600;
+      margin-bottom:4px;
+      color:var(--fg);
+    }
+    .acc-list-empty{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .acc-item{
+      border-radius:14px;
+      border: 1px solid var(--line);
+      margin-bottom:8px;
+      overflow:hidden;
+      background: rgba(0,0,0,0.2);
+      box-shadow:0 14px 36px rgba(0,0,0,0.7);
+    }
+    .acc-head-btn{
+      width:100%;
+      text-align:left;
+      border:none;
+      background: transparent;
+      padding:8px 9px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      transition: .15s background ease;
+    }
+    .acc-head-btn:hover{
+      background: rgba(0, 240, 255, 0.05);
+    }
+    .acc-title{
+      font-size:12px;
+      font-weight:600;
+      color:var(--fg);
+    }
+    .acc-sub{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .acc-badges{
+      margin-left:auto;
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      font-size:10px;
+      align-items:center;
+    }
+    .acc-badge{
+      padding:2px 6px;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color:var(--muted);
+    }
+    .acc-badge-warning{
+      background: var(--warning-soft);
+      color: var(--warning);
+      border-color: var(--warning);
+      text-shadow: 0 0 5px var(--warning-soft);
+    }
+    .acc-badge-error{
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: var(--danger);
+      text-shadow: 0 0 5px var(--danger-soft);
+    }
+    .acc-badge-expired{
+      background: rgba(136, 160, 194, 0.1);
+      color: var(--muted);
+      border-color: var(--muted);
+    }
+    .acc-countdown{
+      font-size:11px;
+      color:var(--muted);
+      margin-left:4px;
+    }
+    .acc-body{
+      display:none;
+      padding:8px 9px 9px;
+      border-top: 1px solid var(--line);
+    }
+    .acc-body-grid{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .acc-body-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
+    }
+    .pill-inline{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    /* RESPONSIVE PANELS: 2 CỘT TRÊN PC */
+    @media (min-width:900px){
+      .panel:not([hidden]){
+        display:grid;
+        grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+        gap:12px;
+        align-items:flex-start;
+      }
+      .panel:not([hidden]) .card{
+        margin-bottom:0;
+      }
+    }
+  </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
 <div class="app">
-  <!-- HEADER -->
   <header class="topbar">
     <div class="topbar-left">
       <div class="logo-box">
-        <img src="logo.png" alt="Logo" class="logo-img">
-      </div>
+  <img src="logo.png" alt="Logo">
+</div>
       <div>
         <div class="brand-title">TK Suite</div>
         <div class="brand-sub">Mail • Key • Tài khoản</div>
       </div>
     </div>
     <div class="topbar-actions">
-      <span class="cloud-status" id="cloudStatus">Cloud: đang khởi tạo…</span>
-      <button class="icon-btn" id="btnToggleTheme" title="Chế độ tối / sáng">🌙</button>
+      <span class="cloud-status" id="cloudStatus">
+  <span class="cloud-dot"></span> Cloud: đang kết nối…
+</span>
+      <button class="icon-btn" id="btnToggleTheme" title="Dark / Light">🌙</button>
       <button class="btn ghost small" id="toggleHistoryBtn">Lịch sử</button>
     </div>
   </header>
 
-  <!-- 4 TAB CHÍNH -->
   <div class="tabs">
-    <button class="tab" id="tabCleaner" aria-selected="true"><span class="idx">1</span>Cleaner</button>
-    <button class="tab" id="tabScan" aria-selected="false"><span class="idx">2</span>Scan</button>
-    <button class="tab" id="tabKey" aria-selected="false"><span class="idx">3</span>Add Link</button>
-    <button class="tab" id="tabAccounts" aria-selected="false"><span class="idx">4</span>Tài khoản</button>
+    <button class="tab" id="tabAccounts" aria-selected="true">
+      <span class="tab-icon">👥</span>Tài khoản
+    </button>
+    <button class="tab" id="tabCleaner" aria-selected="false">
+      <span class="tab-icon">✉️</span>Cleaner
+    </button>
+    <button class="tab" id="tabScan" aria-selected="false">
+      <span class="tab-icon">🧪</span>Scan
+    </button>
+    <button class="tab" id="tabKey" aria-selected="false">
+      <span class="tab-icon">🔑</span>Add Link
+    </button>
   </div>
 
-  <!-- PANEL 1: CLEANER -->
-  <section class="panel" id="panelCleaner">
+  <section class="panel" id="panelAccounts">
+    <div class="card">
+      <div class="card-head">
+        <h3>Thêm / sửa tài khoản</h3>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <div class="label"><span>Tài khoản *</span></div>
+          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản..." />
+        </div>
+
+        <div class="field">
+          <div class="label"><span>Số ngày còn *</span></div>
+          <input type="number" id="acc_days" min="0" placeholder="VD: 30" />
+        </div>
+
+        <div class="field">
+          <div class="label">
+            <span>Người dùng & thiết bị (tối đa 3)</span>
+          </div>
+          <div class="acc-users" id="acc_usersContainer"></div>
+          <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
+        </div>
+
+        <div class="acc-form-actions">
+          <button class="btn full" id="acc_saveBtn">Lưu tài khoản</button>
+          <button class="btn ghost full" id="acc_clearFormBtn">Xoá form</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Danh sách tài khoản</h3>
+      </div>
+      <div class="card-body" id="acc_list">
+        <div class="acc-list-empty">Chưa có tài khoản nào.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelCleaner" hidden>
     <div class="card">
       <div class="card-head">
         <h3>Mail Cleaner</h3>
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label">
-            <span>Input</span>
-            <button class="btn ghost small" id="cl_resetBtn">Reset</button>
-          </div>
-          <div class="row">
-            <label class="btn ghost small" for="cl_fileInput">Chọn file .txt</label>
-            <input id="cl_fileInput" type="file" accept=".txt,text/plain" hidden />
+          <div class="row" style="justify-content:space-between;">
+            <span class="label-title">Input</span>
+            <div class="row" style="flex:0 0 auto;">
+              <label class="btn ghost small" for="cl_fileInput">Chọn file .txt</label>
+              <button class="btn ghost small" id="cl_resetBtn">Reset</button>
+              <input id="cl_fileInput" type="file" accept=".txt,text/plain" hidden />
+            </div>
           </div>
         </div>
 
@@ -743,23 +1144,26 @@
     </div>
 
     <div class="card">
-      <div class="card-head">
-        <h3>Kết quả</h3>
-        <span class="badge" id="cl_statBadge">0 dòng → 0 out</span>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+            <span class="badge" id="cl_statBadge">0 dòng → 0 out</span>
+          </div>
+        </div>
+        <div class="result-head-actions">
+          <button class="btn ghost small" id="cl_selectBtn">all</button>
+          <button class="btn ghost small" id="cl_copyBtn">Copy</button>
+          <button class="btn ghost small" id="cl_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="cl_downloadBtn">Tải .txt</button>
+        </div>
       </div>
       <div class="card-body">
         <textarea id="cl_resultTA" class="mono" placeholder="Kết quả sẽ hiển thị ở đây..." readonly></textarea>
-        <div class="toolbar">
-          <button class="btn ghost small" id="cl_selectBtn">Chọn tất cả</button>
-          <button class="btn ghost small" id="cl_copyBtn">Copy</button>
-          <button class="btn ghost small" id="cl_downloadBtn">Tải .txt</button>
-          <button class="btn ghost small" id="cl_saveHistoryBtn">Lưu lịch sử</button>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- PANEL 2: SCAN / FORMAT -->
   <section class="panel" id="panelScan" hidden>
     <div class="card">
       <div class="card-head">
@@ -767,13 +1171,13 @@
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label">
-            <span>Input</span>
-            <button class="btn ghost small" id="sc_resetBtn">Reset</button>
-          </div>
-          <div class="row">
-            <label class="btn ghost small" for="sc_fileInput">Chọn file .txt</label>
-            <input id="sc_fileInput" type="file" accept=".txt,text/plain" hidden />
+          <div class="row" style="justify-content:space-between;">
+            <span class="label-title">Input</span>
+            <div class="row" style="flex:0 0 auto;">
+              <label class="btn ghost small" for="sc_fileInput">Chọn file .txt</label>
+              <button class="btn ghost small" id="sc_resetBtn">Reset</button>
+              <input id="sc_fileInput" type="file" accept=".txt,text/plain" hidden />
+            </div>
           </div>
         </div>
 
@@ -806,22 +1210,26 @@
     </div>
 
     <div class="card">
-      <div class="card-head">
-        <h3>Kết quả</h3>
-        <span class="badge" id="sc_stat">0 dòng</span>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+            <span class="badge" id="sc_stat">0 dòng</span>
+          </div>
+        </div>
+        <div class="result-head-actions">
+          <button class="btn ghost small" id="sc_selectAllOut">all</button>
+          <button class="btn ghost small" id="sc_copyAllOut">Copy</button>
+          <button class="btn ghost small" id="sc_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="sc_downloadBtn">Tải .txt</button>
+        </div>
       </div>
       <div class="card-body">
         <textarea id="sc_resultTA" class="mono" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
-        <div class="toolbar">
-          <button class="btn ghost small" id="sc_selectAllOut">Chọn tất cả</button>
-          <button class="btn ghost small" id="sc_copyAllOut">Copy</button>
-          <button class="btn ghost small" id="sc_saveHistoryBtn">Lưu lịch sử</button>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- PANEL 3: ADD LINK KEY -->
   <section class="panel" id="panelKey" hidden>
     <div class="card">
       <div class="card-head">
@@ -831,7 +1239,6 @@
         </div>
       </div>
       <div class="card-body">
-        <!-- Panel ẩn điền link -->
         <div class="field" id="lk_linkPanel" style="display:none;">
           <div class="label">
             <span>Link nhập key</span>
@@ -844,12 +1251,12 @@
 
         <div class="field">
           <div class="label">
-            <span>Nạp file key</span>
-            <button class="btn ghost small" id="lk_resetBtn">Reset</button>
+            <span>Nạp file key (.txt)</span>
           </div>
           <div class="row">
             <label class="btn ghost small" for="lk_fileInput">Chọn file .txt</label>
             <input id="lk_fileInput" type="file" accept=".txt,text/plain" hidden />
+            <button class="btn ghost small" id="lk_resetBtn">Reset</button>
           </div>
         </div>
 
@@ -894,64 +1301,26 @@
     </div>
 
     <div class="card">
-      <div class="card-head">
-        <h3>Kết quả</h3>
+      <div class="card-head result-head">
+        <div class="result-head-main">
+          <div class="result-head-main-left">
+            <h3>Kết quả</h3>
+          </div>
+        </div>
+        <div class="result-head-actions">
+          <button class="btn ghost small" id="lk_selectAllBtn">all</button>
+          <button class="btn ghost small" id="lk_copyBtn">Copy</button>
+          <button class="btn ghost small" id="lk_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="lk_downloadBtn">Tải .txt</button>
+        </div>
       </div>
       <div class="card-body">
         <textarea id="lk_output" class="mono" readonly placeholder="Kết quả sẽ xuất hiện tại đây..."></textarea>
-        <div class="toolbar">
-          <button class="btn ghost small" id="lk_copyBtn">Copy</button>
-          <button class="btn ghost small" id="lk_downloadBtn">Tải .txt</button>
-          <button class="btn ghost small" id="lk_saveHistoryBtn">Lưu lịch sử</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PANEL 4: QUẢN LÝ TÀI KHOẢN -->
-  <section class="panel" id="panelAccounts" hidden>
-    <div class="card">
-      <div class="card-head">
-        <h3>Thêm / sửa tài khoản</h3>
-      </div>
-      <div class="card-body">
-        <div class="field">
-          <div class="label"><span>Tài khoản *</span></div>
-          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản..." />
-        </div>
-
-        <div class="field">
-          <div class="label"><span>Số ngày còn *</span></div>
-          <input type="number" id="acc_days" min="0" placeholder="VD: 30" />
-        </div>
-
-        <div class="field">
-          <div class="label">
-            <span>Người dùng & thiết bị (tối đa 3)</span>
-          </div>
-          <div class="acc-users" id="acc_usersContainer"></div>
-          <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
-        </div>
-
-        <div class="acc-form-actions">
-          <button class="btn full" id="acc_saveBtn">Lưu tài khoản</button>
-          <button class="btn ghost full" id="acc_clearFormBtn">Xoá form</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <h3>Danh sách tài khoản</h3>
-      </div>
-      <div class="card-body" id="acc_list">
-        <div class="acc-list-empty">Chưa có tài khoản nào.</div>
       </div>
     </div>
   </section>
 </div>
 
-<!-- HISTORY OVERLAY -->
 <div class="history-overlay" id="historyPanel" aria-hidden="true">
   <div class="history-backdrop" id="panelBackdrop"></div>
   <div class="history-sheet">
@@ -977,32 +1346,185 @@
 
 <script>
 (function(){
-  const $ = s=>document.querySelector(s);
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  
+  // ⭐️ FIX: LẤY ELEMENT 1 LẦN NGAY TẠI ĐÂY (GIỐNG INDEX2.HTML)
+  const cloudStatusEl = document.getElementById('cloudStatus');
 
-  /* ===== FIREBASE (HISTORY + ACCOUNTS) ===== */
+
+  /* TOAST */
+  const toastEl = $('#toast');
+  let toastTimeout = null;
+  function showToast(msg){
+    if(!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if(toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(()=>{
+      toastEl.classList.remove('show');
+    }, 1800);
+  }
+
+  /* ⭐️ FIX 2: HÀM COPY "MẠNH NHẤT" (dùng execCommand)
+    Hàm này sẽ hoạt động 100% ngay cả khi chạy file từ content:// (không an toàn)
+  */
+  function robustCopy(textareaElement) {
+    const val = textareaElement.value || '';
+    if (!val) {
+      showToast('Không có dữ liệu để copy');
+      return;
+    }
+    
+    const isReadonly = textareaElement.readOnly;
+    if (isReadonly) {
+      textareaElement.readOnly = false;
+    }
+
+    textareaElement.select();
+    textareaElement.setSelectionRange(0, 999999); // Dành cho di động
+
+    try {
+      document.execCommand('copy');
+      showToast('Đã copy kết quả');
+    } catch (e) {
+      showToast('Không copy được, hãy Ctrl+A rồi Ctrl+C');
+    }
+    
+    if (isReadonly) {
+      textareaElement.readOnly = true;
+    }
+    
+    // Bỏ chọn (deselect)
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+      document.selection.empty();
+    }
+  }
+
+  /* THEME */
+  const themeBtn = $('#btnToggleTheme');
+  function applyTheme(theme){
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('tk_theme', theme);
+    if(themeBtn){
+      themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    }
+  }
+  (function initTheme(){
+    const saved = localStorage.getItem('tk_theme') || 'dark';
+    applyTheme(saved);
+  })();
+  if(themeBtn){
+    themeBtn.addEventListener('click', ()=>{
+      const cur = document.body.getAttribute('data-theme') || 'dark';
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  /* TABS – nhớ default là accounts */
+  const tabs = {
+    accounts: {btn: $('#tabAccounts'), panel: $('#panelAccounts')},
+    cleaner: {btn: $('#tabCleaner'), panel: $('#panelCleaner')},
+    scan: {btn: $('#tabScan'), panel: $('#panelScan')},
+    key: {btn: $('#tabKey'), panel: $('#panelKey')}
+  };
+  let currentTab = localStorage.getItem('tk_currentTab') || 'accounts';
+
+  function setTab(name){
+    currentTab = name;
+    localStorage.setItem('tk_currentTab', name);
+    Object.entries(tabs).forEach(([key, val])=>{
+      if(!val.btn || !val.panel) return;
+      const active = key === name;
+      val.btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      val.panel.hidden = !active;
+    });
+    if(name === 'accounts'){
+      renderAccountList();
+    }
+  }
+
+  Object.entries(tabs).forEach(([key, val])=>{
+    if(val.btn){
+      val.btn.addEventListener('click', ()=>setTab(key));
+    }
+  });
+  setTab(currentTab);
+
+  /* HISTORY local */
+  const HISTORY_KEY = 'tk_history_v1';
+  function loadHistoryMap(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return {cleaner:[], scan:[], key:[]};
+      const obj = JSON.parse(raw);
+      return {
+        cleaner: obj.cleaner || [],
+        scan: obj.scan || [],
+        key: obj.key || []
+      };
+    }catch(e){
+      return {cleaner:[], scan:[], key:[]};
+    }
+  }
+  function saveHistoryMap(map){
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(map));
+  }
+  function addHistory(type, payload){
+    const map = loadHistoryMap();
+    const list = map[type] || [];
+    const entry = {
+      id: 'h_'+Date.now()+'_'+Math.random().toString(16).slice(2),
+      ts: Date.now(),
+      ...payload
+    };
+    list.unshift(entry);
+    map[type] = list.slice(0, 100);
+    saveHistoryMap(map);
+    showToast('Đã lưu vào lịch sử');
+  }
+
+  /* FIREBASE / CLOUD */
+/* ===== FIREBASE (HISTORY + ACCOUNTS) ===== */
   let db = null;
   let firebaseReady = false;
   const cloudStatusEl = document.getElementById('cloudStatus');
 
+  function setCloud(text) {
+    if (!cloudStatusEl) return;
+    cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
+  }
+
   async function initFirebase(){
     try{
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: đang kết nối…';
+      // Vừa vào là báo đang kết nối
+      setCloud('Cloud: đang kết nối…');
+
+      // Khởi tạo Firebase & Firestore giống index2
       firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
+
+      // Đăng nhập ẩn danh, chờ xong rồi mới báo OK
       await firebase.auth().signInAnonymously();
+
       firebaseReady = true;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+      setCloud('Cloud: OK');
     }catch(e){
       console.warn('Firebase init failed', e);
       firebaseReady = false;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
+      setCloud('Cloud: lỗi init');
+      showToast('Lỗi khởi tạo Firebase');
     }
   }
+
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
   async function syncHistoryFromCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      setCloud('Cloud: chưa sẵn sàng');
+      showToast('Firebase chưa sẵn sàng. Thử tải lại trang.');
       return;
     }
     try{
@@ -1010,38 +1532,45 @@
       if(snap.exists){
         const data = snap.data() || {};
         const map = {
-          cleaner: data.cleaner || [],
-          scan: data.scan || [],
-          key: data.key || [],
-          accounts: data.accounts || []
+          cleaner:  data.cleaner  || [],
+          scan:     data.scan     || [],
+          key:      data.key      || [],
+          accounts: data.accounts || []   // giống index2
         };
         saveHistoryMap(map);
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+        setCloud('Cloud: OK');
+        renderHistoryFor(currentTab);
+        showToast('Đã tải lịch sử từ cloud');
       }else{
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (chưa có lịch sử)';
+        setCloud('Cloud: OK (chưa có lịch sử)');
+        showToast('Cloud chưa có dữ liệu lịch sử');
       }
     }catch(e){
       console.warn('syncHistoryFromCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc lịch sử';
+      setCloud('Cloud: lỗi đọc lịch sử');
+      showToast('Lỗi đọc lịch sử từ cloud');
     }
   }
 
   async function syncHistoryToCloud(){
     if(!firebaseReady || !db){
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      setCloud('Cloud: chưa sẵn sàng');
+      showToast('Firebase chưa sẵn sàng. Thử tải lại trang.');
       return;
     }
     try{
       const map = loadHistoryMap();
       await getHistoryDocRef().set(map);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+      setCloud('Cloud: OK');
+      showToast('Đã đồng bộ lịch sử lên cloud');
     }catch(e){
       console.warn('syncHistoryToCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi lịch sử';
+      setCloud('Cloud: lỗi ghi lịch sử');
+      showToast('Lỗi ghi lịch sử lên cloud');
     }
   }
 
-  /* ===== FIRESTORE: ACCOUNTS ===== */
+  /* ===== FIRESTORE: ACCOUNTS (copy từ index2) ===== */
   const ACC_COLLECTION = 'tk_manager';
 
   async function fetchAccountsFromCloud(){
@@ -1049,11 +1578,11 @@
     try{
       const snap = await db.collection(ACC_COLLECTION).get();
       const arr = [];
-      snap.forEach(doc=>arr.push(doc.data()));
+      snap.forEach(doc => arr.push(doc.data()));
       return arr;
     }catch(e){
       console.warn('fetchAccountsFromCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc tài khoản';
+      setCloud('Cloud: lỗi đọc tài khoản');
       return null;
     }
   }
@@ -1064,7 +1593,7 @@
       await db.collection(ACC_COLLECTION).doc(accObj.id).set(accObj);
     }catch(e){
       console.warn('upsertAccountCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi tài khoản';
+      setCloud('Cloud: lỗi ghi tài khoản');
     }
   }
 
@@ -1074,7 +1603,7 @@
       await db.collection(ACC_COLLECTION).doc(accId).delete();
     }catch(e){
       console.warn('deleteAccountCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi xoá tài khoản';
+      setCloud('Cloud: lỗi xoá tài khoản');
     }
   }
 
@@ -1092,953 +1621,608 @@
     cleanupAndRenderAccounts();
   }
 
-  /* ===== DOM ELEMENTS ===== */
-  const els = {
-    tabCleaner: $('#tabCleaner'),
-    tabScan: $('#tabScan'),
-    tabKey: $('#tabKey'),
-    tabAccounts: $('#tabAccounts'),
-    panelCleaner: $('#panelCleaner'),
-    panelScan: $('#panelScan'),
-    panelKey: $('#panelKey'),
-    panelAccounts: $('#panelAccounts'),
-    btnToggleTheme: $('#btnToggleTheme'),
-    historyPanel: $('#historyPanel'),
-    panelBackdrop: $('#panelBackdrop'),
-    historyList: $('#historyList'),
-    toggleHistoryBtn: $('#toggleHistoryBtn'),
-    closePanelBtn: $('#closePanelBtn'),
-    clearHistoryBtn: $('#clearHistoryBtn'),
-    historyHeaderTitle: document.querySelector('.history-header-title'),
-    historyHeaderSub: document.querySelector('.history-header-sub'),
-    btnPullCloud: $('#btnPullCloud'),
-    btnPushCloud: $('#btnPushCloud')
-  };
+  // Gọi init Firebase khi load trang
+  initFirebase();
 
-  const LS_HISTORY = 'multiToolHistory_v3';
-  const LS_THEME = 'multiToolTheme_v1';
-  const LS_LINK = 'nk_link_v2';
-  const LS_ACC = 'tk_accounts_v1';
+  
 
-  let currentTab = 'cleaner'; // 'cleaner' | 'scan' | 'key' | 'accounts'
+  /* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
+  const cl_inputArea = $('#cl_inputArea');
+  const sc_inputArea = $('#sc_inputArea');
+  const lk_rawInput = $('#lk_rawInput');
+  
+  /* HISTORY UI */
+  const historyPanel = $('#historyPanel');
+  const historyListEl = $('#historyList');
 
-  /* ===== TOAST ===== */
-  function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.opacity = '1';
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(()=>{ t.style.opacity='0'; }, 1500);
-  }
-
-  async function syncFromCloudUI(){
-    await syncHistoryFromCloud();
-    renderHistory();
-    showToast('Đã tải lịch sử từ cloud');
-  }
-  async function syncToCloudUI(){
-    await syncHistoryToCloud();
-    showToast('Đã đồng bộ lịch sử lên cloud');
-  }
-
-  /* ===== CLIPBOARD ===== */
-  async function copyToClipboard(text){
-    if(!text){
-      showToast('Chưa có dữ liệu để copy.');
-      return false;
-    }
+  function formatTs(ts){
     try{
-      await navigator.clipboard.writeText(text);
-      showToast('Đã copy vào clipboard.');
-      return true;
+      const d = new Date(ts);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mi = String(d.getMinutes()).padStart(2,'0');
+      const ss = String(d.getSeconds()).padStart(2,'0');
+      return `${dd}/${mm}/${yy} ${hh}:${mi}:${ss}`;
     }catch(e){
-      try{
-        const ta=document.createElement('textarea');
-        ta.value=text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('Đã copy.');
-        return true;
-      }catch(e2){
-        showToast('Copy thất bại.');
-        return false;
+      return '';
+    }
+  }
+
+  function renderHistoryFor(tab){
+    if(!historyListEl) return;
+    const map = loadHistoryMap();
+    const list = map[tab] || [];
+    if(!list.length){
+      historyListEl.innerHTML = '<div class="history-empty">Chưa có lịch sử cho tab này.</div>';
+      return;
+    }
+    historyListEl.innerHTML = '';
+    list.forEach(item=>{
+      const div = document.createElement('div');
+      div.className = 'h-item';
+      
+      /* ⭐️ MỚI: Thêm 4 nút và class cho textarea */
+      div.innerHTML = `
+        <button class="h-btn" type="button">
+          <div class="h-main">
+            <div class="h-line1">${item.title || item.label || 'Lịch sử'}</div>
+            <div class="h-line2">${formatTs(item.ts)} • ${item.meta || ''}</div>
+          </div>
+          <span class="h-tag">${tab}</span>
+        </button>
+        <div class="h-body">
+          <div class="h-cols">
+            <div>
+              <div class="label"><span>Input</span></div>
+              <textarea class="history-ta mono history-ta-input" readonly>${item.input || ''}</textarea>
+            </div>
+            <div>
+              <div class="label"><span>Kết quả</span></div>
+              <textarea class="history-ta mono history-ta-output" readonly>${item.output || ''}</textarea>
+            </div>
+          </div>
+          <div class="h-body-actions">
+            <button class="btn ghost small" data-act="copy-input">Copy Input</button>
+            <button class="btn ghost small" data-act="copy-output">Copy Output</button>
+            <button class="btn ghost small" data-act="load-tab">Nạp vào tab</button>
+            <button class="btn danger small" data-act="delete-item">Xoá lô</button>
+          </div>
+        </div>
+      `;
+      
+      const btn = div.querySelector('.h-btn');
+      const body = div.querySelector('.h-body');
+      btn.addEventListener('click', ()=>{
+        body.style.display = body.style.display === 'block' ? 'none' : 'block';
+      });
+      
+      /* ⭐️ MỚI: Thêm event listener cho 4 nút */
+      const taInput = div.querySelector('.history-ta-input');
+      const taOutput = div.querySelector('.history-ta-output');
+      const btnCopyIn = div.querySelector('[data-act="copy-input"]');
+      const btnCopyOut = div.querySelector('[data-act="copy-output"]');
+      const btnLoad = div.querySelector('[data-act="load-tab"]');
+      const btnDelete = div.querySelector('[data-act="delete-item"]');
+
+      if (btnCopyIn && taInput) {
+        btnCopyIn.addEventListener('click', () => robustCopy(taInput));
       }
-    }
+      if (btnCopyOut && taOutput) {
+        btnCopyOut.addEventListener('click', () => robustCopy(taOutput));
+      }
+      if (btnLoad) {
+        btnLoad.addEventListener('click', () => {
+          const inputArea = (tab === 'cleaner') ? cl_inputArea : 
+                            (tab === 'scan') ? sc_inputArea : lk_rawInput;
+          if (inputArea) {
+            inputArea.value = item.input || '';
+            setTab(tab);
+            closeHistoryPanel();
+            showToast('Đã nạp dữ liệu vào tab');
+          }
+        });
+      }
+      if (btnDelete) {
+        btnDelete.addEventListener('click', () => {
+          if (!confirm('Xoá mục lịch sử này?')) return;
+          const map = loadHistoryMap();
+          const list = map[tab] || [];
+          map[tab] = list.filter(i => i.id !== item.id);
+          saveHistoryMap(map);
+          renderHistoryFor(tab); // Tải lại danh sách
+          showToast('Đã xoá mục');
+        });
+      }
+      
+      historyListEl.appendChild(div);
+    });
   }
 
-  /* ===== THEME ===== */
-  function applyTheme(theme){
-    const body = document.body;
-    body.setAttribute('data-theme', theme);
-    if(theme === 'dark'){
-      els.btnToggleTheme.textContent = '☀️';
-      els.btnToggleTheme.title = 'Chế độ sáng';
-    }else{
-      els.btnToggleTheme.textContent = '🌙';
-      els.btnToggleTheme.title = 'Chế độ tối';
-    }
-    localStorage.setItem(LS_THEME, theme);
-  }
-  function initTheme(){
-    const saved = localStorage.getItem(LS_THEME);
-    applyTheme(saved === 'dark' ? 'dark' : 'light');
-  }
-  els.btnToggleTheme.addEventListener('click', ()=>{
-    const cur = document.body.getAttribute('data-theme') || 'light';
-    applyTheme(cur === 'light' ? 'dark' : 'light');
-  });
-
-  /* ===== HISTORY MAP (3 tab mail/key + accounts placeholder) ===== */
-  function defaultHistoryMap(){
-    return { cleaner:[], scan:[], key:[], accounts:[] };
-  }
-  function loadHistoryMap(){
-    try{
-      const raw = localStorage.getItem(LS_HISTORY);
-      if(!raw) return defaultHistoryMap();
-      const data = JSON.parse(raw);
-      return {
-        cleaner: data.cleaner || [],
-        scan: data.scan || [],
-        key: data.key || [],
-        accounts: data.accounts || []
-      };
-    }catch(e){
-      return defaultHistoryMap();
-    }
-  }
-  function saveHistoryMap(map){
-    localStorage.setItem(LS_HISTORY, JSON.stringify(map));
-  }
-  function toolLabel(tab){
-    if(tab === 'cleaner') return 'Cleaner';
-    if(tab === 'scan') return 'Scan';
-    if(tab === 'key') return 'Add Link';
-    if(tab === 'accounts') return 'Tài khoản';
-    return tab;
-  }
-  function two(n){return String(n).padStart(2,'0');}
-  function tsLabel(ts){
-    const d=new Date(ts);
-    return `${two(d.getDate())}-${two(d.getMonth()+1)}-${d.getFullYear()} ${two(d.getHours())}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
-  }
-
-  function addHistoryItemForTab(tab, partial){
-    const map = loadHistoryMap();
-    const now = Date.now();
-    const entry = Object.assign({
-      id: `${now}_${Math.random().toString(36).slice(2)}`,
-      tool: toolLabel(tab),
-      ts: now
-    }, partial);
-    map[tab] = map[tab] || [];
-    map[tab].unshift(entry);
-    saveHistoryMap(map);
-    syncHistoryToCloud();
-    if(currentTab === tab) renderHistory();
-  }
-
-  function deleteHistoryItemForTab(tab,id){
-    const map = loadHistoryMap();
-    map[tab] = (map[tab] || []).filter(x=>x.id !== id);
-    saveHistoryMap(map);
-    syncHistoryToCloud();
-    if(currentTab === tab) renderHistory();
-  }
-
-  function clearHistoryForTab(tab){
-    const map = loadHistoryMap();
-    map[tab] = [];
-    saveHistoryMap(map);
-    syncHistoryToCloud();
-    if(currentTab === tab) renderHistory();
-  }
+  const toggleHistoryBtn = $('#toggleHistoryBtn');
+  const closePanelBtn = $('#closePanelBtn');
+  const panelBackdrop = $('#panelBackdrop');
+  const btnPullCloud = $('#btnPullCloud');
+  const btnPushCloud = $('#btnPushCloud');
+  const clearHistoryBtn = $('#clearHistoryBtn');
 
   function openHistoryPanel(){
-    els.historyPanel.classList.add('open');
-    els.historyPanel.setAttribute('aria-hidden','false');
-    renderHistory();
+    historyPanel.classList.add('open');
+    historyPanel.setAttribute('aria-hidden','false');
+    renderHistoryFor(currentTab);
   }
   function closeHistoryPanel(){
-    els.historyPanel.classList.remove('open');
-    els.historyPanel.setAttribute('aria-hidden','true');
+    historyPanel.classList.remove('open');
+    historyPanel.setAttribute('aria-hidden','true');
   }
 
-  els.toggleHistoryBtn.addEventListener('click', ()=>{
-    const open = els.historyPanel.classList.contains('open');
-    open ? closeHistoryPanel() : openHistoryPanel();
-  });
-  els.closePanelBtn.addEventListener('click', closeHistoryPanel);
-  els.panelBackdrop.addEventListener('click', closeHistoryPanel);
-  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeHistoryPanel(); });
-
-  els.clearHistoryBtn.addEventListener('click', ()=>{
-    if(currentTab === 'accounts'){
-      showToast('Lịch sử hiện chỉ áp dụng cho 3 tab Mail/Key.');
-      return;
-    }
-    if(confirm('Xoá toàn bộ lịch sử của tab hiện tại?')){
-      clearHistoryForTab(currentTab);
-      showToast('Đã xoá lịch sử tab này.');
-    }
-  });
-  els.btnPullCloud.addEventListener('click', syncFromCloudUI);
-  els.btnPushCloud.addEventListener('click', syncToCloudUI);
-
-  function renderHistory(){
-    const map = loadHistoryMap();
-    const list = map[currentTab] || [];
-    els.historyHeaderTitle.textContent = 'Lịch sử - ' + toolLabel(currentTab);
-    els.historyHeaderSub.textContent = (currentTab === 'accounts')
-      ? 'Tạm thời chưa dùng lịch sử cho tab Tài khoản'
-      : 'Các lô đã lưu của ' + toolLabel(currentTab);
-
-    els.historyList.innerHTML = '';
-    if(currentTab === 'accounts'){
-      const dv = document.createElement('div');
-      dv.className='history-empty';
-      dv.textContent='Tab Tài khoản không dùng lịch sử lô. 3 tab Mail/Key vẫn dùng bình thường.';
-      els.historyList.appendChild(dv);
-      return;
-    }
-
-    if(!list.length){
-      const dv = document.createElement('div');
-      dv.className='history-empty';
-      dv.textContent='Chưa có lô nào.';
-      els.historyList.appendChild(dv);
-      return;
-    }
-    list.forEach(it=>{
-      const wrap = document.createElement('div');
-      wrap.className='h-item';
-      wrap.dataset.id = it.id;
-
-      const btn = document.createElement('button');
-      btn.type='button';
-      btn.className='h-btn';
-      btn.innerHTML = `
-        <div class="h-main">
-          <div class="h-line1">${tsLabel(it.ts)} • ${toolLabel(currentTab)}</div>
-          <div class="h-line2">${it.inCount||0} → ${it.outCount||0} dòng${it.meta ? ' • '+it.meta : ''}</div>
-        </div>
-        <span class="h-tag">${toolLabel(currentTab)}</span>
-      `;
-
-      const body = document.createElement('div');
-      body.className='h-body';
-      body.innerHTML = `
-        <div class="h-cols">
-          <div>
-            <textarea class="history-ta" readonly>${it.input||''}</textarea>
-          </div>
-          <div>
-            <textarea class="history-ta" readonly>${it.output||''}</textarea>
-          </div>
-        </div>
-        <div class="toolbar" style="margin-top:8px;">
-          <button class="btn ghost small" data-act="copy-in">Copy Input</button>
-          <button class="btn ghost small" data-act="copy-out">Copy Output</button>
-          <button class="btn ghost small" data-act="load">Nạp vào tab</button>
-          <button class="btn danger small" data-act="delete">Xoá lô</button>
-          <span class="cloud-status" style="margin-left:auto;">${tsLabel(it.ts)}</span>
-        </div>
-      `;
-
-      btn.addEventListener('click', ()=>{
-        const open = body.style.display === 'block';
-        body.style.display = open ? 'none' : 'block';
-      });
-
-      body.addEventListener('click', async e=>{
-        const b = e.target.closest('button[data-act]');
-        if(!b) return;
-        const act = b.dataset.act;
-        const mapNow = loadHistoryMap();
-        const listNow = mapNow[currentTab] || [];
-        const found = listNow.find(x=>x.id === it.id);
-        if(!found) return;
-
-        if(act === 'copy-in') await copyToClipboard(found.input||'');
-        if(act === 'copy-out') await copyToClipboard(found.output||'');
-
-        if(act === 'load'){
-          if(currentTab === 'cleaner'){
-            cl.area.value = found.input || '';
-            window.scrollTo({top:0,behavior:'smooth'});
-          }else if(currentTab === 'scan'){
-            sc.input.value = found.input || '';
-            window.scrollTo({top:0,behavior:'smooth'});
-          }else if(currentTab === 'key'){
-            lk.rawInput.value = found.input || '';
-            window.scrollTo({top:0,behavior:'smooth'});
-          }
-        }
-        if(act === 'delete'){
-          if(confirm('Xoá lô này?')) deleteHistoryItemForTab(currentTab, found.id);
-        }
-      });
-
-      wrap.appendChild(btn);
-      wrap.appendChild(body);
-      els.historyList.appendChild(wrap);
+  if(toggleHistoryBtn) toggleHistoryBtn.addEventListener('click', openHistoryPanel);
+  if(closePanelBtn) closePanelBtn.addEventListener('click', closeHistoryPanel);
+  if(panelBackdrop) panelBackdrop.addEventListener('click', closeHistoryPanel);
+  if(btnPullCloud) btnPullCloud.addEventListener('click', syncHistoryFromCloud);
+  if(btnPushCloud) btnPushCloud.addEventListener('click', syncHistoryToCloud);
+  if(clearHistoryBtn){
+    clearHistoryBtn.addEventListener('click', ()=>{
+      if(!confirm('Xoá toàn bộ lịch sử của tab hiện tại?')) return;
+      const map = loadHistoryMap();
+      map[currentTab] = [];
+      saveHistoryMap(map);
+      renderHistoryFor(currentTab);
+      showToast('Đã xoá lịch sử tab hiện tại');
     });
   }
 
-  /* ===== TABS ===== */
-  function activateTab(name){
-    currentTab = name;
-    const mapping = {
-      cleaner: {tab: els.tabCleaner, panel: els.panelCleaner},
-      scan: {tab: els.tabScan, panel: els.panelScan},
-      key: {tab: els.tabKey, panel: els.panelKey},
-      accounts: {tab: els.tabAccounts, panel: els.panelAccounts}
-    };
-    Object.keys(mapping).forEach(k=>{
-      const {tab,panel} = mapping[k];
-      const active = (k === name);
-      tab.setAttribute('aria-selected', String(active));
-      panel.hidden = !active;
-    });
-    if(els.historyPanel.classList.contains('open')) renderHistory();
-  }
+  /* CLEANER */
+  const cl_resultTA = $('#cl_resultTA');
+  const cl_dedupe = $('#cl_dedupe');
+  const cl_treatEsc = $('#cl_treatEscapedNewlines');
+  const cl_processBtn = $('#cl_processBtn');
+  const cl_resetBtn = $('#cl_resetBtn');
+  const cl_fileInput = $('#cl_fileInput');
+  const cl_selectBtn = $('#cl_selectBtn');
+  const cl_copyBtn = $('#cl_copyBtn');
+  const cl_downloadBtn = $('#cl_downloadBtn');
+  const cl_saveHistoryBtn = $('#cl_saveHistoryBtn');
+  const cl_statBadge = $('#cl_statBadge');
 
-  els.tabCleaner.addEventListener('click', ()=>activateTab('cleaner'));
-  els.tabScan.addEventListener('click', ()=>activateTab('scan'));
-  els.tabKey.addEventListener('click', ()=>activateTab('key'));
-  els.tabAccounts.addEventListener('click', ()=>activateTab('accounts'));
-
-  /* ===== TOOL 1: CLEANER ===== */
-  function normalizeAndSplit(rawText, treatEscaped){
-    if(typeof rawText !== 'string') return [];
-    let s = rawText.replace(/\r/g,'');
-    if(treatEscaped){
-      s = s.replace(/\\n/g,'\n').replace(/\\r/g,'\n');
+  function parseEmailLine(line){
+    const parts = line.split(/[|;, \t]+/).filter(Boolean);
+    if(!parts.length) return {email:'', pass:''};
+    let email = parts.find(p=>p.includes('@')) || parts[0];
+    let pass = '';
+    const idx = parts.indexOf(email);
+    if(idx >= 0 && idx < parts.length-1){
+      pass = parts[idx+1];
     }
-    s = s.replace(/[;,]+/g,'\n');
-    s = s.replace(/\n+/g,'\n');
-    return s.split('\n');
+    return {email:email.trim(), pass:pass.trim()};
   }
-  function parseEmailAndPassword(line){
-    const parts = line.split('|').map(p=>p.trim());
-    const firstPart = (parts[0] || '').split(/\s+/)[0];
-    const secondPart = parts.length>1 ? parts[1] : null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(emailRegex.test(firstPart)){
-      return {email:firstPart.toLowerCase(), password:(secondPart ?? '')};
+
+  function runCleaner(){
+    if(!cl_inputArea || !cl_resultTA) return;
+    let text = cl_inputArea.value || '';
+    if(cl_treatEsc && cl_treatEsc.checked){
+      text = text.replace(/\\n/g, '\n');
     }
-    const m = line.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    if(m) return {email:m[0].toLowerCase(), password:null};
-    return {email:null, password:null};
-  }
-  function extractEmailOnly(line){
-    let s = line;
-    const pipeIndex = s.indexOf('|');
-    if(pipeIndex !== -1){
-      s = s.slice(0, pipeIndex);
-    }
-    s = s.trim().split(/\s+/)[0];
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(emailRegex.test(s)) return s.toLowerCase();
-    const m = line.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    return m ? m[0].toLowerCase() : null;
-  }
-  function getCleanerMode(){
-    const r = document.querySelector('input[name="cl_outMode"]:checked');
-    return r ? r.value : 'email';
-  }
+    const lines = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const inputCount = lines.length;
 
-  const cl = {
-    file: $('#cl_fileInput'),
-    reset: $('#cl_resetBtn'),
-    area: $('#cl_inputArea'),
-    dedupe: $('#cl_dedupe'),
-    treat: $('#cl_treatEscapedNewlines'),
-    process: $('#cl_processBtn'),
-    download: $('#cl_downloadBtn'),
-    copy: $('#cl_copyBtn'),
-    select: $('#cl_selectBtn'),
-    stat: $('#cl_statBadge'),
-    result: $('#cl_resultTA'),
-    saveHistory: $('#cl_saveHistoryBtn')
-  };
-  let clBlob = null;
-  let clText = '';
-
-  function clSetOutput(text){
-    clText = text || '';
-    cl.result.value = clText || '';
-    const has = !!clText;
-    cl.download.disabled = !has;
-    cl.copy.disabled = !has;
-    cl.select.disabled = !has;
-    cl.saveHistory.disabled = !has;
-  }
-  function clUpdateStat(inCount, outCount){
-    cl.stat.textContent = `${inCount} dòng → ${outCount} out`;
-  }
-
-  cl.file.addEventListener('change', e=>{
-    const f = e.target.files && e.target.files[0];
-    if(!f){ return; }
-    const r = new FileReader();
-    r.onload = ()=>{ cl.area.value = r.result; };
-    r.readAsText(f);
-  });
-  cl.reset.addEventListener('click', ()=>{
-    cl.file.value = '';
-    cl.area.value = '';
-    clSetOutput('');
-    clUpdateStat(0,0);
-  });
-
-  cl.process.addEventListener('click', ()=>{
-    const raw = cl.area.value || '';
-    const dedupe = cl.dedupe.checked;
-    const treat = cl.treat.checked;
-    const mode = getCleanerMode();
-    const lines = normalizeAndSplit(raw, treat);
-    const seen = new Set();
-    const out = [];
-
-    for(let rawLine of lines){
-      const line = rawLine.trim();
-      if(!line) continue;
+    const mode = (document.querySelector('input[name="cl_outMode"]:checked') || {}).value || 'email';
+    const outSet = new Set();
+    for(const line of lines){
+      const {email, pass} = parseEmailLine(line);
+      if(!email || !email.includes('@')) continue;
+      let outLine = '';
       if(mode === 'email'){
-        const email = extractEmailOnly(line);
-        if(!email) continue;
-        if(dedupe && seen.has(email)) continue;
-        seen.add(email);
-        out.push(email);
+        outLine = email;
       }else{
-        const {email,password} = parseEmailAndPassword(line);
-        if(!email) continue;
-        const key = email + '|' + (password || '');
-        if(dedupe && seen.has(key)) continue;
-        seen.add(key);
-        if(password !== null && password !== ''){
-          out.push(`${email}|${password}`);
-        }else{
-          out.push(email);
-        }
+        outLine = `${email}${pass ? '|' + pass : ''}`;
+      }
+      if(!outLine) continue;
+      if(cl_dedupe && cl_dedupe.checked){
+        outSet.add(outLine);
+      }else{
+        outSet.add(outLine + '¦' + Math.random());
       }
     }
-
-    const cleaned = out.join('\n');
-    clSetOutput(cleaned);
-    clUpdateStat(lines.filter(l=>l.trim()).length, out.length);
-
-    if(cleaned){
-      clBlob = new Blob([cleaned], {type:'text/plain;charset=utf-8'});
+    let outLines = Array.from(outSet);
+    if(cl_dedupe && cl_dedupe.checked){
+      // giữ
     }else{
-      clBlob = null;
+      outLines = outLines.map(s => s.split('¦')[0]);
     }
-
-    showToast(out.length ? `Đã xử lý ${out.length} dòng` : 'Không tìm thấy email hợp lệ.');
-  });
-
-  cl.select.addEventListener('click', ()=>{
-    cl.result.focus();
-    cl.result.select();
-    cl.result.setSelectionRange(0, cl.result.value.length);
-  });
-  cl.copy.addEventListener('click', ()=>{ if(clText) copyToClipboard(clText); });
-  cl.download.addEventListener('click', ()=>{
-    if(!clBlob){ showToast('Chưa có dữ liệu để tải.'); return; }
-    const url = URL.createObjectURL(clBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cleaner_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
-
-  cl.saveHistory.addEventListener('click', ()=>{
-    const text = clText.trim();
-    if(!text){
-      showToast('Không có dữ liệu để lưu lịch sử.');
-      return;
+    const outputCount = outLines.length;
+    cl_resultTA.value = outLines.join('\n');
+    if(cl_statBadge){
+      cl_statBadge.textContent = `${inputCount} dòng → ${outputCount} out`;
     }
-    const raw = cl.area.value || '';
-    const lines = normalizeAndSplit(raw, cl.treat.checked);
-    const inCount = lines.filter(l=>l.trim()).length;
-    const outCount = text.split('\n').filter(l=>l.trim()).length;
-    addHistoryItemForTab('cleaner', {
-      inCount,
-      outCount,
-      input: raw,
-      output: text,
-      meta: getCleanerMode() + (cl.dedupe.checked ? ' • dedupe' : '')
-    });
-    showToast('Đã lưu vào lịch sử.');
-  });
+  }
 
-  /* ===== TOOL 2: SCAN / FORMAT ===== */
-  function scGetFmt(){
-    const r = document.querySelector('input[name="sc_fmt"]:checked');
-    return r ? r.value : '1';
-  }
-  function scParseInput(text){
-    return (text || '')
-      .split(/\r?\n/)
-      .map(s=>s.trim())
-      .filter(Boolean)
-      .map(line=>{
-        let s = line;
-        const pipeIndex = s.indexOf('|');
-        if(pipeIndex !== -1){
-          s = s.slice(0, pipeIndex);
-        }
-        s = s.trim().split(/\s+/)[0];
-        return s;
-      })
-      .filter(Boolean);
-  }
-  function scBuildLines(emails){
-    const fmt = scGetFmt();
-    return emails.map(email => {
-      if(fmt === '2'){
-        return `Tài khoản:${email}|Mật khẩu:xincamon`;
-      }
-      return `${email}|xincamon`;
+  if(cl_processBtn) cl_processBtn.addEventListener('click', runCleaner);
+
+  if(cl_resetBtn){
+    cl_resetBtn.addEventListener('click', ()=>{
+      cl_inputArea.value = '';
+      cl_resultTA.value = '';
+      if(cl_statBadge) cl_statBadge.textContent = '0 dòng → 0 out';
     });
   }
 
-  const sc = {
-    file: $('#sc_fileInput'),
-    reset: $('#sc_resetBtn'),
-    saveHistoryBtn: $('#sc_saveHistoryBtn'),
-    input: $('#sc_inputArea'),
-    process: $('#sc_processBtn'),
-    selectAll: $('#sc_selectAllOut'),
-    copyAll: $('#sc_copyAllOut'),
-    stat: $('#sc_stat'),
-    result: $('#sc_resultTA')
-  };
-
-  function scProcessOnly(){
-    const emails = scParseInput(sc.input.value);
-    const out = scBuildLines(emails);
-    sc.result.value = out.join('\n');
-    sc.stat.textContent = `${emails.length} dòng`;
-    showToast(emails.length ? `Đã xử lý ${emails.length} mail` : 'Không có dòng nào.');
-    return {emails, out};
-  }
-
-  sc.file.addEventListener('change', e=>{
-    const f = e.target.files && e.target.files[0];
-    if(!f) return;
-    const r = new FileReader();
-    r.onload = ()=>{ sc.input.value = r.result; };
-    r.readAsText(f);
-  });
-
-  sc.reset.addEventListener('click', ()=>{
-    sc.file.value = '';
-    sc.input.value = '';
-    sc.result.value = '';
-    sc.stat.textContent = '0 dòng';
-  });
-
-  sc.process.addEventListener('click', ()=>{ scProcessOnly(); });
-
-  sc.selectAll.addEventListener('click', ()=>{
-    sc.result.focus();
-    sc.result.select();
-    sc.result.setSelectionRange(0, sc.result.value.length);
-  });
-
-  sc.copyAll.addEventListener('click', async ()=>{
-    const text = sc.result.value;
-    await copyToClipboard(text);
-  });
-
-  sc.saveHistoryBtn.addEventListener('click', ()=>{
-    const {emails,out} = scProcessOnly();
-    if(!out.length){
-      showToast('Không có dữ liệu để lưu.');
-      return;
-    }
-    addHistoryItemForTab('scan', {
-      inCount:emails.length,
-      outCount:out.length,
-      input:sc.input.value || '',
-      output:out.join('\n'),
-      meta:`fmt:${scGetFmt()}`
+  if(cl_fileInput){
+    cl_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        cl_inputArea.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
     });
-    showToast('Đã lưu vào lịch sử.');
-  });
-
-  /* ===== TOOL 3: ADD LINK KEY ===== */
-  function lkCleanLink(v){
-    if(!v) return '';
-    let s = v.trim();
-    s = s.replace(/^link\s*nhập\s*key\s*:/i,'').trim();
-    return s;
   }
 
-  function lkExtractKey(line){
-    if(!line) return null;
-    let s = line.trim();
-    if(!s) return null;
-
-    const keyMarker = s.match(/Key\s*:\s*([^|]+)(?:\|.*)?$/i);
-    if(keyMarker){
-      return keyMarker[1].trim();
-    }
-    const pipeIndex = s.indexOf('|');
-    if(pipeIndex !== -1){
-      s = s.slice(0, pipeIndex);
-    }
-    s = s.trim();
-    if(/^[A-Za-z0-9][A-Za-z0-9\-\._]{1,}$/.test(s)){
-      return s;
-    }
-    return null;
-  }
-
-  function lkParseInput(raw){
-    const lines = (raw || '').split(/\r?\n/);
-    const keys = [];
-    let total = 0;
-    for(const ln of lines){
-      if(!ln.trim()) continue;
-      total++;
-      const k = lkExtractKey(ln);
-      if(k) keys.push(k);
-    }
-    return {keys,total};
-  }
-
-  function lkBuildAll(keys, linkRaw){
-    const linkPart = linkRaw !== '' ? `|link nhập key:${linkRaw}` : `|link nhập key:`;
-    const opt1 = keys.map(k=>`KEY:${k}${linkPart}`).join('\n');
-    const opt2 = keys.map(k=>`${k}${linkPart}`).join('\n');
-    const opt3 = keys.join('\n');
-    return {opt1,opt2,opt3};
-  }
-
-  function lkCurrentOption(){
-    const r = document.querySelector('input[name="lk_format"]:checked');
-    return r ? r.value : 'opt1';
-  }
-
-  const lk = {
-    linkToggleBtn: $('#lk_linkToggleBtn'),
-    linkPanel: $('#lk_linkPanel'),
-    linkInput: $('#lk_linkInput'),
-    saveLinkBtn: $('#lk_saveLinkBtn'),
-    fileInput: $('#lk_fileInput'),
-    resetBtn: $('#lk_resetBtn'),
-    rawInput: $('#lk_rawInput'),
-    statLines: $('#lk_statLines'),
-    statValid: $('#lk_statValid'),
-    processBtn: $('#lk_processBtn'),
-    output: $('#lk_output'),
-    copyBtn: $('#lk_copyBtn'),
-    downloadBtn: $('#lk_downloadBtn'),
-    saveHistoryBtn: $('#lk_saveHistoryBtn'),
-    formatPills: Array.from(document.querySelectorAll('label.pill-radio[data-option]'))
-  };
-
-  const lkState = {
-    opt1:'',opt2:'',opt3:'',keysCount:0,linkRaw:''
-  };
-
-  lk.linkToggleBtn.addEventListener('click', ()=>{
-    const visible = lk.linkPanel.style.display === 'block';
-    lk.linkPanel.style.display = visible ? 'none' : 'block';
-  });
-
-  function lkUpdateStats(total, valid){
-    lk.statLines.textContent = `${total} dòng`;
-    lk.statValid.textContent = `${valid} key hợp lệ`;
-  }
-  function lkUpdateOutput(){
-    const opt = lkCurrentOption();
-    const text = opt === 'opt2' ? lkState.opt2 : opt === 'opt3' ? lkState.opt3 : lkState.opt1;
-    lk.output.value = text || '';
-  }
-
-  lk.saveLinkBtn.addEventListener('click', ()=>{
-    const linkRaw = lkCleanLink(lk.linkInput.value);
-    lk.linkInput.value = linkRaw;
-    localStorage.setItem(LS_LINK, linkRaw);
-    lk.linkPanel.style.display = 'none';
-    showToast('Đã lưu link nhập key.');
-  });
-
-  lk.fileInput.addEventListener('change', async ()=>{
-    const file = lk.fileInput.files && lk.fileInput.files[0];
-    if(!file) return;
-    const text = await file.text();
-    const cur = (lk.rawInput.value || '').trim();
-    lk.rawInput.value = cur ? (cur + '\n' + text.trim()) : text.trim();
-    const {keys,total} = lkParseInput(lk.rawInput.value);
-    lkUpdateStats(total, keys.length);
-    showToast('Đã nạp nội dung từ file.');
-  });
-
-  lk.resetBtn.addEventListener('click', ()=>{
-    lk.fileInput.value = '';
-    lk.rawInput.value = '';
-    lkUpdateStats(0,0);
-    lk.output.value = '';
-  });
-
-  lk.rawInput.addEventListener('input', ()=>{
-    const {keys,total} = lkParseInput(lk.rawInput.value);
-    lkUpdateStats(total, keys.length);
-  });
-
-  lk.formatPills.forEach(pill=>{
-    pill.addEventListener('click', ()=>{
-      const input = pill.querySelector('input[type="radio"]');
-      if(input){
-        input.checked = true;
-        lkUpdateOutput();
-      }
+  if(cl_selectBtn){
+    cl_selectBtn.addEventListener('click', ()=>{
+      cl_resultTA.focus();
+      cl_resultTA.select();
+      showToast('Đã chọn toàn bộ kết quả');
     });
-  });
+  }
 
-  lk.processBtn.addEventListener('click', ()=>{
-    const linkRaw = lkCleanLink(lk.linkInput.value);
-    const {keys,total} = lkParseInput(lk.rawInput.value);
-    lkUpdateStats(total, keys.length);
-    const {opt1,opt2,opt3} = lkBuildAll(keys, linkRaw);
-    lkState.opt1 = opt1;
-    lkState.opt2 = opt2;
-    lkState.opt3 = opt3;
-    lkState.keysCount = keys.length;
-    lkState.linkRaw = linkRaw;
-    lkUpdateOutput();
-    localStorage.setItem(LS_LINK, linkRaw);
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(cl_copyBtn){
+    cl_copyBtn.addEventListener('click', () => robustCopy(cl_resultTA));
+  }
 
-    if(!keys.length){
-      showToast('Không tìm thấy key hợp lệ.');
-    }else{
-      showToast(`Đã xử lý ${keys.length} key.`);
-    }
-  });
-
-  lk.copyBtn.addEventListener('click', ()=>{
-    copyToClipboard(lk.output.value.trim());
-  });
-
-  lk.downloadBtn.addEventListener('click', ()=>{
-    const text = lk.output.value.trim();
-    if(!text){
-      showToast('Chưa có dữ liệu để tải.');
-      return;
-    }
-    const opt = lkCurrentOption();
-    const suffix = opt === 'opt2' ? 'option2' : opt === 'opt3' ? 'option3' : 'option1';
-    const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  function downloadTextFile(filename, content){
+    const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `keys_${suffix}_${Date.now()}.txt`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
-  });
+  }
 
-  lk.saveHistoryBtn.addEventListener('click', ()=>{
-    const text = lk.output.value.trim();
-    if(!text){
-      showToast('Không có dữ liệu để lưu lịch sử.');
-      return;
-    }
-    const {keys,total} = lkParseInput(lk.rawInput.value);
-    const opt = lkCurrentOption();
-    addHistoryItemForTab('key', {
-      inCount: total,
-      outCount: keys.length || text.split('\n').filter(Boolean).length,
-      input: lk.rawInput.value || '',
-      output: text,
-      meta:`format:${opt}`
+  if(cl_downloadBtn){
+    cl_downloadBtn.addEventListener('click', ()=>{
+      const val = cl_resultTA.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
+        return;
+      }
+      downloadTextFile('cleaner_output.txt', val);
     });
-    showToast('Đã lưu vào lịch sử.');
-  });
+  }
 
-  /* ===== TOOL 4: QUẢN LÝ TÀI KHOẢN (LOCALSTORAGE + FIREBASE) ===== */
-  const acc = {
-    account: $('#acc_account'),
-    days: $('#acc_days'),
-    usersContainer: $('#acc_usersContainer'),
-    addUserBtn: $('#acc_addUserBtn'),
-    saveBtn: $('#acc_saveBtn'),
-    clearFormBtn: $('#acc_clearFormBtn'),
-    list: $('#acc_list')
-  };
+  if(cl_saveHistoryBtn){
+    cl_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = cl_inputArea.value || '';
+      const output = cl_resultTA.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
+        return;
+      }
+      const meta = cl_statBadge ? cl_statBadge.textContent : '';
+      addHistory('cleaner',{
+        title:'Mail Cleaner',
+        input,
+        output,
+        meta
+      });
+    });
+  }
 
-  let accData = []; // mảng tài khoản
-  const ONE_DAY = 24*60*60*1000;
+  /* SCAN */
+  const sc_resultTA = $('#sc_resultTA');
+  const sc_fileInput = $('#sc_fileInput');
+  const sc_resetBtn = $('#sc_resetBtn');
+  const sc_processBtn = $('#sc_processBtn');
+  const sc_stat = $('#sc_stat');
+  const sc_selectAllOut = $('#sc_selectAllOut');
+  const sc_copyAllOut = $('#sc_copyAllOut');
+  const sc_saveHistoryBtn = $('#sc_saveHistoryBtn');
+  const sc_downloadBtn = $('#sc_downloadBtn');
+
+  function runScan(){
+    const raw = (sc_inputArea.value || '').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const mode = (document.querySelector('input[name="sc_fmt"]:checked') || {}).value || '1';
+    const out = [];
+    for(const mail of raw){
+      if(!mail.includes('@')) continue;
+      if(mode === '1'){
+        out.push(`${mail}|xincamon`);
+      }else{
+        out.push(`Tài khoản:${mail}|Mật khẩu:xincamon`);
+      }
+    }
+    sc_resultTA.value = out.join('\n');
+    if(sc_stat){
+      sc_stat.textContent = `${out.length} dòng`;
+    }
+  }
+
+  if(sc_processBtn) sc_processBtn.addEventListener('click', runScan);
+
+  if(sc_resetBtn){
+    sc_resetBtn.addEventListener('click', ()=>{
+      sc_inputArea.value = '';
+      sc_resultTA.value = '';
+      if(sc_stat) sc_stat.textContent = '0 dòng';
+    });
+  }
+
+  if(sc_fileInput){
+    sc_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        sc_inputArea.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  if(sc_selectAllOut){
+    sc_selectAllOut.addEventListener('click', ()=>{
+      sc_resultTA.focus();
+      sc_resultTA.select();
+      showToast('Đã chọn toàn bộ kết quả');
+    });
+  }
+
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(sc_copyAllOut){
+    sc_copyAllOut.addEventListener('click', () => robustCopy(sc_resultTA));
+  }
+
+  if(sc_saveHistoryBtn){
+    sc_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = sc_inputArea.value || '';
+      const output = sc_resultTA.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
+        return;
+      }
+      const meta = sc_stat ? sc_stat.textContent : '';
+      addHistory('scan',{
+        title:'Scan / Format',
+        input,
+        output,
+        meta
+      });
+    });
+  }
+
+  if(sc_downloadBtn){
+    sc_downloadBtn.addEventListener('click', ()=>{
+      const val = sc_resultTA.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
+        return;
+      }
+      downloadTextFile('scan_output.txt', val);
+    });
+  }
+
+  /* ADD LINK KEY */
+  const lk_linkToggleBtn = $('#lk_linkToggleBtn');
+  const lk_linkPanel = $('#lk_linkPanel');
+  const lk_linkInput = $('#lk_linkInput');
+  const lk_saveLinkBtn = $('#lk_saveLinkBtn');
+  const lk_fileInput = $('#lk_fileInput');
+  const lk_resetBtn = $('#lk_resetBtn');
+  const lk_processBtn = $('#lk_processBtn');
+  const lk_statLines = $('#lk_statLines');
+  const lk_statValid = $('#lk_statValid');
+  const lk_output = $('#lk_output');
+  const lk_selectAllBtn = $('#lk_selectAllBtn');
+  const lk_copyBtn = $('#lk_copyBtn');
+  const lk_downloadBtn = $('#lk_downloadBtn');
+  const lk_saveHistoryBtn = $('#lk_saveHistoryBtn');
+
+  const LINK_KEY = 'tk_link_input';
+
+  function initSavedLink(){
+    const saved = localStorage.getItem(LINK_KEY) || '';
+    if(lk_linkInput) lk_linkInput.value = saved;
+  }
+  initSavedLink();
+
+  if(lk_linkToggleBtn && lk_linkPanel){
+    lk_linkToggleBtn.addEventListener('click', ()=>{
+      const show = lk_linkPanel.style.display !== 'block';
+      lk_linkPanel.style.display = show ? 'block' : 'none';
+    });
+  }
+
+  if(lk_saveLinkBtn){
+    lk_saveLinkBtn.addEventListener('click', ()=>{
+      const link = (lk_linkInput.value || '').trim();
+      if(!link){
+        showToast('Vui lòng nhập link');
+        return;
+      }
+      localStorage.setItem(LINK_KEY, link);
+      showToast('Đã lưu link nhập key');
+    });
+  }
+
+  if(lk_fileInput){
+    lk_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        lk_rawInput.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  if(lk_resetBtn){
+    lk_resetBtn.addEventListener('click', ()=>{
+      lk_rawInput.value = '';
+      lk_output.value = '';
+      if(lk_statLines) lk_statLines.textContent = '0 dòng';
+      if(lk_statValid) lk_statValid.textContent = '0 key hợp lệ';
+    });
+  }
+
+  function runAddLink(){
+    const lines = (lk_rawInput.value || '').split(/\r?\n/).map(s=>s.trim());
+    const total = lines.length;
+    const linkRaw = (lk_linkInput.value || '').trim();
+    const link = linkRaw || 'https://nhapkey.click';
+    const fmt = (document.querySelector('input[name="lk_format"]:checked') || {}).value || 'opt1';
+    const out = [];
+    let valid = 0;
+    for(const key of lines){
+      if(!key) continue;
+      valid++;
+      let line = '';
+      if(fmt === 'opt1'){
+        line = `KEY:${key}|link nhập key:${link}`;
+      }else if(fmt === 'opt2'){
+        line = `${key}|link nhập key:${link}`;
+      }else{
+        line = key;
+      }
+      out.push(line);
+    }
+    lk_output.value = out.join('\n');
+    if(lk_statLines) lk_statLines.textContent = `${total} dòng`;
+    if(lk_statValid) lk_statValid.textContent = `${valid} key hợp lệ`;
+  }
+
+  if(lk_processBtn) lk_processBtn.addEventListener('click', runAddLink);
+
+  if(lk_selectAllBtn){
+    lk_selectAllBtn.addEventListener('click', ()=>{
+      lk_output.focus();
+      lk_output.select();
+      showToast('Đã chọn toàn bộ kết quả');
+    });
+  }
+
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(lk_copyBtn){
+    lk_copyBtn.addEventListener('click', () => robustCopy(lk_output));
+  }
+
+  if(lk_downloadBtn){
+    lk_downloadBtn.addEventListener('click', ()=>{
+      const val = lk_output.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
+        return;
+      }
+      downloadTextFile('key_link_output.txt', val);
+    });
+  }
+
+  if(lk_saveHistoryBtn){
+    lk_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = lk_rawInput.value || '';
+      const output = lk_output.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
+        return;
+      }
+      const meta = `${lk_statLines ? lk_statLines.textContent : ''} • ${lk_statValid ? lk_statValid.textContent : ''}`;
+      addHistory('key',{
+        title:'Add Link Nhập Key',
+        input,
+        output,
+        meta
+      });
+    });
+  }
+
+  /* ACCOUNT MANAGER */
+  const ACC_KEY = 'tk_accounts_v1';
+  let accData = [];
+
+  const acc_account = $('#acc_account');
+  const acc_days = $('#acc_days');
+  const acc_usersContainer = $('#acc_usersContainer');
+  const acc_addUserBtn = $('#acc_addUserBtn');
+  const acc_saveBtn = $('#acc_saveBtn');
+  const acc_clearFormBtn = $('#acc_clearFormBtn');
+  const acc_list = $('#acc_list');
 
   function loadAccounts(){
     try{
-      const raw = localStorage.getItem(LS_ACC);
+      const raw = localStorage.getItem(ACC_KEY);
       if(!raw) return [];
-      return JSON.parse(raw);
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
     }catch(e){
       return [];
     }
   }
   function saveAccounts(){
-    localStorage.setItem(LS_ACC, JSON.stringify(accData));
+    localStorage.setItem(ACC_KEY, JSON.stringify(accData));
   }
 
-  function newUserRow(initial){
-    const div = document.createElement('div');
-    div.className = 'acc-user-row';
-    div.innerHTML = `
+  function newUserRow(user = {}){
+    const wrap = document.createElement('div');
+    wrap.className = 'acc-user-row';
+    wrap.innerHTML = `
       <div class="acc-user-row-title">Người dùng</div>
       <div class="field" style="margin-bottom:4px;">
-        <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${initial?.name||''}">
+        <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${user.name || ''}">
       </div>
       <div class="field" style="margin-bottom:4px;">
-        <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${initial?.link||''}">
+        <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${user.link || ''}">
       </div>
       <div class="field" style="margin-bottom:0;">
-        <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${initial?.device||''}">
+        <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${user.device || ''}">
       </div>
     `;
-    return div;
-  }
-
-  function resetAccForm(){
-    acc.account.value = '';
-    acc.days.value = '';
-    acc.usersContainer.innerHTML = '';
-    acc.usersContainer.appendChild(newUserRow());
+    return wrap;
   }
 
   function collectFormUsers(container){
     const rows = container.querySelectorAll('.acc-user-row');
-    const users = [];
+    const arr = [];
     rows.forEach(row=>{
-      const name = row.querySelector('.acc_user_name').value.trim();
-      const link = row.querySelector('.acc_user_link').value.trim();
-      const device = row.querySelector('.acc_user_device').value.trim();
+      const name = row.querySelector('.acc_user_name')?.value.trim() || '';
+      const link = row.querySelector('.acc_user_link')?.value.trim() || '';
+      const device = row.querySelector('.acc_user_device')?.value.trim() || '';
       if(name || link || device){
-        users.push({name,link,device});
+        arr.push({name, link, device});
       }
     });
-    return users;
+    return arr.slice(0,3);
   }
 
-  acc.addUserBtn.addEventListener('click', ()=>{
-    const current = acc.usersContainer.querySelectorAll('.acc-user-row').length;
-    if(current >= 3){
-      showToast('Tối đa 3 người dùng cho 1 tài khoản.');
-      return;
-    }
-    acc.usersContainer.appendChild(newUserRow());
-  });
-
-  acc.clearFormBtn.addEventListener('click', resetAccForm);
-
-  acc.saveBtn.addEventListener('click', async ()=>{
-    const accountName = acc.account.value.trim();
-    const days = parseInt(acc.days.value, 10);
-    if(!accountName){
-      showToast('Vui lòng nhập tên tài khoản.');
-      return;
-    }
-    if(isNaN(days) || days < 0){
-      showToast('Số ngày không hợp lệ.');
-      return;
-    }
-    const users = collectFormUsers(acc.usersContainer);
+  function calcDaysLeft(acc){
+    if(!acc || !acc.expiresAt) return 0;
     const now = Date.now();
-    const expiry = now + days*ONE_DAY;
-
-    const existingIndex = accData.findIndex(a=>a.account === accountName);
-    let targetIndex;
-
-    if(existingIndex >= 0){
-      const old = accData[existingIndex];
-      accData[existingIndex] = {
-        ...old,
-        account: accountName,
-        totalDays: days,
-        updatedAt: now,
-        expiry,
-        status: old.status === 'error' ? 'error' : 'active',
-        users
-      };
-      targetIndex = existingIndex;
-      showToast('Đã cập nhật tài khoản.');
-    }else{
-      const id = `${now}_${Math.random().toString(36).slice(2)}`;
-      accData.unshift({
-        id,
-        account: accountName,
-        totalDays: days,
-        createdAt: now,
-        updatedAt: now,
-        expiry,
-        status: 'active',   // active | warning | expired | error
-        errorDate: null,
-        daysLeftAtError: null,
-        warnMutedUntil: null,
-        users
-      });
-      targetIndex = 0;
-      showToast('Đã thêm tài khoản.');
-    }
-
-    saveAccounts();
-    await upsertAccountCloud(accData[targetIndex]);
-    cleanupAndRenderAccounts();
-    resetAccForm();
-  });
-
-  function calcDaysLeft(accObj){
-    const now = Date.now();
-    const diff = accObj.expiry - now;
-    return Math.ceil(diff / ONE_DAY);
+    const diff = acc.expiresAt - now;
+    return Math.floor(diff / (24*60*60*1000));
   }
 
-  async function cleanupAndRenderAccounts(){
-    const now = Date.now();
-    const next = [];
-    for(const a of accData){
-      let keep = true;
-      if(a.status === 'error' && a.errorDate){
-        if(now - a.errorDate > 3*ONE_DAY){
-          keep = false; // xoá 3 ngày sau lỗi
-          await deleteAccountCloud(a.id);
-        }
-      }else{
-        const daysLeft = calcDaysLeft(a);
-        if(daysLeft < -3){
-          keep = false; // xoá sau 3 ngày hết hạn
-          await deleteAccountCloud(a.id);
-        }
-      }
-      if(keep) next.push(a);
-    }
-    accData = next;
-    saveAccounts();
-    renderAccounts();
-  }
-
-  function renderAccounts(){
-    acc.list.innerHTML = '';
+  function renderAccountList(){
+    accData = loadAccounts();
+    if(!acc_list) return;
+    acc_list.innerHTML = '';
     if(!accData.length){
-      const dv = document.createElement('div');
-      dv.className='acc-list-empty';
-      dv.textContent='Chưa có tài khoản nào.';
-      acc.list.appendChild(dv);
+      acc_list.innerHTML = '<div class="acc-list-empty">Chưa có tài khoản nào.</div>';
       return;
     }
-    const now = Date.now();
 
     accData.forEach(item=>{
       const daysLeft = calcDaysLeft(item);
@@ -2055,19 +2239,26 @@
       wrap.dataset.id = item.id;
 
       const headBtn = document.createElement('button');
-      headBtn.type='button';
-      headBtn.className='acc-head-btn';
+      headBtn.type = 'button';
+      headBtn.className = 'acc-head-btn';
+
+      let subText = '';
+      if(status === 'error'){
+        subText = 'Đang lỗi • kiểm tra lại';
+      }else if(daysLeft > 0){
+        subText = `Còn ${daysLeft} ngày`;
+      }else if(daysLeft === 0){
+        subText = 'Hôm nay hết hạn';
+      }else{
+        subText = `Hết hạn ${Math.abs(daysLeft)} ngày`;
+      }
+
       headBtn.innerHTML = `
         <div>
           <div class="acc-title">${item.account}</div>
           <div class="acc-sub">
-            ${status === 'error'
-              ? `Lỗi • còn ${item.daysLeftAtError ?? daysLeft} ngày lúc lỗi`
-              : daysLeft > 0
-                ? `Còn ${daysLeft} ngày`
-                : daysLeft === 0
-                  ? 'Hôm nay hết hạn'
-                  : `Hết hạn ${Math.abs(daysLeft)} ngày`}
+            ${subText}
+            <span class="acc-countdown"></span>
           </div>
         </div>
         <div class="acc-badges">
@@ -2077,20 +2268,26 @@
         </div>
       `;
 
+      if(item.expiresAt){
+        headBtn.dataset.expTs = String(item.expiresAt);
+      }
+
       const body = document.createElement('div');
       body.className = 'acc-body';
+
+      const daysForInput = Math.max(calcDaysLeft(item), 0);
 
       const usersHTML = (item.users || []).map((u,idx)=>`
         <div class="acc-user-row">
           <div class="acc-user-row-title">Người dùng ${idx+1}</div>
           <div class="field" style="margin-bottom:4px;">
-            <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${u.name||''}">
+            <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${u.name || ''}">
           </div>
           <div class="field" style="margin-bottom:4px;">
-            <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${u.link||''}">
+            <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${u.link || ''}">
           </div>
           <div class="field" style="margin-bottom:0;">
-            <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${u.device||''}">
+            <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${u.device || ''}">
           </div>
         </div>
       `).join('');
@@ -2099,11 +2296,11 @@
         <div class="acc-body-grid">
           <div class="field">
             <div class="label"><span>Tài khoản</span></div>
-            <input type="text" class="acc_edit_account" value="${item.account}" />
+            <input type="text" class="acc_edit_account" value="${item.account || ''}" />
           </div>
           <div class="field">
             <div class="label"><span>Số ngày còn</span></div>
-            <input type="number" class="acc_edit_days" min="0" value="${Math.max(daysLeft,0)}" />
+            <input type="number" class="acc_edit_days" min="0" value="${daysForInput}" />
           </div>
           <div class="field">
             <div class="label"><span>Người dùng & thiết bị</span></div>
@@ -2112,19 +2309,12 @@
             </div>
             <button class="btn ghost small" data-act="addUser">+ Thêm người dùng</button>
           </div>
-          ${status === 'warning' && (!item.warnMutedUntil || now > item.warnMutedUntil)
-            ? `<div class="field">
-                 <label class="pill-inline">
-                   <input type="checkbox" data-act="muteWarning">
-                   <span>Ẩn cảnh báo 24h cho tài khoản này</span>
-                 </label>
-               </div>`
-            : ''}
         </div>
         <div class="acc-body-actions">
           <button class="btn ghost small" data-act="save">Lưu</button>
           <button class="btn danger small" data-act="error">Đánh dấu lỗi</button>
-          <button class="btn danger small" data-act="delete">Xoá</button>
+          <button class="btn ghost small" data-act="openUser">Mở link người dùng</button>
+          <button class="btn ghost small" data-act="delete">Xoá</button>
         </div>
       `;
 
@@ -2133,13 +2323,13 @@
         body.style.display = open ? 'none' : 'block';
       });
 
-      body.addEventListener('click', async e=>{
+      body.addEventListener('click', e=>{
         const btn = e.target.closest('button[data-act]');
         if(!btn) return;
         const act = btn.dataset.act;
         const accId = item.id;
-        const index = accData.findIndex(a=>a.id === accId);
-        if(index < 0) return;
+        const idx = accData.findIndex(a=>a.id === accId);
+        if(idx < 0) return;
 
         if(act === 'addUser'){
           const container = body.querySelector('.acc_edit_users');
@@ -2164,94 +2354,131 @@
             showToast('Số ngày không hợp lệ.');
             return;
           }
-
           const users = collectFormUsers(body.querySelector('.acc_edit_users'));
-
-          const now2 = Date.now();
-          accData[index] = {
-            ...accData[index],
-            account: name,
-            totalDays: days,
-            updatedAt: now2,
-            expiry: now2 + days*ONE_DAY,
-            status: accData[index].status === 'error' ? 'error' : 'active',
-            users
+          const nowTs = Date.now();
+          const expiresAt = nowTs + days*24*60*60*1000;
+          accData[idx] = {
+            ...accData[idx],
+            account:name,
+            users,
+            expiresAt,
+            status:(accData[idx].status === 'error' ? 'error' : 'active')
           };
           saveAccounts();
-          await upsertAccountCloud(accData[index]);
-          cleanupAndRenderAccounts();
-          showToast('Đã lưu thay đổi.');
+          showToast('Đã lưu tài khoản');
+          renderAccountList();
         }
 
         if(act === 'error'){
-          if(!confirm('Bạn có chắc tài khoản này đã lỗi?')) return;
-          const daysLeftNow = calcDaysLeft(accData[index]);
-          accData[index].status = 'error';
-          accData[index].errorDate = Date.now();
-          accData[index].daysLeftAtError = daysLeftNow;
+          accData[idx].status = 'error';
           saveAccounts();
-          await upsertAccountCloud(accData[index]);
-          cleanupAndRenderAccounts();
-          showToast('Đã đánh dấu lỗi.');
+          showToast('Đã đánh dấu lỗi');
+          renderAccountList();
         }
 
         if(act === 'delete'){
           if(!confirm('Xoá tài khoản này?')) return;
-          const toDel = accData[index];
-          accData.splice(index,1);
+          accData.splice(idx,1);
           saveAccounts();
-          await deleteAccountCloud(toDel.id);
-          cleanupAndRenderAccounts();
-          showToast('Đã xoá tài khoản.');
+          showToast('Đã xoá tài khoản');
+          renderAccountList();
+        }
+
+        if(act === 'openUser'){
+          const users = collectFormUsers(body.querySelector('.acc_edit_users'));
+          const u = users.find(u=>u.link);
+          if(!u || !u.link){
+            showToast('Chưa có link người dùng để mở');
+            return;
+          }
+          let url = u.link.trim();
+          if(!/^https?:\/\//i.test(url)){
+            url = 'https://' + url;
+          }
+          window.open(url, '_blank');
         }
       });
 
-      const muteCheckbox = body.querySelector('input[data-act="muteWarning"]');
-      if(muteCheckbox){
-        muteCheckbox.addEventListener('change', async ()=>{
-          if(muteCheckbox.checked){
-            const idx = accData.findIndex(a=>a.id === item.id);
-            if(idx >= 0){
-              accData[idx].warnMutedUntil = Date.now() + ONE_DAY;
-              saveAccounts();
-              await upsertAccountCloud(accData[idx]);
-              showToast('Đã ẩn cảnh báo 24h.');
-              cleanupAndRenderAccounts();
-            }
-          }
-        });
-      }
-
       wrap.appendChild(headBtn);
       wrap.appendChild(body);
-      acc.list.appendChild(wrap);
+      acc_list.appendChild(wrap);
     });
   }
 
-  /* ===== INIT ===== */
-  (async function init(){
-    initTheme();
-    await initFirebase();
-    await syncHistoryFromCloud();
-    activateTab('cleaner');
-    renderHistory();
+  function addUserRowToForm(user){
+    acc_usersContainer.appendChild(newUserRow(user));
+  }
 
-    const savedLink = localStorage.getItem(LS_LINK);
-    if(savedLink){
-      lk.linkInput.value = savedLink;
-    }
-    clSetOutput('');
+  function clearAccForm(){
+    acc_account.value = '';
+    acc_days.value = '';
+    acc_usersContainer.innerHTML = '';
+  }
 
-    await initAccountsFromCloud();
+  if(acc_addUserBtn){
+    acc_addUserBtn.addEventListener('click', ()=>{
+      const current = acc_usersContainer.querySelectorAll('.acc-user-row').length;
+      if(current >= 3){
+        showToast('Tối đa 3 người dùng.');
+        return;
+      }
+      addUserRowToForm({});
+    });
+  }
 
-    // nếu form trống thì tạo 1 user row mặc định
-    if(!acc.usersContainer.querySelector('.acc-user-row')){
-      acc.usersContainer.appendChild(newUserRow());
-    }
+  if(acc_clearFormBtn){
+    acc_clearFormBtn.addEventListener('click', clearAccForm);
+  }
 
-    // cập nhật định kỳ trạng thái tài khoản (auto xoá / cảnh báo)
-    setInterval(cleanupAndRenderAccounts, 60*1000);
-  })();
+  if(acc_saveBtn){
+    acc_saveBtn.addEventListener('click', ()=>{
+      const name = (acc_account.value || '').trim();
+      const days = parseInt(acc_days.value || '0', 10);
+      if(!name){
+        showToast('Tên tài khoản không được trống.');
+        return;
+      }
+      if(isNaN(days) || days < 0){
+        showToast('Số ngày không hợp lệ.');
+        return;
+      }
+      const users = collectFormUsers(acc_usersContainer);
+      const nowTs = Date.now();
+      const expiresAt = nowTs + days*24*60*60*1000;
+      const id = 'acc_'+nowTs+'_'+Math.random().toString(16).slice(2);
+      const obj = {id, account:name, expiresAt, users, status:'active', createdAt:nowTs};
+      accData = loadAccounts();
+      accData.push(obj);
+      saveAccounts();
+      showToast('Đã lưu tài khoản');
+      clearAccForm();
+      renderAccountList();
+    });
+  }
+
+  accData = loadAccounts();
+  renderAccountList();
+
+  // COUNTDOWN
+  setInterval(()=>{
+    const items = $$('.acc-head-btn');
+    const now = Date.now();
+    items.forEach(btn=>{
+      const expTs = parseInt(btn.dataset.expTs || 'NaN', 10);
+      const cdSpan = btn.querySelector('.acc-countdown');
+      if(!cdSpan || !expTs || isNaN(expTs)) return;
+      let diff = expTs - now;
+      if(diff <= 0){
+        cdSpan.textContent = '(0 ngày 0 giờ 0 phút 0 giây)';
+        return;
+      }
+      let sec = Math.floor(diff/1000);
+      const days = Math.floor(sec/86400); sec -= days*86400;
+      const hrs = Math.floor(sec/3600); sec -= hrs*3600;
+      const mins = Math.floor(sec/60); sec -= mins*60;
+      cdSpan.textContent = `(${days} ngày ${hrs} giờ ${mins} phút ${sec} giây)`;
+    });
+  }, 1000);
 
 })();
 </script>
