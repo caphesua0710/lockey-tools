@@ -2241,6 +2241,7 @@
             ? 'Hôm nay hết hạn'
             : `Hết hạn ${Math.abs(daysLeft)} ngày`;
       
+      // YÊU CẦU CUỐI: Thay nút "Copy" bằng icon 📋
       headBtn.innerHTML = `
         <div>
           <div class="acc-title">${item.account}</div>
@@ -2256,6 +2257,7 @@
           ${status === 'error' ? '<span class="acc-badge acc-badge-error">Lỗi</span>' : ''}
           ${status === 'expired' && status !== 'error' ? '<span class="acc-badge acc-badge-expired">Hết hạn</span>' : ''}
         </div>
+        <button class="btn ghost small" data-act-copy="true" title="Copy tên tài khoản" style="margin-left: 6px; padding: 5px 9px; font-size: 14px; line-height: 1;">📋</button>
       `;
 
       const body = document.createElement('div');
@@ -2313,8 +2315,21 @@
           <button class="btn danger small" data-act="delete">Xoá</button>
         </div>
       `;
+      
+      // YÊU CẦU CUỐI: Thêm listener cho nút copy-name
+      const copyNameBtn = headBtn.querySelector('button[data-act-copy="true"]');
+      if (copyNameBtn) {
+        copyNameBtn.addEventListener('click', async (e) => {
+          e.stopPropagation(); // Ngăn không cho panel mở/đóng
+          await copyToClipboard(item.account);
+        });
+      }
 
-      headBtn.addEventListener('click', ()=>{
+      headBtn.addEventListener('click', (e)=>{
+        // Ngăn click vào nút copy mà cũng mở/đóng
+        if (e.target.closest('button[data-act-copy="true"]')) {
+          return;
+        }
         const open = body.style.display === 'block';
         body.style.display = open ? 'none' : 'block';
       });
