@@ -26,6 +26,7 @@
 
 <style>
   :root{
+    /* Light Mode Colors */
     --green:#22c55e;
     --green-600:#16a34a;
     --green-700:#15803d;
@@ -45,29 +46,31 @@
     --warning-soft:#ffedd5;
   }
 
-  body[data-theme="dark"]{
-    /* YÊU CẦU 1: Nâng cấp UI Neon */
-    --green: #00ff9c; /* Neon Green */
-    --green-600: #00e68c;
-    --green-700: #00cc7a;
-    --green-soft: rgba(0, 255, 156, 0.1);
+  /* --- NÂNG CẤP UI: "GitHub Dark" (Theo ảnh) --- */
+  body[data-theme="dark"] {
+    /* 1. Màu Xanh lá (Emerald) */
+    --green: #22C55E; 
+    --green-600: #16A34A;
+    --green-700: #15803D;
+    --green-soft: rgba(34, 197, 94, 0.1);
+
+    /* 2. Màu chữ (Trắng/Sáng) */
+    --muted: #94A3B8; /* Xám mờ */
+    --fg: #E2E8F0; /* Trắng-xám */
+
+    /* 3. Nền/Card (Xám-Xanh đậm) */
+    --bg: #0F172A; /* Nền (Slate 900) */
+    --card: #1E293B; /* Card (Slate 800) */
+    --line: #334155; /* Viền (Slate 700) */
     
-    /* NÂNG CẤP MÀU CHỮ: Đổi sang màu sáng hơn */
-    --muted: #a8b2d1; /* Sáng hơn #8892b0 */
-    --fg: #ffffff; /* Trắng tinh, sáng hơn #e5e7eb */
+    --shadow: 0 20px 50px rgba(0,0,0,0.9);
+    --danger-soft: rgba(239, 68, 68, 0.1);
+    --warning-soft: rgba(249, 115, 22, 0.05);
     
-    --bg:#010a1f; /* Dark Neon Blue */
-    --card:#021027; /* Slightly lighter than bg */
-    --line:#0e2240; /* Darker blue line */
-    
-    --shadow:0 20px 50px rgba(0,0,0,0.9);
-    --danger-soft:rgba(248,113,113,0.1);
-    --warning-soft:rgba(248,250,252,0.04);
-    
-    /* Neon specific glows */
-    --neon-glow-small: 0 0 4px rgba(0, 255, 156, 0.5);
-    --neon-glow-medium: 0 0 8px rgba(0, 255, 156, 0.7);
-    --neon-glow-text: 0 0 5px rgba(0, 255, 156, 0.8);
+    /* 4. Glow (Không dùng trong theme này) */
+    --neon-glow-small: none;
+    --neon-glow-medium: none;
+    --neon-glow-text: none;
   }
 
   *{box-sizing:border-box;}
@@ -133,10 +136,9 @@
   .brand-title{font-size:16px;font-weight:700;}
   .brand-sub{font-size:11px;color:var(--muted);}
   
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho title */
   body[data-theme="dark"] .brand-title{
-    color: var(--green);
-    text-shadow: var(--neon-glow-text);
+    color: var(--fg); /* Chữ trắng thường */
+    text-shadow: none;
   }
 
   .topbar-actions{
@@ -183,7 +185,6 @@
     border-color:var(--line);
     color:var(--fg);
   }
-  body[data-theme="dark"] .btn.ghost{background:#020617;}
   .btn.danger{
     background:var(--danger-soft);
     border-color:#fecaca;
@@ -191,25 +192,28 @@
   }
   .btn.full{width:100%;justify-content:center;}
   
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho button */
+  /* NÂNG CẤP UI: Button */
   body[data-theme="dark"] .btn{
-    box-shadow: var(--neon-glow-medium);
-    text-shadow: 0 0 2px rgba(0,0,0,0.9);
+    color: #ffffff; /* Chữ trắng trên nền xanh */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-shadow: none;
     border-color: transparent;
   }
   body[data-theme="dark"] .btn:hover{
-    transform: scale(1.02);
-    box-shadow: 0 0 15px var(--green);
+    transform: none;
+    background: var(--green-600);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
   }
   body[data-theme="dark"] .btn.ghost{
-    box-shadow: none; /* Ghost button không cần glow */
+    color: var(--fg); /* Chữ trắng */
+    box-shadow: none;
     text-shadow: none;
     border-color: var(--line);
+    background: var(--card); /* Nền card */
   }
   body[data-theme="dark"] .btn.ghost:hover{
-    transform: none;
-    box-shadow: none;
-    border-color: var(--green);
+    border-color: var(--muted);
+    background: #283649; /* Sáng hơn 1 chút (Slate 750) */
   }
 
   /* Cloud status */
@@ -222,7 +226,7 @@
     background:rgba(248,250,252,0.8);
   }
   body[data-theme="dark"] .cloud-status{
-    background:rgba(15,23,42,0.9);
+    background:var(--card);
   }
 
   /* Tabs chính (4 tab) */
@@ -249,7 +253,8 @@
     gap:5px;
   }
   body[data-theme="dark"] .tab{
-    background:rgba(15,23,42,0.9);
+    background: var(--card); /* Nền card */
+    border-color: var(--line);
   }
   .tab span.idx{
     display:inline-flex;
@@ -273,11 +278,16 @@
     color:#bbf7d0;
   }
   
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho tab active */
+  /* NÂNG CẤP UI: Tab active */
   body[data-theme="dark"] .tab[aria-selected="true"]{
-     box-shadow: var(--neon-glow-medium);
+     color: #ffffff; /* Chữ trắng */
+     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
      border-color: var(--green);
-     text-shadow: 0 0 2px rgba(0,0,0,0.9);
+     text-shadow: none;
+  }
+  body[data-theme="dark"] .tab[aria-selected="true"] span.idx {
+    background: rgba(0,0,0,0.2);
+    color: #d4ffee;
   }
 
   /* Panel: mobile = 1 cột, desktop = 2 cột (input | output) */
@@ -303,13 +313,13 @@
     margin-bottom:0;
     overflow:hidden;
   }
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho card */
+  /* NÂNG CẤP UI: Card */
   body[data-theme="dark"] .card{
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   body[data-theme="dark"] .card:hover{
-     border-color: rgba(0, 255, 156, 0.3);
-     box-shadow: var(--shadow), 0 0 10px rgba(0, 255, 156, 0.2);
+     border-color: var(--line);
+     box-shadow: var(--shadow); /* Không cần glow */
   }
   
   .card-head{
@@ -319,20 +329,19 @@
     align-items:center;
     justify-content:space-between;
     gap:8px;
-    /* YÊU CẦU 3: Cho phép wrap và đẩy toolbar sang phải */
     flex-wrap: wrap; 
   }
   .card-head h3{
     margin:0;
     font-size:13px;
     font-weight:700;
-    flex-shrink: 0; /* YÊU CẦU 3 */
+    flex-shrink: 0;
   }
   .card-head .badge {
-    flex-shrink: 0; /* YÊU CẦU 3 */
+    flex-shrink: 0;
   }
   .card-head .toolbar {
-    margin-left: auto; /* YÊU CẦU 3: Đẩy toolbar sang phải */
+    margin-left: auto;
   }
   
   .card-body{padding:10px;}
@@ -346,7 +355,8 @@
     background:rgba(248,250,252,0.9);
   }
   body[data-theme="dark"] .badge{
-    background:rgba(15,23,42,0.9);
+    background:var(--bg); /* Nền sẫm */
+    border-color: var(--line);
   }
 
   .field{margin-bottom:8px;}
@@ -367,7 +377,7 @@
     padding:10px 11px;
     font-size:13px;
     font-family:inherit;
-    background:var(--card);
+    background:var(--bg); /* Nền sẫm hơn card */
     color:var(--fg);
     outline:none;
   }
@@ -376,20 +386,21 @@
   textarea::placeholder,input::placeholder{color:rgba(148,163,184,0.8);}
   body[data-theme="dark"] textarea::placeholder,
   body[data-theme="dark"] input::placeholder {
-    color: rgba(255, 255, 255, 0.4); /* Sáng hơn cho dark mode */
+    color: var(--muted); /* Dùng màu chữ mờ */
+    opacity: 0.6;
   }
 
   textarea:focus,input:focus{
     border-color:var(--green);
     box-shadow:0 0 0 1px var(--green-soft);
   }
-  /* YÊU CẦU 1: Thêm hiệu ứng neon cho focus */
+  /* NÂNG CẤP UI: Focus */
   body[data-theme="dark"] textarea:focus,
   body[data-theme="dark"] input[type="text"]:focus,
   body[data-theme="dark"] input[type="number"]:focus,
   body[data-theme="dark"] input[type="date"]:focus {
     border-color: var(--green);
-    box-shadow: 0 0 0 1px var(--green), var(--neon-glow-small);
+    box-shadow: 0 0 0 1px var(--green);
   }
   
   textarea{
@@ -418,7 +429,6 @@
     display:flex;
     flex-wrap:wrap;
     gap:6px;
-    /* YÊU CẦU 3: Xoá margin-top, set về 0 */
     margin:0; 
   }
 
@@ -441,7 +451,7 @@
     background:rgba(248,250,252,0.9);
   }
   body[data-theme="dark"] .pill-radio{
-    background:rgba(15,23,42,0.9);
+    background: var(--bg); /* Nền sẫm */
   }
   .pill-radio input{
     margin-top:2px;
@@ -485,7 +495,7 @@
     background:rgba(15,23,42,0.55);
   }
   body[data-theme="dark"] .history-backdrop {
-    background: rgba(1, 10, 31, 0.8); /* Darker backdrop for neon */
+    background: rgba(1, 10, 31, 0.8); /* Darker backdrop */
   }
   .history-sheet{
     position:relative;
@@ -502,7 +512,7 @@
   }
   body[data-theme="dark"] .history-sheet {
     border-color: var(--line);
-    box-shadow: 0 22px 50px rgba(0,0,0,0.75), 0 0 15px rgba(0, 255, 156, 0.2);
+    box-shadow: 0 22px 50px rgba(0,0,0,0.75);
   }
   @media (min-width:768px){
     .history-sheet{
@@ -557,7 +567,7 @@
     background:rgba(248,250,252,0.9);
   }
   body[data-theme="dark"] .h-item{
-    background:rgba(15,23,42,0.95);
+    background: var(--bg); /* Nền sẫm */
   }
   .h-btn{
     width:100%;
@@ -572,7 +582,7 @@
     color: inherit; /* NÂNG CẤP MÀU CHỮ: Buộc nhận màu chữ sáng */
   }
   body[data-theme="dark"] .h-btn{
-    background:rgba(22,163,74,0.18);
+    background:rgba(34, 197, 94, 0.1); /* Nền xanh lá mờ */
   }
   .h-main{
     display:flex;
@@ -639,8 +649,8 @@
   }
   body[data-theme="dark"] #toast {
     background: var(--green);
-    color: #010a1f;
-    box-shadow: var(--neon-glow-medium);
+    color: #0F172A; /* Chữ sẫm */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   }
 
   /* Account manager */
@@ -677,7 +687,7 @@
     background:rgba(248,250,252,0.9);
   }
   body[data-theme="dark"] .acc-item{
-    background:rgba(15,23,42,0.95);
+    background: var(--card); /* Nền card */
   }
   .acc-head-btn{
     width:100%;
@@ -689,11 +699,13 @@
     align-items:center;
     gap:6px;
     cursor:pointer;
-    color: var(--fg); /* NÂNG CẤP MÀU CHỮ: Buộc nút có màu chữ
-    trắng */
+    color: var(--fg); /* NÂNG CẤP MÀU CHỮ: Buộc nút có màu chữ trắng */
   }
   body[data-theme="dark"] .acc-head-btn{
-    background:rgba(15,23,42,0.9);
+    background: var(--card); /* Nền card */
+  }
+  body[data-theme="dark"] .acc-head-btn:hover{
+    background: #283649; /* Sáng hơn 1 chút (Slate 750) */
   }
   .acc-title{
     font-size:12px;
@@ -703,6 +715,9 @@
   .acc-sub{
     font-size:11px;
     color:var(--muted);
+    /* NÂNG CẤP ĐẾM NGƯỢC: Đảm bảo live timer có chỗ */
+    min-height: 14px;
+    display: inline-block;
   }
   .acc-badges{
     margin-left:auto;
@@ -1215,6 +1230,7 @@
   const LS_TAB = 'multiToolTab_v1'; // YÊU CẦU 5: Thêm key lưu tab
 
   let currentTab = 'accounts'; // YÊU CẦU 2: Đổi tab mặc định
+  const ONE_DAY = 24*60*60*1000;
 
   /* ===== TOAST ===== */
   function showToast(msg){
@@ -1975,7 +1991,6 @@
   };
 
   let accData = []; // mảng tài khoản
-  const ONE_DAY = 24*60*60*1000;
 
   function loadAccounts(){
     try{
@@ -2101,6 +2116,62 @@
     const diff = accObj.expiry - now;
     return Math.ceil(diff / ONE_DAY);
   }
+  
+  // NÂNG CẤP ĐẾM NGƯỢC: Hàm format thời gian
+  function formatTimeLeft(ms) {
+    if (ms <= 0) return '<span style="color:var(--muted);">Đã hết hạn</span>';
+    
+    const s = Math.floor((ms / 1000) % 60).toString().padStart(2, '0');
+    const m = Math.floor((ms / 1000 / 60) % 60).toString().padStart(2, '0');
+    const h = Math.floor((ms / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+    const d = Math.floor(ms / (1000 * 60 * 60 * 24));
+    
+    if (d > 0) {
+      return `${d}d ${h}h ${m}m ${s}s`;
+    }
+    if (h > 0) {
+      return `${h}h ${m}m ${s}s`;
+    }
+    return `${m}m ${s}s`;
+  }
+  
+  // NÂNG CẤP ĐẾM NGƯỢC: Hàm cập nhật timer mỗi giây
+  function updateLiveTimers() {
+    const timerElements = document.querySelectorAll('[data-expiry]');
+    if (!timerElements.length) return;
+    
+    const now = Date.now();
+    timerElements.forEach(el => {
+      try {
+        const expiry = parseInt(el.dataset.expiry, 10);
+        const status = el.dataset.status;
+        const errorDays = el.dataset.errorDays;
+        
+        if (status === 'error') {
+          el.innerHTML = `Lỗi • ${errorDays} ngày lúc lỗi`;
+          return;
+        }
+        
+        const msLeft = expiry - now;
+        
+        if (msLeft <= 0) {
+          // Chỉ hiển thị "Hết hạn X ngày" nếu trạng thái đã là expired
+          // Nếu không, chỉ hiển thị "Đã hết hạn"
+          if (status === 'expired') {
+            const daysAgo = Math.abs(Math.ceil(msLeft / ONE_DAY));
+            el.innerHTML = `Hết hạn ${daysAgo} ngày`;
+          } else {
+            el.innerHTML = '<span style="color:var(--muted);">Đã hết hạn</span>';
+          }
+        } else {
+          el.innerHTML = formatTimeLeft(msLeft);
+        }
+      } catch(e) {
+        // Bắt lỗi nếu có timer nào đó không hợp lệ
+        el.innerHTML = "Lỗi timer";
+      }
+    });
+  }
 
   async function cleanupAndRenderAccounts(){
     const now = Date.now();
@@ -2145,6 +2216,12 @@
         else if(daysLeft <= 2) status = 'warning';
         else status = 'active';
         item.status = status;
+        
+        // Cập nhật lại trạng thái trong object data
+        const index = accData.findIndex(a => a.id === item.id);
+        if (index !== -1 && accData[index].status !== status) {
+          accData[index].status = status;
+        }
       }
 
       const wrap = document.createElement('div');
@@ -2154,17 +2231,24 @@
       const headBtn = document.createElement('button');
       headBtn.type='button';
       headBtn.className='acc-head-btn';
+      
+      // NÂNG CẤP ĐẾM NGƯỢC: Thêm data-attributes vào thẻ acc-sub
+      const initialTimerText = status === 'error'
+        ? `Lỗi • còn ${item.daysLeftAtError ?? daysLeft} ngày lúc lỗi`
+        : daysLeft > 0
+          ? `Còn ${daysLeft} ngày...` // Sẽ được thay bằng timer
+          : daysLeft === 0
+            ? 'Hôm nay hết hạn'
+            : `Hết hạn ${Math.abs(daysLeft)} ngày`;
+      
       headBtn.innerHTML = `
         <div>
           <div class="acc-title">${item.account}</div>
-          <div class="acc-sub">
-            ${status === 'error'
-              ? `Lỗi • còn ${item.daysLeftAtError ?? daysLeft} ngày lúc lỗi`
-              : daysLeft > 0
-                ? `Còn ${daysLeft} ngày`
-                : daysLeft === 0
-                  ? 'Hôm nay hết hạn'
-                  : `Hết hạn ${Math.abs(daysLeft)} ngày`}
+          <div class="acc-sub" id="timer-sub-${item.id}" 
+               data-expiry="${item.expiry}" 
+               data-status="${status}" 
+               data-error-days="${item.daysLeftAtError ?? daysLeft}">
+            ${initialTimerText}
           </div>
         </div>
         <div class="acc-badges">
@@ -2333,6 +2417,9 @@
       wrap.appendChild(body);
       acc.list.appendChild(wrap);
     });
+    
+    // NÂNG CẤP ĐẾM NGƯỢC: Chạy 1 lần ngay sau khi render
+    updateLiveTimers();
   }
 
   /* ===== INIT ===== */
@@ -2362,6 +2449,9 @@
       acc.usersContainer.appendChild(newUserRow());
     }
 
+    // NÂNG CẤP ĐẾM NGƯỢC: Chạy timer mỗi giây
+    setInterval(updateLiveTimers, 1000);
+    
     // cập nhật định kỳ trạng thái tài khoản (auto xoá / cảnh báo)
     setInterval(cleanupAndRenderAccounts, 60*1000);
   })();
