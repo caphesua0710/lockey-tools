@@ -79,7 +79,6 @@
       border-color: var(--line);
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
       backdrop-filter: none; /* Bỏ blur ở chế độ sáng */
-      -webkit-backdrop-filter: none;
     }
     body[data-theme="light"] .app::before{
       opacity: 0.1;
@@ -89,7 +88,6 @@
       border-color: var(--line);
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       backdrop-filter: none;
-      -webkit-backdrop-filter: none;
     }
     body[data-theme="light"] .card:hover{
       border-color: var(--green-500);
@@ -297,13 +295,11 @@
       justify-content:space-between;
       margin-bottom:14px;
     }
-   .topbar-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-width:0;
-  flex:1;              /* ⭐ Cho bên trái chiếm phần còn lại */
-}
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
     .logo-box{
       width:36px;
       height:36px;
@@ -340,14 +336,13 @@
       color:var(--muted);
     }
 
- .topbar-actions{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;    /* ⭐ Không cho tự xuống hàng nữa */
-  justify-content:flex-end;
-  flex-shrink:0;       /* ⭐ Không bị ép nhỏ quá */
-}
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
     .icon-btn{
       width:34px;
@@ -1027,8 +1022,8 @@
     </div>
     <div class="topbar-actions">
       <span class="cloud-status" id="cloudStatus">
-        <span class="cloud-dot"></span> Cloud: đang kết nối…
-      </span>
+  <span class="cloud-dot"></span> Cloud: đang kết nối…
+</span>
       <button class="icon-btn" id="btnToggleTheme" title="Dark / Light">🌙</button>
       <button class="btn ghost small" id="toggleHistoryBtn">Lịch sử</button>
     </div>
@@ -1057,15 +1052,19 @@
       <div class="card-body">
         <div class="field">
           <div class="label"><span>Tài khoản *</span></div>
-          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản...">
+          <input type="text" id="acc_account" placeholder="Nhập tên tài khoản..." />
         </div>
+
         <div class="field">
           <div class="label"><span>Số ngày còn *</span></div>
-          <input type="number" id="acc_days" placeholder="VD: 30">
+          <input type="number" id="acc_days" min="0" placeholder="VD: 30" />
         </div>
+
         <div class="field">
-          <div class="label"><span>Người dùng & thiết bị (tối đa 3)</span></div>
-          <div id="acc_usersContainer"></div>
+          <div class="label">
+            <span>Người dùng & thiết bị (tối đa 3)</span>
+          </div>
+          <div class="acc-users" id="acc_usersContainer"></div>
           <button class="btn ghost small" id="acc_addUserBtn" style="margin-top:6px;">+ Thêm người dùng</button>
         </div>
 
@@ -1090,54 +1089,28 @@
     <div class="card">
       <div class="card-head">
         <h3>Mail Cleaner</h3>
-        <span class="badge">Xử lý mail hàng loạt</span>
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label">
-            <span class="label-title">Nhập mail</span>
-            <label class="checkbox-inline">
-              <input id="cl_keepOrder" type="checkbox" />
-              <span>Giữ thứ tự</span>
-            </label>
-          </div>
-          <textarea id="cl_inputArea" class="mono" placeholder="Dán danh sách mail / combo vào đây..."></textarea>
-        </div>
-
-        <div class="field">
-          <div class="label"><span>Tuỳ chọn lọc</span></div>
-          <div class="pill-row pill-column">
-            <label class="pill-radio">
-              <input type="radio" name="cl_mode" value="emailOnly" checked />
-              <div class="pill-main">
-                <strong>Chỉ email</strong>
-                <span>Lấy phần trước dấu |</span>
-              </div>
-            </label>
-            <label class="pill-radio">
-              <input type="radio" name="cl_mode" value="emailPass" />
-              <div class="pill-main">
-                <strong>Email | Pass</strong>
-                <span>Giữ nguyên mail|pass, bỏ phần thừa</span>
-              </div>
-            </label>
+          <div class="row" style="justify-content:space-between;">
+            <span class="label-title">Input</span>
+            <div class="row" style="flex:0 0 auto;">
+              <label class="btn ghost small" for="cl_fileInput">Chọn file .txt</label>
+              <button class="btn ghost small" id="cl_resetBtn">Reset</button>
+              <input id="cl_fileInput" type="file" accept=".txt,text/plain" hidden />
+            </div>
           </div>
         </div>
 
         <div class="field">
-          <div class="label"><span>Bỏ trùng & xử lý ký tự</span></div>
-          <div class="pill-row pill-column">
+          <textarea id="cl_inputArea" class="mono" placeholder="Dán danh sách mail ở đây..."></textarea>
+        </div>
+
+        <div class="field">
+          <div class="row">
             <label class="checkbox-inline">
-              <input id="cl_removeDuplicates" type="checkbox" checked />
-              <span>Bỏ email trùng</span>
-            </label>
-            <label class="checkbox-inline">
-              <input id="cl_trimSpaces" type="checkbox" checked />
-              <span>Xoá khoảng trắng thừa</span>
-            </label>
-            <label class="checkbox-inline">
-              <input id="cl_removeEmpty" type="checkbox" checked />
-              <span>Xoá dòng rỗng</span>
+              <input id="cl_dedupe" type="checkbox" checked />
+              <span>Xoá trùng</span>
             </label>
             <label class="checkbox-inline">
               <input id="cl_treatEscapedNewlines" type="checkbox" />
@@ -1160,16 +1133,13 @@
               <input type="radio" name="cl_outMode" value="emailPass" />
               <div class="pill-main">
                 <strong>Email | Pass</strong>
-                <span class="mono" style="font-size:10px;">mail@example.com|pass</span>
+                <span class="mono" style="font-size:10px;">mail@example.com|mật_khẩu</span>
               </div>
             </label>
           </div>
         </div>
 
-        <div class="row">
-          <button class="btn small" id="cl_btnProcess">Process</button>
-          <button class="btn ghost small" id="cl_btnClear">Xoá input</button>
-        </div>
+        <button class="btn full" id="cl_processBtn">Process</button>
       </div>
     </div>
 
@@ -1178,19 +1148,18 @@
         <div class="result-head-main">
           <div class="result-head-main-left">
             <h3>Kết quả</h3>
-            <span class="badge" id="cl_statLines">0 dòng</span>
-            <span class="badge" id="cl_statValid">0 hợp lệ</span>
+            <span class="badge" id="cl_statBadge">0 dòng → 0 out</span>
           </div>
         </div>
         <div class="result-head-actions">
-          <button class="btn ghost small" id="cl_btnSelectAll">Chọn tất cả</button>
-          <button class="btn ghost small" id="cl_btnCopy">Copy</button>
-          <button class="btn ghost small" id="cl_btnDownload">Tải .txt</button>
-          <button class="btn ghost small" id="cl_btnSaveHistory">Lưu lịch sử</button>
+          <button class="btn ghost small" id="cl_selectBtn">all</button>
+          <button class="btn ghost small" id="cl_copyBtn">Copy</button>
+          <button class="btn ghost small" id="cl_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="cl_downloadBtn">Tải .txt</button>
         </div>
       </div>
       <div class="card-body">
-        <textarea id="cl_outputArea" class="mono" readonly placeholder="Kết quả sẽ hiển thị tại đây..."></textarea>
+        <textarea id="cl_resultTA" class="mono" placeholder="Kết quả sẽ hiển thị ở đây..." readonly></textarea>
       </div>
     </div>
   </section>
@@ -1198,39 +1167,45 @@
   <section class="panel" id="panelScan" hidden>
     <div class="card">
       <div class="card-head">
-        <h3>Scan mail</h3>
-        <span class="badge">Định dạng mail|xincamon</span>
+        <h3>Scan / Format</h3>
       </div>
       <div class="card-body">
         <div class="field">
-          <div class="label"><span>Nhập mail</span></div>
-          <textarea id="sc_inputArea" class="mono" placeholder="Dán danh sách mail..."></textarea>
+          <div class="row" style="justify-content:space-between;">
+            <span class="label-title">Input</span>
+            <div class="row" style="flex:0 0 auto;">
+              <label class="btn ghost small" for="sc_fileInput">Chọn file .txt</label>
+              <button class="btn ghost small" id="sc_resetBtn">Reset</button>
+              <input id="sc_fileInput" type="file" accept=".txt,text/plain" hidden />
+            </div>
+          </div>
         </div>
 
         <div class="field">
-          <div class="label"><span>Kiểu xuất</span></div>
-          <div class="pill-row pill-column">
+          <textarea id="sc_inputArea" class="mono" placeholder="Mỗi dòng 1 mail..."></textarea>
+        </div>
+
+        <div class="field">
+          <div class="label"><span>Kiểu format</span></div>
+          <div class="pill-row">
             <label class="pill-radio">
-              <input type="radio" name="scMode" value="mail_scan" checked>
+              <input type="radio" name="sc_fmt" value="1" checked />
               <div class="pill-main">
                 <strong>mail|xincamon</strong>
-                <span>Định dạng: mail|xincamon</span>
+                <span class="mono" style="font-size:10px;">mail@example.com|xincamon</span>
               </div>
             </label>
             <label class="pill-radio">
-              <input type="radio" name="scMode" value="scan_mail">
+              <input type="radio" name="sc_fmt" value="2" />
               <div class="pill-main">
-                <strong>xincamon|mail</strong>
-                <span>Định dạng: xincamon|mail</span>
+                <strong>Tài khoản | Mật khẩu</strong>
+                <span class="mono" style="font-size:10px;">Tài khoản:mail|Mật khẩu:xincamon</span>
               </div>
             </label>
           </div>
         </div>
 
-        <div class="row">
-          <button class="btn small" id="sc_btnProcess">Process</button>
-          <button class="btn ghost small" id="sc_btnClear">Xoá input</button>
-        </div>
+        <button class="btn full" id="sc_processBtn">Process</button>
       </div>
     </div>
 
@@ -1239,18 +1214,18 @@
         <div class="result-head-main">
           <div class="result-head-main-left">
             <h3>Kết quả</h3>
-            <span class="badge" id="sc_resultStats">0 dòng → 0 out</span>
+            <span class="badge" id="sc_stat">0 dòng</span>
           </div>
         </div>
         <div class="result-head-actions">
-          <button class="btn ghost small" id="sc_btnSelectAll">Chọn tất cả</button>
-          <button class="btn ghost small" id="sc_btnCopy">Copy</button>
-          <button class="btn ghost small" id="sc_btnDownload">Tải .txt</button>
-          <button class="btn ghost small" id="sc_btnSaveHistory">Lưu lịch sử</button>
+          <button class="btn ghost small" id="sc_selectAllOut">all</button>
+          <button class="btn ghost small" id="sc_copyAllOut">Copy</button>
+          <button class="btn ghost small" id="sc_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="sc_downloadBtn">Tải .txt</button>
         </div>
       </div>
       <div class="card-body">
-        <textarea id="sc_outputArea" class="mono" readonly placeholder="Kết quả sẽ hiển thị tại đây..."></textarea>
+        <textarea id="sc_resultTA" class="mono" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
       </div>
     </div>
   </section>
@@ -1258,26 +1233,69 @@
   <section class="panel" id="panelKey" hidden>
     <div class="card">
       <div class="card-head">
-        <h3>Thêm link nhập key</h3>
-        <span class="badge">Key → Link nhập key</span>
+        <div class="row" style="justify-content:flex-start;gap:6px;">
+          <button class="btn ghost small" id="lk_linkToggleBtn">Link nhập key</button>
+          <h3>Add Link Nhập Key</h3>
+        </div>
       </div>
       <div class="card-body">
+        <div class="field" id="lk_linkPanel" style="display:none;">
+          <div class="label">
+            <span>Link nhập key</span>
+          </div>
+          <div class="row" style="width:100%;gap:6px;">
+            <input id="lk_linkInput" type="text" placeholder="https://nhapkey.click hoặc nhapkey.click" />
+            <button class="btn ghost small" id="lk_saveLinkBtn">Lưu</button>
+          </div>
+        </div>
+
         <div class="field">
           <div class="label">
-            <span class="label-title">Link nhập key</span>
-            <span style="font-size:11px;color:var(--muted);">Được lưu local, tự nhớ lại</span>
+            <span>Nạp file key (.txt)</span>
           </div>
-          <input type="text" id="lk_linkTemplate" placeholder="VD: https://nhapkey.click">
+          <div class="row">
+            <label class="btn ghost small" for="lk_fileInput">Chọn file .txt</label>
+            <input id="lk_fileInput" type="file" accept=".txt,text/plain" hidden />
+            <button class="btn ghost small" id="lk_resetBtn">Reset</button>
+          </div>
         </div>
 
         <div class="field">
-          <div class="label"><span>Danh sách key</span></div>
-          <textarea id="lk_rawInput" class="mono" placeholder="Mỗi dòng 1 key..."></textarea>
+          <textarea id="lk_rawInput" class="mono" placeholder="Danh sách key..."></textarea>
         </div>
 
-        <div class="row">
-          <button class="btn small" id="lk_btnProcess">Process</button>
-          <button class="btn ghost small" id="lk_btnClear">Xoá input</button>
+        <div class="field">
+          <div class="label"><span>Tùy chọn format</span></div>
+          <div class="pill-row pill-column">
+            <label class="pill-radio" data-option="opt1">
+              <input type="radio" name="lk_format" value="opt1" checked />
+              <div class="pill-main">
+                <strong>Tùy chọn 1</strong>
+                <span class="mono" style="font-size:10px;">KEY:mãkey|link nhập key:link</span>
+              </div>
+            </label>
+            <label class="pill-radio" data-option="opt2">
+              <input type="radio" name="lk_format" value="opt2" />
+              <div class="pill-main">
+                <strong>Tùy chọn 2</strong>
+                <span class="mono" style="font-size:10px;">mãkey|link nhập key:link</span>
+              </div>
+            </label>
+            <label class="pill-radio" data-option="opt3">
+              <input type="radio" name="lk_format" value="opt3" />
+              <div class="pill-main">
+                <strong>Tùy chọn 3</strong>
+                <span class="mono" style="font-size:10px;">mãkey</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn full" id="lk_processBtn">Process</button>
+
+        <div class="row" style="margin-top:6px;">
+          <span class="badge" id="lk_statLines">0 dòng</span>
+          <span class="badge" id="lk_statValid">0 key hợp lệ</span>
         </div>
       </div>
     </div>
@@ -1287,38 +1305,37 @@
         <div class="result-head-main">
           <div class="result-head-main-left">
             <h3>Kết quả</h3>
-            <span class="badge" id="lk_resultStats">0 dòng → 0 out</span>
           </div>
         </div>
         <div class="result-head-actions">
-          <button class="btn ghost small" id="lk_btnSelectAll">Chọn tất cả</button>
-          <button class="btn ghost small" id="lk_btnCopy">Copy</button>
-          <button class="btn ghost small" id="lk_btnDownload">Tải .txt</button>
-          <button class="btn ghost small" id="lk_btnSaveHistory">Lưu lịch sử</button>
+          <button class="btn ghost small" id="lk_selectAllBtn">all</button>
+          <button class="btn ghost small" id="lk_copyBtn">Copy</button>
+          <button class="btn ghost small" id="lk_saveHistoryBtn">Lưu</button>
+          <button class="btn ghost small" id="lk_downloadBtn">Tải .txt</button>
         </div>
       </div>
       <div class="card-body">
-        <textarea id="lk_outputArea" class="mono" readonly placeholder="Kết quả sẽ hiển thị tại đây..."></textarea>
+        <textarea id="lk_output" class="mono" readonly placeholder="Kết quả sẽ xuất hiện tại đây..."></textarea>
       </div>
     </div>
   </section>
 </div>
 
-<div class="history-overlay" id="historyPanel">
+<div class="history-overlay" id="historyPanel" aria-hidden="true">
   <div class="history-backdrop" id="panelBackdrop"></div>
   <div class="history-sheet">
     <div class="history-header">
       <div>
         <div class="history-header-title">Lịch sử</div>
-        <div class="history-header-sub">Lịch sử xử lý theo từng tab</div>
+        <div class="history-header-sub">Theo từng tab: Cleaner, Scan, Add Link</div>
       </div>
-      <button class="icon-btn" id="closePanelBtn">✖</button>
+      <button class="btn ghost small" id="closePanelBtn">Đóng</button>
     </div>
     <div class="history-actions">
       <div class="history-actions-right">
         <button class="btn ghost small" id="btnPullCloud">Tải từ cloud</button>
         <button class="btn ghost small" id="btnPushCloud">Đồng bộ lên cloud</button>
-        <button class="btn danger small" id="clearHistoryBtn">Xoá toàn bộ lịch sử</button>
+        <button class="btn danger small" id="clearHistoryBtn">Xoá lịch sử tab hiện tại</button>
       </div>
     </div>
     <div class="history-list" id="historyList"></div>
@@ -1328,117 +1345,129 @@
 <div id="toast"></div>
 
 <script>
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
 
+  /* TOAST */
+  const toastEl = $('#toast');
+  let toastTimeout = null;
   function showToast(msg){
-    const t = $('#toast');
-    if(!t) return;
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'), 2000);
+    if(!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if(toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(()=>{
+      toastEl.classList.remove('show');
+    }, 1800);
+  }
+
+  /* ⭐️ FIX 2: HÀM COPY "MẠNH NHẤT" (dùng execCommand)
+    Hàm này sẽ hoạt động 100% ngay cả khi chạy file từ content:// (không an toàn)
+  */
+  function robustCopy(textareaElement) {
+    const val = textareaElement.value || '';
+    if (!val) {
+      showToast('Không có dữ liệu để copy');
+      return;
+    }
+    
+    const isReadonly = textareaElement.readOnly;
+    if (isReadonly) {
+      textareaElement.readOnly = false;
+    }
+
+    textareaElement.select();
+    textareaElement.setSelectionRange(0, 999999); // Dành cho di động
+
+    try {
+      document.execCommand('copy');
+      showToast('Đã copy kết quả');
+    } catch (e) {
+      showToast('Không copy được, hãy Ctrl+A rồi Ctrl+C');
+    }
+    
+    if (isReadonly) {
+      textareaElement.readOnly = true;
+    }
+    
+    // Bỏ chọn (deselect)
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+      document.selection.empty();
+    }
   }
 
   /* THEME */
-  const LS_THEME = 'multiToolTheme_v1';
+  const themeBtn = $('#btnToggleTheme');
   function applyTheme(theme){
     document.body.setAttribute('data-theme', theme);
-    localStorage.setItem(LS_THEME, theme);
-    const btn = $('#btnToggleTheme');
-    if(btn) btn.textContent = theme === 'light' ? '☀️' : '🌙';
+    localStorage.setItem('tk_theme', theme);
+    if(themeBtn){
+      themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    }
   }
   (function initTheme(){
-    const saved = localStorage.getItem(LS_THEME) || 'dark';
+    const saved = localStorage.getItem('tk_theme') || 'dark';
     applyTheme(saved);
   })();
-
-  const btnToggleTheme = $('#btnToggleTheme');
-  if(btnToggleTheme){
-    btnToggleTheme.addEventListener('click', ()=>{
+  if(themeBtn){
+    themeBtn.addEventListener('click', ()=>{
       const cur = document.body.getAttribute('data-theme') || 'dark';
       applyTheme(cur === 'dark' ? 'light' : 'dark');
     });
   }
 
-  /* TABS */
-  const elsTabs = {
-    tabCleaner: $('#tabCleaner'),
-    tabScan: $('#tabScan'),
-    tabKey: $('#tabKey'),
-    tabAccounts: $('#tabAccounts'),
-    panelCleaner: $('#panelCleaner'),
-    panelScan: $('#panelScan'),
-    panelKey: $('#panelKey'),
-    panelAccounts: $('#panelAccounts')
+  /* TABS – nhớ default là accounts */
+  const tabs = {
+    accounts: {btn: $('#tabAccounts'), panel: $('#panelAccounts')},
+    cleaner: {btn: $('#tabCleaner'), panel: $('#panelCleaner')},
+    scan: {btn: $('#tabScan'), panel: $('#panelScan')},
+    key: {btn: $('#tabKey'), panel: $('#panelKey')}
   };
+  let currentTab = localStorage.getItem('tk_currentTab') || 'accounts';
 
-  let currentTab = 'accounts';
+  function setTab(name){
+    currentTab = name;
+    localStorage.setItem('tk_currentTab', name);
+    Object.entries(tabs).forEach(([key, val])=>{
+      if(!val.btn || !val.panel) return;
+      const active = key === name;
+      val.btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      val.panel.hidden = !active;
+    });
+    if(name === 'accounts'){
+      renderAccountList();
+    }
+  }
 
-  function setActiveTab(tab){
-  currentTab = tab;
-  // ⭐ Lưu lại tab hiện tại vào localStorage
-  try {
-    localStorage.setItem(LS_TAB, tab);
-  } catch (e) {}
-
-  const map = {
-    accounts:{tab:elsTabs.tabAccounts,panel:elsTabs.panelAccounts},
-    cleaner:{tab:elsTabs.tabCleaner,panel:elsTabs.panelCleaner},
-    scan:{tab:elsTabs.tabScan,panel:elsTabs.panelScan},
-    key:{tab:elsTabs.tabKey,panel:elsTabs.panelKey}
-  };
-  Object.keys(map).forEach(k=>{
-    const {tab:t,panel:p} = map[k];
-    if(!t || !p) return;
-    if(k===tab){
-      t.setAttribute('aria-selected','true');
-      p.hidden = false;
-    }else{
-      t.setAttribute('aria-selected','false');
-      p.hidden = true;
+  Object.entries(tabs).forEach(([key, val])=>{
+    if(val.btn){
+      val.btn.addEventListener('click', ()=>setTab(key));
     }
   });
-}
+  setTab(currentTab);
 
-  if(elsTabs.tabAccounts){
-    elsTabs.tabAccounts.addEventListener('click', ()=>setActiveTab('accounts'));
-  }
-  if(elsTabs.tabCleaner){
-    elsTabs.tabCleaner.addEventListener('click', ()=>setActiveTab('cleaner'));
-  }
-  if(elsTabs.tabScan){
-    elsTabs.tabScan.addEventListener('click', ()=>setActiveTab('scan'));
-  }
-  if(elsTabs.tabKey){
-    elsTabs.tabKey.addEventListener('click', ()=>setActiveTab('key'));
-  }
-
-  /* LOCAL STORAGE KEYS */
-  const LS_HISTORY = 'multiToolHistory_v3';
-const LS_LINK = 'nk_link_v2';
-const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
-
+  /* HISTORY local */
+  const HISTORY_KEY = 'tk_history_v1';
   function loadHistoryMap(){
     try{
-      const raw = localStorage.getItem(LS_HISTORY);
-      if(!raw) return {cleaner:[],scan:[],key:[],accounts:[]};
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return {cleaner:[], scan:[], key:[]};
       const obj = JSON.parse(raw);
       return {
-        cleaner: Array.isArray(obj.cleaner)?obj.cleaner:[],
-        scan: Array.isArray(obj.scan)?obj.scan:[],
-        key: Array.isArray(obj.key)?obj.key:[],
-        accounts: Array.isArray(obj.accounts)?obj.accounts:[]
+        cleaner: obj.cleaner || [],
+        scan: obj.scan || [],
+        key: obj.key || []
       };
     }catch(e){
-      return {cleaner:[],scan:[],key:[],accounts:[]};
+      return {cleaner:[], scan:[], key:[]};
     }
   }
   function saveHistoryMap(map){
-    try{
-      localStorage.setItem(LS_HISTORY, JSON.stringify(map));
-    }catch(e){}
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(map));
   }
-
   function addHistory(type, payload){
     const map = loadHistoryMap();
     const list = map[type] || [];
@@ -1453,30 +1482,72 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
     showToast('Đã lưu vào lịch sử');
   }
 
-  /* ===== FIREBASE (HISTORY + ACCOUNTS) ===== */
-  let db = null;
-  let firebaseReady = false;
-  const cloudStatusEl = document.getElementById('cloudStatus');
+  /* FIREBASE / CLOUD */
+/* FIREBASE / CLOUD */
+let db = null;
+let firebaseReady = false;
 
-  async function initFirebase(){
-    try{
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: đang kết nối…';
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      await firebase.auth().signInAnonymously();
-      firebaseReady = true;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
-    }catch(e){
-      console.warn('Firebase init failed', e);
-      firebaseReady = false;
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi init';
-    }
+
+function setCloudStatus(text) {
+  // Lấy element MỖI KHI HÀM ĐƯỢC GỌI
+  const cloudStatusEl = $('#cloudStatus'); 
+  
+  if (!cloudStatusEl) {
+    // Nếu vẫn không tìm thấy, báo lỗi để bạn biết
+    console.warn('LỖI: Không tìm thấy phần tử #cloudStatus');
+    return;
   }
+  
+  cloudStatusEl.innerHTML = `<span class="cloud-dot"></span> ${text}`;
+}
+
+
+async function initFirebase() {
+  try {
+    // 1) Vừa vào là báo đang khởi tạo luôn (cho cảm giác nhanh)
+    setCloudStatus('Cloud: OK (đang khởi tạo…)');
+
+    // 2) Khởi tạo Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // 3) Khởi tạo Firestore càng sớm càng tốt
+    db = firebase.firestore();
+    db.settings({
+      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+      experimentalForceLongPolling: true // ép long-polling cho tab ẩn danh / mobile
+    });
+
+    // ✅ Đánh dấu đã sẵn sàng NGAY SAU KHI CÓ FIRESTORE
+    firebaseReady = true;
+    setCloudStatus('Cloud: OK');
+
+    // 4) Đăng nhập ẩn danh chạy nền, không chặn firebaseReady
+    firebase.auth().signInAnonymously().catch(e => {
+      console.warn('Firebase auth failed', e);
+      // Không tắt firebaseReady để vẫn thử sync được
+      if (e.code === 'auth/unauthorized-domain') {
+        showToast('LỖI: Domain chưa được ủy quyền. Hãy thêm domain này vào Firebase Authentication.');
+        setCloudStatus('Cloud: lỗi auth (domain)');
+      } else {
+        showToast('Lỗi đăng nhập Firebase');
+        setCloudStatus('Cloud: lỗi auth');
+      }
+    });
+
+  } catch (e) {
+    console.warn('Firebase init failed', e);
+    firebaseReady = false;
+    setCloudStatus('Cloud: lỗi init');
+    showToast('Lỗi khởi tạo Firebase');
+  }
+}
+
   const getHistoryDocRef = () => db.collection('lockey_suite').doc('history');
 
   async function syncHistoryFromCloud(){
     if(!firebaseReady || !db){
       if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
     try{
@@ -1486,16 +1557,19 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
         const map = {
           cleaner: data.cleaner || [],
           scan: data.scan || [],
-          key: data.key || [],
-          accounts: data.accounts || []
+          key: data.key || []
         };
         saveHistoryMap(map);
+        showToast('Đã tải lịch sử từ cloud');
         if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
+        renderHistoryFor(currentTab);
       }else{
-        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (chưa có lịch sử)';
+        showToast('Cloud chưa có dữ liệu lịch sử');
+        if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK (trống)';
       }
     }catch(e){
       console.warn('syncHistoryFromCloud error', e);
+      showToast('Lỗi đọc lịch sử từ cloud');
       if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc lịch sử';
     }
   }
@@ -1503,36 +1577,31 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
   async function syncHistoryToCloud(){
     if(!firebaseReady || !db){
       if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: chưa sẵn sàng';
+      showToast('Firebase chưa sẵn sàng. Đảm bảo domain đã được ủy quyền.');
       return;
     }
     try{
       const map = loadHistoryMap();
       await getHistoryDocRef().set(map);
+      showToast('Đã đồng bộ lịch sử lên cloud');
       if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: OK';
     }catch(e){
       console.warn('syncHistoryToCloud error', e);
+      showToast('Lỗi ghi lịch sử lên cloud');
       if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi lịch sử';
     }
   }
 
-  
-
   initFirebase();
 
-/* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
+  /* ⭐️ MỚI: Cần tham chiếu đến các input này cho nút "Nạp vào tab" */
   const cl_inputArea = $('#cl_inputArea');
   const sc_inputArea = $('#sc_inputArea');
   const lk_rawInput = $('#lk_rawInput');
   
   /* HISTORY UI */
   const historyPanel = $('#historyPanel');
-  const historyBackdrop = $('#panelBackdrop');
   const historyListEl = $('#historyList');
-  const btnToggleHistory = $('#toggleHistoryBtn');
-  const btnClosePanel = $('#closePanelBtn');
-  const btnClearHistory = $('#clearHistoryBtn');
-  const btnPullCloud = $('#btnPullCloud');
-  const btnPushCloud = $('#btnPushCloud');
 
   function formatTs(ts){
     try{
@@ -1549,42 +1618,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
     }
   }
 
-  function openHistoryPanel(){
-    if(!historyPanel) return;
-    historyPanel.classList.add('open');
-    renderHistoryFor(currentTab);
-  }
-  function closeHistoryPanel(){
-    if(!historyPanel) return;
-    historyPanel.classList.remove('open');
-  }
-
-  if(btnToggleHistory){
-    btnToggleHistory.addEventListener('click', openHistoryPanel);
-  }
-  if(btnClosePanel){
-    btnClosePanel.addEventListener('click', closeHistoryPanel);
-  }
-  if(historyBackdrop){
-    historyBackdrop.addEventListener('click', closeHistoryPanel);
-  }
-
-  if(btnClearHistory){
-    btnClearHistory.addEventListener('click', ()=>{
-      const map = {cleaner:[],scan:[],key:[],accounts:[]};
-      saveHistoryMap(map);
-      renderHistoryFor(currentTab);
-      showToast('Đã xoá toàn bộ lịch sử');
-    });
-  }
-
-  if(btnPullCloud){
-    btnPullCloud.addEventListener('click', syncHistoryFromCloud);
-  }
-  if(btnPushCloud){
-    btnPushCloud.addEventListener('click', syncHistoryToCloud);
-  }
-
   function renderHistoryFor(tab){
     if(!historyListEl) return;
     const map = loadHistoryMap();
@@ -1597,22 +1630,23 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
     list.forEach(item=>{
       const div = document.createElement('div');
       div.className = 'h-item';
-      div.dataset.id = item.id;
+      
+      /* ⭐️ MỚI: Thêm 4 nút và class cho textarea */
       div.innerHTML = `
-        <button class="h-btn">
+        <button class="h-btn" type="button">
           <div class="h-main">
-            <div class="h-line1">${item.title || 'Lần xử lý'}</div>
-            <div class="h-line2">${formatTs(item.ts)}</div>
+            <div class="h-line1">${item.title || item.label || 'Lịch sử'}</div>
+            <div class="h-line2">${formatTs(item.ts)} • ${item.meta || ''}</div>
           </div>
-          <span class="h-tag">${tab.toUpperCase()}</span>
+          <span class="h-tag">${tab}</span>
         </button>
         <div class="h-body">
           <div class="h-cols">
-            <div class="field">
+            <div>
               <div class="label"><span>Input</span></div>
               <textarea class="history-ta mono history-ta-input" readonly>${item.input || ''}</textarea>
             </div>
-            <div class="field">
+            <div>
               <div class="label"><span>Kết quả</span></div>
               <textarea class="history-ta mono history-ta-output" readonly>${item.output || ''}</textarea>
             </div>
@@ -1631,333 +1665,449 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
       btn.addEventListener('click', ()=>{
         body.style.display = body.style.display === 'block' ? 'none' : 'block';
       });
+      
+      /* ⭐️ MỚI: Thêm event listener cho 4 nút */
+      const taInput = div.querySelector('.history-ta-input');
+      const taOutput = div.querySelector('.history-ta-output');
+      const btnCopyIn = div.querySelector('[data-act="copy-input"]');
+      const btnCopyOut = div.querySelector('[data-act="copy-output"]');
+      const btnLoad = div.querySelector('[data-act="load-tab"]');
+      const btnDelete = div.querySelector('[data-act="delete-item"]');
 
-      const actions = div.querySelectorAll('.h-body-actions button');
-      actions.forEach(b=>{
-        b.addEventListener('click', (ev)=>{
-          ev.stopPropagation();
-          const act = b.dataset.act;
-          const id = div.dataset.id;
-          handleHistoryAction(tab, id, act, div);
+      if (btnCopyIn && taInput) {
+        btnCopyIn.addEventListener('click', () => robustCopy(taInput));
+      }
+      if (btnCopyOut && taOutput) {
+        btnCopyOut.addEventListener('click', () => robustCopy(taOutput));
+      }
+      if (btnLoad) {
+        btnLoad.addEventListener('click', () => {
+          const inputArea = (tab === 'cleaner') ? cl_inputArea : 
+                            (tab === 'scan') ? sc_inputArea : lk_rawInput;
+          if (inputArea) {
+            inputArea.value = item.input || '';
+            setTab(tab);
+            closeHistoryPanel();
+            showToast('Đã nạp dữ liệu vào tab');
+          }
         });
-      });
-
+      }
+      if (btnDelete) {
+        btnDelete.addEventListener('click', () => {
+          if (!confirm('Xoá mục lịch sử này?')) return;
+          const map = loadHistoryMap();
+          const list = map[tab] || [];
+          map[tab] = list.filter(i => i.id !== item.id);
+          saveHistoryMap(map);
+          renderHistoryFor(tab); // Tải lại danh sách
+          showToast('Đã xoá mục');
+        });
+      }
+      
       historyListEl.appendChild(div);
     });
   }
 
-  async function handleHistoryAction(tab, id, act, element){
-    const map = loadHistoryMap();
-    const list = map[tab] || [];
-    const idx = list.findIndex(x=>x.id===id);
-    if(idx === -1) return;
-    const item = list[idx];
+  const toggleHistoryBtn = $('#toggleHistoryBtn');
+  const closePanelBtn = $('#closePanelBtn');
+  const panelBackdrop = $('#panelBackdrop');
+  const btnPullCloud = $('#btnPullCloud');
+  const btnPushCloud = $('#btnPushCloud');
+  const clearHistoryBtn = $('#clearHistoryBtn');
 
-    if(act === 'copy-input'){
-      navigator.clipboard.writeText(item.input || '');
-      showToast('Đã copy input');
-    }else if(act === 'copy-output'){
-      navigator.clipboard.writeText(item.output || '');
-      showToast('Đã copy kết quả');
-    }else if(act === 'load-tab'){
-      if(tab === 'cleaner' && cl_inputArea){
-        cl_inputArea.value = item.input || '';
-      }else if(tab === 'scan' && sc_inputArea){
-        sc_inputArea.value = item.input || '';
-      }else if(tab === 'key' && lk_rawInput){
-        lk_rawInput.value = item.input || '';
-      }
-      showToast('Đã nạp vào tab');
-    }else if(act === 'delete-item'){
-      list.splice(idx,1);
-      map[tab] = list;
+  function openHistoryPanel(){
+    historyPanel.classList.add('open');
+    historyPanel.setAttribute('aria-hidden','false');
+    renderHistoryFor(currentTab);
+  }
+  function closeHistoryPanel(){
+    historyPanel.classList.remove('open');
+    historyPanel.setAttribute('aria-hidden','true');
+  }
+
+  if(toggleHistoryBtn) toggleHistoryBtn.addEventListener('click', openHistoryPanel);
+  if(closePanelBtn) closePanelBtn.addEventListener('click', closeHistoryPanel);
+  if(panelBackdrop) panelBackdrop.addEventListener('click', closeHistoryPanel);
+  if(btnPullCloud) btnPullCloud.addEventListener('click', syncHistoryFromCloud);
+  if(btnPushCloud) btnPushCloud.addEventListener('click', syncHistoryToCloud);
+  if(clearHistoryBtn){
+    clearHistoryBtn.addEventListener('click', ()=>{
+      if(!confirm('Xoá toàn bộ lịch sử của tab hiện tại?')) return;
+      const map = loadHistoryMap();
+      map[currentTab] = [];
       saveHistoryMap(map);
-      element.remove();
-      showToast('Đã xoá lô khỏi lịch sử');
-      if(!list.length){
-        renderHistoryFor(tab);
-      }
-    }
+      renderHistoryFor(currentTab);
+      showToast('Đã xoá lịch sử tab hiện tại');
+    });
   }
 
-  /* ===== CLEANER LOGIC ===== */
-  function normalizeNewlines(text){
-    if($('#cl_treatEscapedNewlines')?.checked){
-      return text.replace(/\\n/g, '\n');
+  /* CLEANER */
+  const cl_resultTA = $('#cl_resultTA');
+  const cl_dedupe = $('#cl_dedupe');
+  const cl_treatEsc = $('#cl_treatEscapedNewlines');
+  const cl_processBtn = $('#cl_processBtn');
+  const cl_resetBtn = $('#cl_resetBtn');
+  const cl_fileInput = $('#cl_fileInput');
+  const cl_selectBtn = $('#cl_selectBtn');
+  const cl_copyBtn = $('#cl_copyBtn');
+  const cl_downloadBtn = $('#cl_downloadBtn');
+  const cl_saveHistoryBtn = $('#cl_saveHistoryBtn');
+  const cl_statBadge = $('#cl_statBadge');
+
+  function parseEmailLine(line){
+    const parts = line.split(/[|;, \t]+/).filter(Boolean);
+    if(!parts.length) return {email:'', pass:''};
+    let email = parts.find(p=>p.includes('@')) || parts[0];
+    let pass = '';
+    const idx = parts.indexOf(email);
+    if(idx >= 0 && idx < parts.length-1){
+      pass = parts[idx+1];
     }
-    return text;
+    return {email:email.trim(), pass:pass.trim()};
   }
 
-  function processCleaner(){
-    let input = $('#cl_inputArea').value || '';
-    input = normalizeNewlines(input).trim();
-    if(!input){
-      showToast('Chưa có dữ liệu');
-      return;
+  function runCleaner(){
+    if(!cl_inputArea || !cl_resultTA) return;
+    let text = cl_inputArea.value || '';
+    if(cl_treatEsc && cl_treatEsc.checked){
+      text = text.replace(/\\n/g, '\n');
     }
-    const keepOrder = $('#cl_keepOrder')?.checked;
-    const removeDup = $('#cl_removeDuplicates')?.checked;
-    const trimSpaces = $('#cl_trimSpaces')?.checked;
-    const removeEmpty = $('#cl_removeEmpty')?.checked;
-    const outMode = (document.querySelector('input[name="cl_outMode"]:checked')||{}).value || 'email';
+    const lines = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const inputCount = lines.length;
 
-    const rawLines = input.split(/\r?\n/);
-    let pairs = rawLines
-      .map(l=>l.trim())
-      .filter(l=>l)
-      .map(l=>{
-        const parts = l.split('|');
-        return {email: parts[0] || '', pass: parts[1] || ''};
-      })
-      .filter(x=>x.email);
-
-    const total = pairs.length;
-
-    if(trimSpaces){
-      pairs = pairs.map(p=>({
-        email: p.email.trim(),
-        pass: p.pass.trim()
-      }));
-    }
-
-    let validMap = new Map();
-    let orderedList = [];
-    pairs.forEach(p=>{
-      const key = p.email.toLowerCase();
-      if(!removeDup){
-        orderedList.push(p);
+    const mode = (document.querySelector('input[name="cl_outMode"]:checked') || {}).value || 'email';
+    const outSet = new Set();
+    for(const line of lines){
+      const {email, pass} = parseEmailLine(line);
+      if(!email || !email.includes('@')) continue;
+      let outLine = '';
+      if(mode === 'email'){
+        outLine = email;
       }else{
-        if(!validMap.has(key)){
-          validMap.set(key,p);
-          orderedList.push(p);
-        }
+        outLine = `${email}${pass ? '|' + pass : ''}`;
       }
-    });
-
-    if(removeEmpty){
-      orderedList = orderedList.filter(p=>p.email);
-    }
-
-    if(!keepOrder && removeDup){
-      orderedList = Array.from(validMap.values());
-    }
-
-    const validCount = orderedList.length;
-    let output = orderedList.map(p=>{
-      if(outMode === 'emailPass'){
-        return `${p.email}|${p.pass}`;
+      if(!outLine) continue;
+      if(cl_dedupe && cl_dedupe.checked){
+        outSet.add(outLine);
+      }else{
+        outSet.add(outLine + '¦' + Math.random());
       }
-      return p.email;
-    }).join('\n');
-
-    $('#cl_outputArea').value = output;
-    $('#cl_statLines').textContent = `${total} dòng`;
-    $('#cl_statValid').textContent = `${validCount} hợp lệ`;
-
-    addHistory('cleaner',{
-      title:'Mail Cleaner',
-      input,
-      output,
-      meta:`${total} dòng • ${validCount} hợp lệ`
-    });
+    }
+    let outLines = Array.from(outSet);
+    if(cl_dedupe && cl_dedupe.checked){
+      // giữ
+    }else{
+      outLines = outLines.map(s => s.split('¦')[0]);
+    }
+    const outputCount = outLines.length;
+    cl_resultTA.value = outLines.join('\n');
+    if(cl_statBadge){
+      cl_statBadge.textContent = `${inputCount} dòng → ${outputCount} out`;
+    }
   }
 
-  if($('#cl_btnProcess')){
-    $('#cl_btnProcess').addEventListener('click', processCleaner);
-  }
-  if($('#cl_btnClear')){
-    $('#cl_btnClear').addEventListener('click', ()=>{
-      $('#cl_inputArea').value='';
-      $('#cl_outputArea').value='';
-      $('#cl_statLines').textContent='0 dòng';
-      $('#cl_statValid').textContent='0 hợp lệ';
+  if(cl_processBtn) cl_processBtn.addEventListener('click', runCleaner);
+
+  if(cl_resetBtn){
+    cl_resetBtn.addEventListener('click', ()=>{
+      cl_inputArea.value = '';
+      cl_resultTA.value = '';
+      if(cl_statBadge) cl_statBadge.textContent = '0 dòng → 0 out';
     });
   }
-  if($('#cl_btnSelectAll')){
-    $('#cl_btnSelectAll').addEventListener('click', ()=>{
-      const ta = $('#cl_outputArea');
-      ta.focus();
-      ta.select();
+
+  if(cl_fileInput){
+    cl_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        cl_inputArea.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
     });
   }
-  if($('#cl_btnCopy')){
-    $('#cl_btnCopy').addEventListener('click', ()=>{
-      navigator.clipboard.writeText($('#cl_outputArea').value||'');
-      showToast('Đã copy');
+
+  if(cl_selectBtn){
+    cl_selectBtn.addEventListener('click', ()=>{
+      cl_resultTA.focus();
+      cl_resultTA.select();
+      showToast('Đã chọn toàn bộ kết quả');
     });
   }
-  if($('#cl_btnDownload')){
-    $('#cl_btnDownload').addEventListener('click', ()=>{
-      const blob = new Blob([$('#cl_outputArea').value||''],{type:'text/plain;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'cleaner_result.txt';
-      a.click();
-    });
+
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(cl_copyBtn){
+    cl_copyBtn.addEventListener('click', () => robustCopy(cl_resultTA));
   }
-  if($('#cl_btnSaveHistory')){
-    $('#cl_btnSaveHistory').addEventListener('click', ()=>{
-      const out = $('#cl_outputArea').value.trim();
-      if(!out){
-        showToast('Chưa có kết quả để lưu');
+
+  function downloadTextFile(filename, content){
+    const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  if(cl_downloadBtn){
+    cl_downloadBtn.addEventListener('click', ()=>{
+      const val = cl_resultTA.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
         return;
       }
-      const input = $('#cl_inputArea').value;
-      const meta = `${$('#cl_statLines').textContent} • ${$('#cl_statValid').textContent}`;
+      downloadTextFile('cleaner_output.txt', val);
+    });
+  }
+
+  if(cl_saveHistoryBtn){
+    cl_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = cl_inputArea.value || '';
+      const output = cl_resultTA.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
+        return;
+      }
+      const meta = cl_statBadge ? cl_statBadge.textContent : '';
       addHistory('cleaner',{
-        title:'Mail Cleaner (nhấn lưu)',
+        title:'Mail Cleaner',
         input,
-        output:out,
+        output,
         meta
       });
     });
   }
 
-  /* ===== SCAN LOGIC ===== */
-  function processScan(){
-    const input = $('#sc_inputArea').value.trim();
-    if(!input){
-      showToast('Chưa có dữ liệu');
-      return;
+  /* SCAN */
+  const sc_resultTA = $('#sc_resultTA');
+  const sc_fileInput = $('#sc_fileInput');
+  const sc_resetBtn = $('#sc_resetBtn');
+  const sc_processBtn = $('#sc_processBtn');
+  const sc_stat = $('#sc_stat');
+  const sc_selectAllOut = $('#sc_selectAllOut');
+  const sc_copyAllOut = $('#sc_copyAllOut');
+  const sc_saveHistoryBtn = $('#sc_saveHistoryBtn');
+  const sc_downloadBtn = $('#sc_downloadBtn');
+
+  function runScan(){
+    const raw = (sc_inputArea.value || '').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const mode = (document.querySelector('input[name="sc_fmt"]:checked') || {}).value || '1';
+    const out = [];
+    for(const mail of raw){
+      if(!mail.includes('@')) continue;
+      if(mode === '1'){
+        out.push(`${mail}|xincamon`);
+      }else{
+        out.push(`Tài khoản:${mail}|Mật khẩu:xincamon`);
+      }
     }
-    const mode = (document.querySelector('input[name="scMode"]:checked')||{}).value || 'mail_scan';
-    const lines = input.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-    const out = lines.map(l=>{
-      const mail = l.split('|')[0] || l;
-      if(mode === 'mail_scan') return `${mail}|xincamon`;
-      return `xincamon|${mail}`;
-    });
-    $('#sc_outputArea').value = out.join('\n');
-    $('#sc_resultStats').textContent = `${lines.length} dòng → ${out.length} out`;
-    addHistory('scan',{
-      title:'Scan mail',
-      input,
-      output: out.join('\n')
+    sc_resultTA.value = out.join('\n');
+    if(sc_stat){
+      sc_stat.textContent = `${out.length} dòng`;
+    }
+  }
+
+  if(sc_processBtn) sc_processBtn.addEventListener('click', runScan);
+
+  if(sc_resetBtn){
+    sc_resetBtn.addEventListener('click', ()=>{
+      sc_inputArea.value = '';
+      sc_resultTA.value = '';
+      if(sc_stat) sc_stat.textContent = '0 dòng';
     });
   }
 
-  if($('#sc_btnProcess')){
-    $('#sc_btnProcess').addEventListener('click', processScan);
-  }
-  if($('#sc_btnClear')){
-    $('#sc_btnClear').addEventListener('click', ()=>{
-      $('#sc_inputArea').value='';
-      $('#sc_outputArea').value='';
-      $('#sc_resultStats').textContent='0 dòng → 0 out';
+  if(sc_fileInput){
+    sc_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        sc_inputArea.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
     });
   }
-  if($('#sc_btnSelectAll')){
-    $('#sc_btnSelectAll').addEventListener('click', ()=>{
-      $('#sc_outputArea').focus();
-      $('#sc_outputArea').select();
+
+  if(sc_selectAllOut){
+    sc_selectAllOut.addEventListener('click', ()=>{
+      sc_resultTA.focus();
+      sc_resultTA.select();
+      showToast('Đã chọn toàn bộ kết quả');
     });
   }
-  if($('#sc_btnCopy')){
-    $('#sc_btnCopy').addEventListener('click', ()=>{
-      navigator.clipboard.writeText($('#sc_outputArea').value||'');
-      showToast('Đã copy');
-    });
+
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(sc_copyAllOut){
+    sc_copyAllOut.addEventListener('click', () => robustCopy(sc_resultTA));
   }
-  if($('#sc_btnDownload')){
-    $('#sc_btnDownload').addEventListener('click', ()=>{
-      const blob = new Blob([$('#sc_outputArea').value||''],{type:'text/plain;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'scan_result.txt';
-      a.click();
-    });
-  }
-  if($('#sc_btnSaveHistory')){
-    $('#sc_btnSaveHistory').addEventListener('click', ()=>{
-      if(!$('#sc_outputArea').value.trim()){
-        showToast('Chưa có kết quả để lưu');
+
+  if(sc_saveHistoryBtn){
+    sc_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = sc_inputArea.value || '';
+      const output = sc_resultTA.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
         return;
       }
+      const meta = sc_stat ? sc_stat.textContent : '';
       addHistory('scan',{
-        title:'Scan mail (nhấn lưu)',
-        input:$('#sc_inputArea').value,
-        output:$('#sc_outputArea').value
+        title:'Scan / Format',
+        input,
+        output,
+        meta
       });
     });
   }
 
-  /* ===== LINK / KEY LOGIC ===== */
-  (function initLink(){
-    const saved = localStorage.getItem(LS_LINK);
-    if(saved){
-      $('#lk_linkTemplate').value = saved;
-    }
-  })();
-
-  if($('#lk_linkTemplate')){
-    $('#lk_linkTemplate').addEventListener('input', ()=>{
-      localStorage.setItem(LS_LINK, $('#lk_linkTemplate').value.trim());
-    });
-  }
-
-  function processLink(){
-    const tpl = $('#lk_linkTemplate').value.trim();
-    if(!tpl){
-      showToast('Chưa nhập link nhập key');
-      return;
-    }
-    const input = $('#lk_rawInput').value.trim();
-    if(!input){
-      showToast('Chưa có dữ liệu');
-      return;
-    }
-    const lines = input.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-    const out = lines.map(k=>`Key:${k}|link nhập key:${tpl}`);
-    $('#lk_outputArea').value = out.join('\n');
-    $('#lk_resultStats').textContent = `${lines.length} dòng → ${out.length} out`;
-    addHistory('key',{
-      title:'Add Link',
-      input,
-      output: out.join('\n')
-    });
-  }
-
-  if($('#lk_btnProcess')){
-    $('#lk_btnProcess').addEventListener('click', processLink);
-  }
-  if($('#lk_btnClear')){
-    $('#lk_btnClear').addEventListener('click', ()=>{
-      $('#lk_rawInput').value='';
-      $('#lk_outputArea').value='';
-      $('#lk_resultStats').textContent='0 dòng → 0 out';
-    });
-  }
-  if($('#lk_btnSelectAll')){
-    $('#lk_btnSelectAll').addEventListener('click', ()=>{
-      $('#lk_outputArea').focus();
-      $('#lk_outputArea').select();
-    });
-  }
-  if($('#lk_btnCopy')){
-    $('#lk_btnCopy').addEventListener('click', ()=>{
-      navigator.clipboard.writeText($('#lk_outputArea').value||'');
-      showToast('Đã copy');
-    });
-  }
-  if($('#lk_btnDownload')){
-    $('#lk_btnDownload').addEventListener('click', ()=>{
-      const blob = new Blob([$('#lk_outputArea').value||''],{type:'text/plain;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'link_result.txt';
-      a.click();
-    });
-  }
-  if($('#lk_btnSaveHistory')){
-    $('#lk_btnSaveHistory').addEventListener('click', ()=>{
-      if(!$('#lk_outputArea').value.trim()){
-        showToast('Chưa có kết quả để lưu');
+  if(sc_downloadBtn){
+    sc_downloadBtn.addEventListener('click', ()=>{
+      const val = sc_resultTA.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
         return;
       }
-      const input = $('#lk_rawInput').value;
-      const output = $('#lk_outputArea').value;
-      const lk_statLines = $('#lk_resultStats');
-      const lk_statValid = null;
+      downloadTextFile('scan_output.txt', val);
+    });
+  }
+
+  /* ADD LINK KEY */
+  const lk_linkToggleBtn = $('#lk_linkToggleBtn');
+  const lk_linkPanel = $('#lk_linkPanel');
+  const lk_linkInput = $('#lk_linkInput');
+  const lk_saveLinkBtn = $('#lk_saveLinkBtn');
+  const lk_fileInput = $('#lk_fileInput');
+  const lk_resetBtn = $('#lk_resetBtn');
+  const lk_processBtn = $('#lk_processBtn');
+  const lk_statLines = $('#lk_statLines');
+  const lk_statValid = $('#lk_statValid');
+  const lk_output = $('#lk_output');
+  const lk_selectAllBtn = $('#lk_selectAllBtn');
+  const lk_copyBtn = $('#lk_copyBtn');
+  const lk_downloadBtn = $('#lk_downloadBtn');
+  const lk_saveHistoryBtn = $('#lk_saveHistoryBtn');
+
+  const LINK_KEY = 'tk_link_input';
+
+  function initSavedLink(){
+    const saved = localStorage.getItem(LINK_KEY) || '';
+    if(lk_linkInput) lk_linkInput.value = saved;
+  }
+  initSavedLink();
+
+  if(lk_linkToggleBtn && lk_linkPanel){
+    lk_linkToggleBtn.addEventListener('click', ()=>{
+      const show = lk_linkPanel.style.display !== 'block';
+      lk_linkPanel.style.display = show ? 'block' : 'none';
+    });
+  }
+
+  if(lk_saveLinkBtn){
+    lk_saveLinkBtn.addEventListener('click', ()=>{
+      const link = (lk_linkInput.value || '').trim();
+      if(!link){
+        showToast('Vui lòng nhập link');
+        return;
+      }
+      localStorage.setItem(LINK_KEY, link);
+      showToast('Đã lưu link nhập key');
+    });
+  }
+
+  if(lk_fileInput){
+    lk_fileInput.addEventListener('change', function(){
+      const file = this.files && this.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        lk_rawInput.value = ev.target.result || '';
+      };
+      reader.onerror = function(){
+        showToast('Không đọc được file .txt');
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  if(lk_resetBtn){
+    lk_resetBtn.addEventListener('click', ()=>{
+      lk_rawInput.value = '';
+      lk_output.value = '';
+      if(lk_statLines) lk_statLines.textContent = '0 dòng';
+      if(lk_statValid) lk_statValid.textContent = '0 key hợp lệ';
+    });
+  }
+
+  function runAddLink(){
+    const lines = (lk_rawInput.value || '').split(/\r?\n/).map(s=>s.trim());
+    const total = lines.length;
+    const linkRaw = (lk_linkInput.value || '').trim();
+    const link = linkRaw || 'https://nhapkey.click';
+    const fmt = (document.querySelector('input[name="lk_format"]:checked') || {}).value || 'opt1';
+    const out = [];
+    let valid = 0;
+    for(const key of lines){
+      if(!key) continue;
+      valid++;
+      let line = '';
+      if(fmt === 'opt1'){
+        line = `KEY:${key}|link nhập key:${link}`;
+      }else if(fmt === 'opt2'){
+        line = `${key}|link nhập key:${link}`;
+      }else{
+        line = key;
+      }
+      out.push(line);
+    }
+    lk_output.value = out.join('\n');
+    if(lk_statLines) lk_statLines.textContent = `${total} dòng`;
+    if(lk_statValid) lk_statValid.textContent = `${valid} key hợp lệ`;
+  }
+
+  if(lk_processBtn) lk_processBtn.addEventListener('click', runAddLink);
+
+  if(lk_selectAllBtn){
+    lk_selectAllBtn.addEventListener('click', ()=>{
+      lk_output.focus();
+      lk_output.select();
+      showToast('Đã chọn toàn bộ kết quả');
+    });
+  }
+
+  // ⭐️ FIX 2: SỬ DỤNG HÀM COPY MỚI
+  if(lk_copyBtn){
+    lk_copyBtn.addEventListener('click', () => robustCopy(lk_output));
+  }
+
+  if(lk_downloadBtn){
+    lk_downloadBtn.addEventListener('click', ()=>{
+      const val = lk_output.value || '';
+      if(!val){
+        showToast('Không có dữ liệu để tải');
+        return;
+      }
+      downloadTextFile('key_link_output.txt', val);
+    });
+  }
+
+  if(lk_saveHistoryBtn){
+    lk_saveHistoryBtn.addEventListener('click', ()=>{
+      const input = lk_rawInput.value || '';
+      const output = lk_output.value || '';
+      if(!output){
+        showToast('Chưa có kết quả để lưu lịch sử');
+        return;
+      }
       const meta = `${lk_statLines ? lk_statLines.textContent : ''} • ${lk_statValid ? lk_statValid.textContent : ''}`;
       addHistory('key',{
         title:'Add Link Nhập Key',
@@ -1971,56 +2121,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
   /* ACCOUNT MANAGER */
   const ACC_KEY = 'tk_accounts_v1';
   let accData = [];
-
-  const ACC_COLLECTION = 'tk_manager';
-
-  async function fetchAccountsFromCloud(){
-    if(!firebaseReady || !db) return null;
-    try{
-      const snap = await db.collection(ACC_COLLECTION).get();
-      const arr = [];
-      snap.forEach(doc => arr.push(doc.data()));
-      return arr;
-    }catch(e){
-      console.warn('fetchAccountsFromCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi đọc tài khoản';
-      return null;
-    }
-  }
-
-  async function upsertAccountCloud(accObj){
-    if(!firebaseReady || !db || !accObj || !accObj.id) return;
-    try{
-      await db.collection(ACC_COLLECTION).doc(accObj.id).set(accObj);
-    }catch(e){
-      console.warn('upsertAccountCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi ghi tài khoản';
-    }
-  }
-
-  async function deleteAccountCloud(accId){
-    if(!firebaseReady || !db || !accId) return;
-    try{
-      await db.collection(ACC_COLLECTION).doc(accId).delete();
-    }catch(e){
-      console.warn('deleteAccountCloud error', e);
-      if(cloudStatusEl) cloudStatusEl.textContent = 'Cloud: lỗi xoá tài khoản';
-    }
-  }
-
-  async function initAccountsFromCloud(){
-    let cloudAcc = null;
-    if(firebaseReady && db){
-      cloudAcc = await fetchAccountsFromCloud();
-    }
-    if(cloudAcc && cloudAcc.length){
-      accData = cloudAcc;
-      saveAccounts();
-    }else{
-      accData = loadAccounts();
-    }
-    renderAccountList();
-  }
 
   const acc_account = $('#acc_account');
   const acc_days = $('#acc_days');
@@ -2050,45 +2150,30 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
     wrap.innerHTML = `
       <div class="acc-user-row-title">Người dùng</div>
       <div class="field" style="margin-bottom:4px;">
-        <div class="label"><span>Tên người dùng</span></div>
-        <input type="text" class="acc-user-name" placeholder="VD: User 1" value="${user.name || ''}" />
+        <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${user.name || ''}">
       </div>
       <div class="field" style="margin-bottom:4px;">
-        <div class="label"><span>Thiết bị / mô tả</span></div>
-        <input type="text" class="acc-user-device" placeholder="VD: iPhone 11 / PC" value="${user.device || ''}" />
+        <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${user.link || ''}">
       </div>
-      <div class="field">
-        <div class="label"><span>Link người dùng</span></div>
-        <input type="text" class="acc-user-link" placeholder="VD: https://..." value="${user.link || ''}" />
+      <div class="field" style="margin-bottom:0;">
+        <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${user.device || ''}">
       </div>
     `;
     return wrap;
   }
 
-  function addUserRowToForm(user = {}){
-    if(!acc_usersContainer) return;
-    acc_usersContainer.appendChild(newUserRow(user));
-  }
-
   function collectFormUsers(container){
-    const root = container || acc_usersContainer;
-    if(!root) return [];
-    const rows = Array.from(root.querySelectorAll('.acc-user-row'));
-    const users = rows.map(row=>{
-      const name = (row.querySelector('.acc-user-name')?.value || '').trim();
-      const device = (row.querySelector('.acc-user-device')?.value || '').trim();
-      const link = (row.querySelector('.acc-user-link')?.value || '').trim();
-      if(!name && !device && !link) return null;
-      return {name, device, link};
-    }).filter(Boolean);
-    return users.slice(0,3);
-  }
-
-  function clearAccForm(){
-    if(acc_account) acc_account.value = '';
-    if(acc_days) acc_days.value = '';
-    if(acc_usersContainer) acc_usersContainer.innerHTML = '';
-    addUserRowToForm({});
+    const rows = container.querySelectorAll('.acc-user-row');
+    const arr = [];
+    rows.forEach(row=>{
+      const name = row.querySelector('.acc_user_name')?.value.trim() || '';
+      const link = row.querySelector('.acc_user_link')?.value.trim() || '';
+      const device = row.querySelector('.acc_user_device')?.value.trim() || '';
+      if(name || link || device){
+        arr.push({name, link, device});
+      }
+    });
+    return arr.slice(0,3);
   }
 
   function calcDaysLeft(acc){
@@ -2113,6 +2198,8 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
       if(status !== 'error'){
         if(daysLeft <= 0) status = 'expired';
         else if(daysLeft <= 2) status = 'warning';
+        else status = 'active';
+        item.status = status;
       }
 
       const wrap = document.createElement('div');
@@ -2158,30 +2245,25 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
 
       const daysForInput = Math.max(calcDaysLeft(item), 0);
 
-      const usersHTML = (item.users || []).map(u=>{
-        return `
-          <div class="acc-user-row">
-            <div class="acc-user-row-title">Người dùng</div>
-            <div class="field" style="margin-bottom:4px;">
-              <div class="label"><span>Tên người dùng</span></div>
-              <input type="text" class="acc-user-name" placeholder="VD: User 1" value="${u.name || ''}" />
-            </div>
-            <div class="field" style="margin-bottom:4px;">
-              <div class="label"><span>Thiết bị / mô tả</span></div>
-              <input type="text" class="acc-user-device" placeholder="VD: iPhone 11 / PC" value="${u.device || ''}" />
-            </div>
-            <div class="field">
-              <div class="label"><span>Link người dùng</span></div>
-              <input type="text" class="acc-user-link" placeholder="VD: https://..." value="${u.link || ''}" />
-            </div>
+      const usersHTML = (item.users || []).map((u,idx)=>`
+        <div class="acc-user-row">
+          <div class="acc-user-row-title">Người dùng ${idx+1}</div>
+          <div class="field" style="margin-bottom:4px;">
+            <input type="text" class="acc_user_name" placeholder="Tên người dùng" value="${u.name || ''}">
           </div>
-        `;
-      }).join('');
+          <div class="field" style="margin-bottom:4px;">
+            <input type="text" class="acc_user_link" placeholder="Link người dùng (tuỳ chọn)" value="${u.link || ''}">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" class="acc_user_device" placeholder="Thiết bị (tuỳ chọn)" value="${u.device || ''}">
+          </div>
+        </div>
+      `).join('');
 
       body.innerHTML = `
         <div class="acc-body-grid">
           <div class="field">
-            <div class="label"><span>Tên tài khoản</span></div>
+            <div class="label"><span>Tài khoản</span></div>
             <input type="text" class="acc_edit_account" value="${item.account || ''}" />
           </div>
           <div class="field">
@@ -2251,7 +2333,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
             status:(accData[idx].status === 'error' ? 'error' : 'active')
           };
           saveAccounts();
-          upsertAccountCloud(accData[idx]);
           showToast('Đã lưu tài khoản');
           renderAccountList();
         }
@@ -2259,7 +2340,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
         if(act === 'error'){
           accData[idx].status = 'error';
           saveAccounts();
-          upsertAccountCloud(accData[idx]);
           showToast('Đã đánh dấu lỗi');
           renderAccountList();
         }
@@ -2268,7 +2348,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
           if(!confirm('Xoá tài khoản này?')) return;
           accData.splice(idx,1);
           saveAccounts();
-          deleteAccountCloud(accId);
           showToast('Đã xoá tài khoản');
           renderAccountList();
         }
@@ -2280,7 +2359,11 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
             showToast('Chưa có link người dùng để mở');
             return;
           }
-          window.open(u.link, '_blank');
+          let url = u.link.trim();
+          if(!/^https?:\/\//i.test(url)){
+            url = 'https://' + url;
+          }
+          window.open(url, '_blank');
         }
       });
 
@@ -2288,6 +2371,16 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
       wrap.appendChild(body);
       acc_list.appendChild(wrap);
     });
+  }
+
+  function addUserRowToForm(user){
+    acc_usersContainer.appendChild(newUserRow(user));
+  }
+
+  function clearAccForm(){
+    acc_account.value = '';
+    acc_days.value = '';
+    acc_usersContainer.innerHTML = '';
   }
 
   if(acc_addUserBtn){
@@ -2325,7 +2418,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
       accData = loadAccounts();
       accData.push(obj);
       saveAccounts();
-      upsertAccountCloud(obj);
       showToast('Đã lưu tài khoản');
       clearAccForm();
       renderAccountList();
@@ -2334,7 +2426,6 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
 
   accData = loadAccounts();
   renderAccountList();
-  initAccountsFromCloud();
 
   // COUNTDOWN
   setInterval(()=>{
@@ -2346,7 +2437,7 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
       if(!cdSpan || !expTs || isNaN(expTs)) return;
       let diff = expTs - now;
       if(diff <= 0){
-        cdSpan.textContent = '(đã hết hạn)';
+        cdSpan.textContent = '(0 ngày 0 giờ 0 phút 0 giây)';
         return;
       }
       let sec = Math.floor(diff/1000);
@@ -2357,19 +2448,7 @@ const LS_TAB = 'multiToolActiveTab_v1'; // ⭐ LƯU TAB ĐANG DÙNG
     });
   }, 1000);
 
- (function init(){
-    // ⭐ Lấy tab đã lưu, nếu chưa có thì mặc định là 'accounts'
-    let savedTab = 'accounts';
-    try {
-      const t = localStorage.getItem(LS_TAB);
-      if (t === 'accounts' || t === 'cleaner' || t === 'scan' || t === 'key') {
-        savedTab = t;
-      }
-    } catch (e) {}
-
-    setActiveTab(savedTab);
-    clearAccForm();
-  })();
+})();
 </script>
 </body>
 </html>
